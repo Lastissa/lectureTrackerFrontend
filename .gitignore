@@ -1,0 +1,32 @@
+# --- DATA OPTIMIZATION: DO NOT TRACK GENERATED FILES ---
+# This folder is huge and created every time i build/run
+build/
+
+# Dart/Flutter tool generated files (re-generated on 'pub get')
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# --- PLATFORM SPECIFIC (RE-GENERATED) ---
+# Android: Local machine paths and build artifacts
+**/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+**/android/**/generated/
+**/android/local.properties
+
+.gradle/
+
+# iOS: CocoaPods and build artifacts
+**/ios/Pods/
+**/ios/.generated/
+**/ios/DerivedData/
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# --- IDE & SYSTEM (CLEANUP) ---
+.idea/
+.vscode/
+*.iml
+*.iws
+.DS_Store
