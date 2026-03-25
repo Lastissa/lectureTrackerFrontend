@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
@@ -49,51 +50,48 @@ final lightMode = StateProvider<bool>((ref) {
 
 //Dark Mode
 
-// final userLectureInfo = StateProvider<List<Map<String, dynamic>>>((ref) {
-//   return [
-//     {
-//       'title': 'COS 102',
-//       'start_time': '9:00 AM',
-//       'end_time': '11:00 AM',
-//       'color': Colors.teal,
-//     },
-//     {
-//       'title': 'STA 112',
-//       'start_time': '11:30 AM',
-//       'end_time': '01:00 AM',
-//       'color': Colors.indigo,
-//     },
-//     {
-//       'title': 'PHY 102',
-//       'start_time': '2:00 AM',
-//       'end_time': '3:00 PM',
-//       'color': Colors.deepOrange,
-//     },
-//   ];
-// });
-
 //this is just a decoy, the real user data will be updated to the database
 List userCourseInfo = [
+  // {
+  //   'title': 'COS 102',
+  //   'start_time': '9:00 AM',
+  //   'end_time': '11:00 AM',
+  //   'color': Colors.teal,
+  // },
+  // {
+  //   'title': 'STA 112',
+  //   'start_time': '11:30 AM',
+  //   'end_time': '01:00 AM',
+  //   'color': Colors.indigo,
+  // },
+  // {
+  //   'title': 'PHY 102',
+  //   'start_time': '2:00 AM',
+  //   'end_time': '3:00 PM',
+  //   'color': Colors.deepOrange,
+  // },
   {
-    'title': 'COS 102',
-    'start_time': '9:00 AM',
-    'end_time': '11:00 AM',
-    'color': Colors.teal,
-  },
-  {
-    'title': 'STA 112',
-    'start_time': '11:30 AM',
-    'end_time': '01:00 AM',
-    'color': Colors.indigo,
-  },
-  {
-    'title': 'PHY 102',
-    'start_time': '2:00 AM',
-    'end_time': '3:00 PM',
+    'title': 'SAMPLE',
+    'start_time': 'start',
+    'end_time': 'end',
     'color': Colors.deepOrange,
   },
 ];
-
+//The carrier of all the cards before the final push to the database ; did this incase the user close app while still regsitering
+final lecturesCard = StateProvider<List<Map>>((ref) {
+  return [];
+});
+//The updator of the carrier cards
+final updateLectureCard = StateProvider.family((Ref ref, Map mapToAdd) {
+  List<Map> formerList = ref.read(lecturesCard);
+  //{'title': '', 'start_time': 'x:xx PM', 'end_time': 'x:xx PM', 'dayOfTheWeek' : 'xxxxxxxx'}
+  formerList.add(mapToAdd);
+  ref.read(lecturesCard.notifier).state = formerList;
+});
+// final deleteLectureCard = StateProvider((ref) {
+//    List<Map> formerList = ref.read(lecturesCard);
+//    formerList = formerList.
+// });//delete the last entry in the provider
 final currentCourseCode = StateProvider((ref) {
   return 'NULL';
 });

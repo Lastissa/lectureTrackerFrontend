@@ -1,3 +1,4 @@
+import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -29,11 +30,11 @@ class _SignupState extends ConsumerState<Signup> {
 
   int firstHour = 0;
   int firstMinute = 0;
-  List firstMeridien = ['AM', 'PM'];
+  String firstMeridien = ''; //For knowing wether it is am or pm
   int firstIndex = 0; // for switching the am and pm
   int secondHour = 0;
   int secondMinute = 0;
-  List secondMeridien = ['AM', 'PM'];
+  String secondMeridien = ''; //For knowing wether it is am or pm;
   int secondIndex = 0; // for switching am the and pm
   Color defaultColour = Colors.blueAccent;
 
@@ -190,7 +191,7 @@ class _SignupState extends ConsumerState<Signup> {
                           padding: EdgeInsets.symmetric(vertical: 10),
                           margin: EdgeInsets.symmetric(vertical: 10),
                           width: ref.watch(deviceSizeX) * 0.9.w,
-                          height: 200,
+                          height: 220,
                           decoration: BoxDecoration(
                             // color: Colors.black12,
                             borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -210,6 +211,113 @@ class _SignupState extends ConsumerState<Signup> {
                                   return null;
                                 },
                               ),
+                              Container(
+                                margin: EdgeInsets.only(top: 8),
+                                width: ref.watch(deviceSizeX) * 0.8.w,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: AnimatedCrossFade(
+                                    //this one is the defualt one that will show when user enters the signin page normally
+                                    firstChild: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: List.generate(7, (index) {
+                                        return Container(
+                                          margin: EdgeInsets.only(
+                                            right: 10,
+                                            top: 1,
+                                            bottom: 1,
+                                          ),
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              ref
+                                                      .read(
+                                                        _dayOfTheWeekChoosen
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  true;
+                                              //knowing the index first
+                                              String knownIndex = [
+                                                'M',
+                                                'Tu',
+                                                'W',
+                                                'Th',
+                                                'F',
+                                                'S',
+                                                'Su',
+                                              ][index];
+                                              ref
+                                                  .read(
+                                                    _dayOfTheWeekChoosenText
+                                                        .notifier,
+                                                  )
+                                                  .state = {
+                                                'M': 'Monday',
+                                                'Tu': 'Tuesday',
+                                                'W': 'Wesnesday',
+                                                'Th': 'Thursday',
+                                                'F': 'Friday',
+                                                'S': 'Saturday',
+                                                'Su': 'Sunday',
+                                              }[knownIndex]!;
+                                            },
+                                            child: Text(
+                                              [
+                                                'M',
+                                                'Tu',
+                                                'W',
+                                                'Th',
+                                                'F',
+                                                'S',
+                                                'Su',
+                                              ][index],
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                    secondChild: Row(
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                            right:
+                                                ref.watch(deviceSizeX) * 0.1.w,
+                                          ),
+                                          child: ElevatedButton(
+                                            onPressed: () {},
+                                            child: Text(
+                                              ref.watch(
+                                                _dayOfTheWeekChoosenText,
+                                              ),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            ref.invalidate(
+                                              _dayOfTheWeekChoosen,
+                                            );
+                                          },
+                                          child: Text(
+                                            'Rechoose',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    duration: Duration(milliseconds: 400),
+                                    sizeCurve: Curves.easeIn,
+                                    crossFadeState:
+                                        ref.watch(_dayOfTheWeekChoosen)
+                                        ? CrossFadeState.showSecond
+                                        : CrossFadeState.showFirst,
+                                  ),
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
                                 child: Row(
@@ -224,6 +332,7 @@ class _SignupState extends ConsumerState<Signup> {
                                             firstHour = 0;
                                           } else {
                                             firstHour = firstHour + 1;
+                                            secondHour = firstHour;
                                           }
                                         });
                                       },
@@ -243,6 +352,7 @@ class _SignupState extends ConsumerState<Signup> {
                                             firstMinute = 0;
                                           } else {
                                             firstMinute = firstMinute + 10;
+                                            secondMinute = firstMinute;
                                           }
                                         });
                                       },
@@ -257,6 +367,15 @@ class _SignupState extends ConsumerState<Signup> {
                                           } else {
                                             firstIndex = 0;
                                           }
+                                          firstMeridien = [
+                                            'AM',
+                                            'PM',
+                                          ][firstIndex];
+                                          secondMeridien = [
+                                            'AM',
+                                            'PM',
+                                          ][firstIndex];
+                                          secondIndex = firstIndex;
                                         });
                                       },
                                       text: ['AM', 'PM'][firstIndex],
@@ -306,6 +425,10 @@ class _SignupState extends ConsumerState<Signup> {
                                             secondIndex = 0;
                                           }
                                         });
+                                        secondMeridien = [
+                                          'AM',
+                                          'PM',
+                                        ][secondIndex];
                                       },
                                       text: ['AM', 'PM'][secondIndex],
                                     ),
@@ -316,7 +439,21 @@ class _SignupState extends ConsumerState<Signup> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      //wiping everything clean
+                                      ref.invalidate(_courseCreatedCount);
+                                      ref.invalidate(_dayOfTheWeekChoosen);
+                                      ref.invalidate(_dayOfTheWeekChoosenText);
+                                      _courseCodeController.text = '';
+                                      setState(() {
+                                        firstHour = 0;
+                                        firstMinute = 0;
+                                        firstIndex = 0;
+                                        secondHour = 0;
+                                        secondMinute = 0;
+                                        secondIndex = 0;
+                                      });
+                                    },
                                     child: CircleAvatar(
                                       backgroundColor: Colors.red,
                                       child: Icon(
@@ -327,24 +464,238 @@ class _SignupState extends ConsumerState<Signup> {
                                   ),
                                   Container(width: 10),
                                   InkWell(
-                                    onTap: () {},
+                                    onTap: ref.watch(_courseCreatedCount) == 0
+                                        ? null
+                                        : () {
+                                            //try to delete the last entry in the riverpod bfore the _coursecount reduce, if there is an index for it in the riverpod using the _courseCreatedCount
+                                            try {
+                                              ref
+                                                  .read(lecturesCard.notifier)
+                                                  .state = ref
+                                                  .read(lecturesCard)
+                                                  .sublist(
+                                                    0,
+                                                    ref.read(
+                                                      _courseCreatedCount,
+                                                    ),
+                                                  );
+                                            } catch (e) {
+                                              10; //do nothing
+                                            }
+
+                                            print(ref.read(lecturesCard));
+                                            // print(
+                                            //   ref.read(_courseCreatedCount),
+                                            // );
+                                            ref
+                                                    .read(
+                                                      _courseCreatedCount
+                                                          .notifier,
+                                                    )
+                                                    .state =
+                                                ref.read(_courseCreatedCount) -
+                                                1;
+
+                                            Map dataToReturnTo = ref.read(
+                                              lecturesCard,
+                                            )[ref.read(_courseCreatedCount)];
+
+                                            _courseCodeController.text =
+                                                dataToReturnTo['title'];
+                                            ref
+                                                    .read(
+                                                      _dayOfTheWeekChoosenText
+                                                          .notifier,
+                                                    )
+                                                    .state =
+                                                dataToReturnTo['dayOfTheWeek'];
+                                            ref
+                                                    .read(
+                                                      _dayOfTheWeekChoosen
+                                                          .notifier,
+                                                    )
+                                                    .state =
+                                                true;
+                                            //for the time period own
+                                            List _start_time =
+                                                dataToReturnTo['start_time']?.split(
+                                                  ':',
+                                                ); //split the start time into ['hour', 'minutes meridien']
+                                            List _end_time =
+                                                dataToReturnTo['end_time']?.split(
+                                                  ':',
+                                                ); //split the end time into ['hour', 'minutes meridien']
+                                            // ElegantNotification(
+                                            //   description: Text(
+                                            //     '${(_start_time[1]).substring(3, 5)}',
+                                            //   ),
+                                            // ).show(context);
+                                            setState(() {
+                                              firstHour = int.parse(
+                                                _start_time[0],
+                                              ); //splitting the list and passing the first item of the splited variable
+                                              firstMinute = int.parse(
+                                                (_start_time[1]).substring(
+                                                  0,
+                                                  2,
+                                                ),
+                                              ); //taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
+                                              firstIndex = ['AM', 'PM'].indexOf(
+                                                (_start_time[1])
+                                                    .substring(3, 5)
+                                                    .toString()
+                                                    .trim(),
+                                              );
+                                              //working on the time here and ctrl c and v for the second timing
+                                              secondHour = int.parse(
+                                                _end_time[0],
+                                              ); //splitting the list and passing the first item of the splited variable
+                                              secondMinute = int.parse(
+                                                (_end_time[1]).substring(0, 2),
+                                              ); //taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
+                                              secondIndex = ['AM', 'PM']
+                                                  .indexOf(
+                                                    (_end_time[1])
+                                                        .substring(3, 5)
+                                                        .toString()
+                                                        .trim(),
+                                                  );
+                                            });
+                                          },
                                     child: CircleAvatar(
-                                      backgroundColor: const Color.fromARGB(
-                                        195,
-                                        68,
-                                        137,
-                                        255,
-                                      ),
+                                      backgroundColor:
+                                          ref.watch(_courseCreatedCount) == 0
+                                          ? const Color.fromARGB(
+                                              151,
+                                              158,
+                                              158,
+                                              158,
+                                            )
+                                          : const Color.fromARGB(
+                                              195,
+                                              68,
+                                              137,
+                                              255,
+                                            ),
                                       child: Icon(
                                         Icons.arrow_left_sharp,
                                         color: Colors.white,
                                       ),
                                     ),
                                   ),
-                                  Container(width: 10),
 
+                                  Container(width: 10),
                                   InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      print('before updating...');
+                                      print(ref.read(lecturesCard));
+                                      //check if alll feild have been
+                                      _formKey.currentState?.validate();
+                                      if (_courseCodeController.text.isEmpty ||
+                                          !ref.read(_dayOfTheWeekChoosen)) {
+                                        ElegantNotification(
+                                          description: Text(
+                                            'Day of week cannot be empty',
+                                          ),
+                                        ).show(context);
+                                        return;
+                                      }
+                                      //before you add the data, check if data already exists, to know wether we should update or add new
+                                      if (ref.read(lecturesCard).length >
+                                          ref.read(
+                                            _courseCreatedCount,
+                                          ) //this to check wether the user already have a made data entry before , if so, the relation beween former and latter will not be the same and i can work with that to update istead of adding to the list
+                                          ) {
+                                        List<Map> dataToUpdate = ref.read(
+                                          lecturesCard,
+                                        );
+                                        var ope = dataToUpdate.removeAt(
+                                          ref.read(_courseCreatedCount),
+                                        ); //remove the former list so we can set the new updated one
+                                        // print(
+                                        //   'deleted : $ope  index ${ref.read(_courseCreatedCount)}',
+                                        // );
+                                        dataToUpdate.insert(
+                                          ref.read(_courseCreatedCount),
+                                          {
+                                            'title': _courseCodeController.text
+                                                .trim()
+                                                .toUpperCase(),
+                                            'start_time':
+                                                '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                            'end_time':
+                                                '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+                                            'dayOfTheWeek': ref.read(
+                                              _dayOfTheWeekChoosenText,
+                                            ),
+                                          },
+                                        );
+                                        ref.read(lecturesCard.notifier).state =
+                                            dataToUpdate; //update the data from the temp holder (dataToUpdate) to the riverpod
+                                        _courseCodeController.text = '';
+                                        ref.invalidate(_dayOfTheWeekChoosen);
+                                        ref.invalidate(
+                                          _dayOfTheWeekChoosenText,
+                                        );
+                                        setState(() {
+                                          firstHour = 0;
+                                          firstMinute = 0;
+                                          firstIndex = 0;
+                                          secondHour = 0;
+                                          secondIndex = 0;
+                                        });
+                                        //increment the _courseCreatedCount to male it even with the lenght of the riverpod
+                                        ref
+                                                .read(
+                                                  _courseCreatedCount.notifier,
+                                                )
+                                                .state =
+                                            ref.read(_courseCreatedCount) + 1;
+                                      } else {
+                                        //add the already data to the provider
+                                        ref.read(
+                                          updateLectureCard({
+                                            'title': _courseCodeController.text
+                                                .trim()
+                                                .toUpperCase(),
+                                            'start_time':
+                                                '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                            'end_time':
+                                                '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+
+                                            'dayOfTheWeek': ref.read(
+                                              _dayOfTheWeekChoosenText,
+                                            ),
+                                          }),
+                                        );
+                                        ref
+                                                .read(
+                                                  _courseCreatedCount.notifier,
+                                                )
+                                                .state =
+                                            ref.read(_courseCreatedCount) +
+                                            1; //increment the course count by one
+                                        //all feilds are filled, lecture card updated ,clear the feilds ready for another inputs
+                                        ref.invalidate(_dayOfTheWeekChoosen);
+                                        ref.invalidate(
+                                          _dayOfTheWeekChoosenText,
+                                        );
+                                        _courseCodeController.text = '';
+                                        setState(() {
+                                          firstHour = 0;
+                                          firstMinute = 0;
+                                          // firstIndex = 0;
+                                          secondHour = 0;
+                                          secondMinute = 0;
+                                          // secondIndex = 0;
+                                        });
+                                        ElegantNotification(
+                                          description: Text('added'),
+                                        ).show(context);
+                                      }
+                                      print('after updating...');
+                                      print(ref.read(lecturesCard));
+                                    },
                                     child: CircleAvatar(
                                       backgroundColor: const Color.fromARGB(
                                         195,
@@ -368,6 +719,12 @@ class _SignupState extends ConsumerState<Signup> {
                         // Main Action Button
                         ElevatedButton(
                           onPressed: () {
+                            var a = '2:00 PM';
+                            var result = a.split(':');
+                            int number = int.parse(result[0]);
+                            ElegantNotification(
+                              description: Text(number.toString()),
+                            ).show(context);
                             //this is for the validation
                             if (_formKey.currentState?.validate() ?? false) {
                               //This is for changing the animation cross fade stuff
@@ -375,6 +732,24 @@ class _SignupState extends ConsumerState<Signup> {
                                 //This is for the acual create account stuff
                                 if (_passwordConfirmController.text ==
                                     _passwordController.text) {
+                                  if (!ref.read(_dayOfTheWeekChoosen)) {
+                                    ElegantNotification(
+                                      description: Text(
+                                        'Day of the week is empty\nMonday choosen by default',
+                                      ),
+                                    ).show(context);
+                                    ref
+                                            .read(_dayOfTheWeekChoosen.notifier)
+                                            .state =
+                                        true;
+                                    ref
+                                            .read(
+                                              _dayOfTheWeekChoosenText.notifier,
+                                            )
+                                            .state =
+                                        'Monday';
+                                    return;
+                                  }
                                   notifier(
                                     context: context,
                                     message: "action soon; create account",
@@ -382,7 +757,7 @@ class _SignupState extends ConsumerState<Signup> {
                                   );
 
                                   //invalidate this soon as you are about to leave page
-                                  // ref.invalidate(_comfirmpasswordOpen);
+                                  // ref.invalidate(_comfirmpasswordOpen); and other riverpod at the bottom
                                 } else {
                                   ref
                                           .read(_comfirmpasswordOpen.notifier)
@@ -455,6 +830,9 @@ class _SignupState extends ConsumerState<Signup> {
                           onPressed: () {
                             router.go('/settings');
                             ref.invalidate(_comfirmpasswordOpen);
+                            ref.invalidate(_courseCreatedCount);
+                            ref.invalidate(_dayOfTheWeekChoosen);
+                            ref.invalidate(_dayOfTheWeekChoosenText);
                           },
 
                           child: Text(
@@ -479,6 +857,9 @@ class _SignupState extends ConsumerState<Signup> {
                       onTap: () {
                         router.go('/dashboard');
                         ref.invalidate(_comfirmpasswordOpen);
+                        ref.invalidate(_courseCreatedCount);
+                        ref.invalidate(_dayOfTheWeekChoosen);
+                        ref.invalidate(_dayOfTheWeekChoosenText);
                       },
                       child: Container(
                         margin: EdgeInsets.all(10),
@@ -587,10 +968,6 @@ class _SignupState extends ConsumerState<Signup> {
   }
 }
 
-final _comfirmpasswordOpen = StateProvider<bool>((ref) {
-  return false;
-});
-
 Widget _timeWidget({required Function ontap, required text}) {
   return InkWell(
     onTap: () => ontap(),
@@ -605,3 +982,18 @@ Widget _timeWidget({required Function ontap, required text}) {
     ),
   );
 }
+
+final _comfirmpasswordOpen = StateProvider<bool>((ref) {
+  return false;
+});
+
+final _dayOfTheWeekChoosen = StateProvider<bool>((ref) {
+  return false;
+});
+final _dayOfTheWeekChoosenText = StateProvider<String>((ref) {
+  return '';
+});
+
+final _courseCreatedCount = StateProvider<int>((ref) {
+  return 0;
+});

@@ -17,20 +17,12 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
   final listViewController = ScrollController();
   // Initial list of lectures
 
-  List<dynamic> upcomingLectures = userCourseInfo;
+  // List<dynamic> upcomingLectures = ref.read(lecturesCard);
   bool upcomingLectureIsActive = true;
   bool pastLectureIsActice = false;
 
   // Function to refresh the page
   void _updateLectureList() {
-    // setState(() {
-    //   upcomingLectures.add({
-    //     'title': 'NEW 101',
-    //     'start_time': '02:00 PM',
-    //     'end_time': '04:00 PM',
-    //     'color': Colors.blue,
-    //   });
-
     //For autoamatic scroll to the last part of the page on update.
     setState(() {
       notifier(
@@ -55,9 +47,19 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
     // });
   }
 
-  final duration = Duration(milliseconds: 0);
+  final duration = Duration(milliseconds: 100);
   @override
   Widget build(BuildContext context) {
+    List upcomingLectures = ref.watch(lecturesCard).isNotEmpty
+        ? ref.watch(lecturesCard)
+        : [
+            {
+              'title': 'SAMPLE',
+              'start_time': 'start',
+              'end_time': 'end',
+              'color': Colors.deepOrange,
+            },
+          ];
     return Scaffold(
       backgroundColor: ref.watch(lightMode) ? Colors.grey[100] : Colors.black87,
       appBar: AppBar(
@@ -495,23 +497,11 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
             ),
             AnimatedCrossFade(
               firstChild: SizedBox(),
-              secondChild:
-                  //  Positioned(
-                  // bottom: 10,
-                  // left: ref.watch(deviceSizeX) * 0.1.w,
-                  // right: ref.watch(deviceSizeX) * 0.1.w,
-                  // top: ref.watch(deviceSizeY) * 0.45.h,
-                  // child: Center(
-                  //   child: cardOverlay(courseName: ref.watch(currentCourseCode)),
-                  // ),
-                  // ),
-                  Builder(
-                    builder: (context) => Center(
-                      child: cardOverlay(
-                        courseName: ref.watch(currentCourseCode),
-                      ),
-                    ),
-                  ),
+              secondChild: Builder(
+                builder: (context) => Center(
+                  child: cardOverlay(courseName: ref.watch(currentCourseCode)),
+                ),
+              ),
 
               crossFadeState: ref.watch(LectureCardActive)
                   ? CrossFadeState.showSecond
