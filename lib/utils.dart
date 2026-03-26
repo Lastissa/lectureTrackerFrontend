@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:flutter_riverpod/misc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
@@ -20,7 +19,7 @@ GoRouter router = GoRouter(
     GoRoute(
       path: '/overlay',
       builder: (context, state) =>
-          cardOverlay(courseName: currentCourseCode.name),
+          Cardoverlay(courseName: currentCourseCode.name),
     ),
     GoRoute(path: '/signup', builder: (context, state) => Signup()),
   ],
@@ -39,8 +38,6 @@ final deviceSizeY = Provider<double>((ref) {
 final userName = StateProvider<String>((ref) {
   return "User";
 });
-
-List dayTracker = [];
 
 //user interface configuration
 //Light Mode
@@ -87,13 +84,6 @@ final updateLectureCard = StateProvider.family((Ref ref, Map mapToAdd) {
   //{'title': '', 'start_time': 'x:xx PM', 'end_time': 'x:xx PM', 'dayOfTheWeek' : 'xxxxxxxx'}
   formerList.add(mapToAdd);
   ref.read(lecturesCard.notifier).state = formerList;
-});
-// final deleteLectureCard = StateProvider((ref) {
-//    List<Map> formerList = ref.read(lecturesCard);
-//    formerList = formerList.
-// });//delete the last entry in the provider
-final currentCourseCode = StateProvider((ref) {
-  return 'NULL';
 });
 
 List pastLectureSQLDecoy = [
@@ -143,3 +133,17 @@ ScaffoldFeatureController? notifier({
   }
   return null;
 }
+
+//since the day of the week gotten from the lecturecard provider is in words e.g monday, tuesday etc but the weekday in datetime uses 1,2,etc, i need a list to do the conversion
+//any chnage made directly here require the whole app to be refreshed before it will show; still do not understand why cos na riverpod i dey use, it no suppose do like that but it is what it is
+final wordWeekdayToInt = StateProvider<List<String>>((ref) {
+  return [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+});

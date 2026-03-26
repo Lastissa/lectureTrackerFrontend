@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 
-class cardOverlay extends ConsumerStatefulWidget {
-  const cardOverlay({super.key, required this.courseName});
+class Cardoverlay extends ConsumerStatefulWidget {
+  const Cardoverlay({super.key, required this.courseName});
   final String? courseName;
 
   @override
-  ConsumerState<cardOverlay> createState() => _cardOverlayState();
+  ConsumerState<Cardoverlay> createState() => _cardOverlayState();
 }
 
-class _cardOverlayState extends ConsumerState<cardOverlay> {
+class _cardOverlayState extends ConsumerState<Cardoverlay> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -115,7 +115,7 @@ class _cardOverlayState extends ConsumerState<cardOverlay> {
                 ElevatedButton(
                   onPressed: () {
                     ref.invalidate(currentCourseCode);
-                    ref.invalidate(LectureCardActive);
+                    ref.invalidate(lectureCardActive);
                   },
                   style: ElevatedButton.styleFrom(
                     shadowColor: Colors.black,

@@ -30,11 +30,13 @@ class _SignupState extends ConsumerState<Signup> {
 
   int firstHour = 0;
   int firstMinute = 0;
-  String firstMeridien = ''; //For knowing wether it is am or pm
+  String firstMeridien =
+      'AM'; //For knowing wether it is am or pm, had to set a defualt value so if the user did not pick anything, there wont be error as the default value will just be used
   int firstIndex = 0; // for switching the am and pm
   int secondHour = 0;
   int secondMinute = 0;
-  String secondMeridien = ''; //For knowing wether it is am or pm;
+  String secondMeridien =
+      'AM'; //For knowing wether it is am or pm,, had to set a defualt value so if the user did not pick anything, there wont be error as the default value will just be used
   int secondIndex = 0; // for switching am the and pm
   Color defaultColour = Colors.blueAccent;
 
@@ -112,6 +114,21 @@ class _SignupState extends ConsumerState<Signup> {
                           ),
                           child: AnimatedCrossFade(
                             firstChild: _buildModernField(
+                              suffix: InkWell(
+                                onTap: () {
+                                  _passwordConfirmController.text = '';
+                                  ref
+                                          .read(_comfirmpasswordOpen.notifier)
+                                          .state =
+                                      true;
+                                },
+                                child: Icon(
+                                  Icons.chevron_right,
+                                  color: ref.watch(lightMode)
+                                      ? Colors.blueAccent
+                                      : Colors.teal,
+                                ),
+                              ),
                               isLight: isLight,
                               controller: _passwordController,
                               hint: "Password",
@@ -119,7 +136,15 @@ class _SignupState extends ConsumerState<Signup> {
                               isPassword: true,
 
                               validator: (value) {
-                                return null;
+                                if (_passwordController.text.trim().isEmpty) {
+                                  ElegantNotification(
+                                    background: Colors.red,
+                                    description: Text(
+                                      style: TextStyle(color: Colors.white),
+                                      'password cannot be null',
+                                    ),
+                                  ).show(context);
+                                }
                               },
                             ),
                             secondChild: _buildModernField(
@@ -127,11 +152,13 @@ class _SignupState extends ConsumerState<Signup> {
                               controller: _passwordConfirmController,
                               hint: "Confirm Password",
                               suffix: InkWell(
-                                onTap: () =>
-                                    ref.invalidate(_comfirmpasswordOpen),
+                                onTap: () {
+                                  ref.invalidate(_comfirmpasswordOpen);
+                                  _passwordConfirmController.text = '';
+                                },
                                 child: Icon(
                                   Icons.chevron_left,
-                                  color: ref.read(lightMode)
+                                  color: ref.watch(lightMode)
                                       ? Colors.blueAccent
                                       : Colors.teal,
                                 ),
@@ -229,6 +256,16 @@ class _SignupState extends ConsumerState<Signup> {
                                             bottom: 1,
                                           ),
                                           child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  ref.watch(lightMode)
+                                                  ? Colors.blue
+                                                  : Colors.greenAccent,
+                                              foregroundColor:
+                                                  ref.watch(lightMode)
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
                                             onPressed: () {
                                               ref
                                                       .read(
@@ -253,13 +290,27 @@ class _SignupState extends ConsumerState<Signup> {
                                                         .notifier,
                                                   )
                                                   .state = {
-                                                'M': 'Monday',
-                                                'Tu': 'Tuesday',
-                                                'W': 'Wesnesday',
-                                                'Th': 'Thursday',
-                                                'F': 'Friday',
-                                                'S': 'Saturday',
-                                                'Su': 'Sunday',
+                                                'M': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[0], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                'Tu': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[1], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                'W': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[2], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                'Th': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[3], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                'F': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[4], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                'S': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[5], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                'Su': ref.read(
+                                                  wordWeekdayToInt,
+                                                )[6], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
                                               }[knownIndex]!;
                                             },
                                             child: Text(
@@ -281,31 +332,50 @@ class _SignupState extends ConsumerState<Signup> {
                                       children: [
                                         Container(
                                           margin: EdgeInsets.only(
+                                            top: 2,
+                                            bottom: 2,
                                             right:
                                                 ref.watch(deviceSizeX) * 0.1.w,
                                           ),
                                           child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  ref.watch(lightMode)
+                                                  ? Colors.blue
+                                                  : Colors.greenAccent,
+                                              foregroundColor:
+                                                  ref.watch(lightMode)
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
                                             onPressed: () {},
                                             child: Text(
                                               ref.watch(
                                                 _dayOfTheWeekChoosenText,
                                               ),
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
                                             ),
                                           ),
                                         ),
                                         ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.red
+                                                : Colors.red,
+                                            foregroundColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
                                           onPressed: () {
                                             ref.invalidate(
                                               _dayOfTheWeekChoosen,
                                             );
+                                            ref.invalidate(
+                                              _dayOfTheWeekChoosenText,
+                                            );
                                           },
-                                          child: Text(
-                                            'Rechoose',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
+                                          child: Text('Rechoose'),
                                         ),
                                       ],
                                     ),
@@ -483,10 +553,6 @@ class _SignupState extends ConsumerState<Signup> {
                                               10; //do nothing
                                             }
 
-                                            print(ref.read(lecturesCard));
-                                            // print(
-                                            //   ref.read(_courseCreatedCount),
-                                            // );
                                             ref
                                                     .read(
                                                       _courseCreatedCount
@@ -539,13 +605,15 @@ class _SignupState extends ConsumerState<Signup> {
                                                   0,
                                                   2,
                                                 ),
-                                              ); //taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
+                                              );
+                                              // taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
                                               firstIndex = ['AM', 'PM'].indexOf(
                                                 (_start_time[1])
                                                     .substring(3, 5)
                                                     .toString()
                                                     .trim(),
                                               );
+
                                               //working on the time here and ctrl c and v for the second timing
                                               secondHour = int.parse(
                                                 _end_time[0],
@@ -587,8 +655,6 @@ class _SignupState extends ConsumerState<Signup> {
                                   Container(width: 10),
                                   InkWell(
                                     onTap: () {
-                                      print('before updating...');
-                                      print(ref.read(lecturesCard));
                                       //check if alll feild have been
                                       _formKey.currentState?.validate();
                                       if (_courseCodeController.text.isEmpty ||
@@ -609,12 +675,10 @@ class _SignupState extends ConsumerState<Signup> {
                                         List<Map> dataToUpdate = ref.read(
                                           lecturesCard,
                                         );
-                                        var ope = dataToUpdate.removeAt(
+                                        dataToUpdate.removeAt(
                                           ref.read(_courseCreatedCount),
                                         ); //remove the former list so we can set the new updated one
-                                        // print(
-                                        //   'deleted : $ope  index ${ref.read(_courseCreatedCount)}',
-                                        // );
+
                                         dataToUpdate.insert(
                                           ref.read(_courseCreatedCount),
                                           {
@@ -651,6 +715,9 @@ class _SignupState extends ConsumerState<Signup> {
                                                 )
                                                 .state =
                                             ref.read(_courseCreatedCount) + 1;
+                                        ElegantNotification(
+                                          description: Text('Updated'),
+                                        ).show(context);
                                       } else {
                                         //add the already data to the provider
                                         ref.read(
@@ -693,8 +760,6 @@ class _SignupState extends ConsumerState<Signup> {
                                           description: Text('added'),
                                         ).show(context);
                                       }
-                                      print('after updating...');
-                                      print(ref.read(lecturesCard));
                                     },
                                     child: CircleAvatar(
                                       backgroundColor: const Color.fromARGB(
@@ -718,56 +783,7 @@ class _SignupState extends ConsumerState<Signup> {
 
                         // Main Action Button
                         ElevatedButton(
-                          onPressed: () {
-                            var a = '2:00 PM';
-                            var result = a.split(':');
-                            int number = int.parse(result[0]);
-                            ElegantNotification(
-                              description: Text(number.toString()),
-                            ).show(context);
-                            //this is for the validation
-                            if (_formKey.currentState?.validate() ?? false) {
-                              //This is for changing the animation cross fade stuff
-                              if (_passwordController.text.isNotEmpty) {
-                                //This is for the acual create account stuff
-                                if (_passwordConfirmController.text ==
-                                    _passwordController.text) {
-                                  if (!ref.read(_dayOfTheWeekChoosen)) {
-                                    ElegantNotification(
-                                      description: Text(
-                                        'Day of the week is empty\nMonday choosen by default',
-                                      ),
-                                    ).show(context);
-                                    ref
-                                            .read(_dayOfTheWeekChoosen.notifier)
-                                            .state =
-                                        true;
-                                    ref
-                                            .read(
-                                              _dayOfTheWeekChoosenText.notifier,
-                                            )
-                                            .state =
-                                        'Monday';
-                                    return;
-                                  }
-                                  notifier(
-                                    context: context,
-                                    message: "action soon; create account",
-                                    bg: Colors.blueAccent,
-                                  );
-
-                                  //invalidate this soon as you are about to leave page
-                                  // ref.invalidate(_comfirmpasswordOpen); and other riverpod at the bottom
-                                } else {
-                                  ref
-                                          .read(_comfirmpasswordOpen.notifier)
-                                          .state =
-                                      true;
-                                  return;
-                                }
-                              }
-                            }
-                          },
+                          onPressed: () {},
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isLight
                                 ? Colors.blueAccent
@@ -796,7 +812,7 @@ class _SignupState extends ConsumerState<Signup> {
                             children: [
                               Expanded(
                                 child: Divider(
-                                  color: ref.read(lightMode)
+                                  color: ref.watch(lightMode)
                                       ? Colors.blueAccent
                                       : Colors.teal,
                                 ),
@@ -816,7 +832,7 @@ class _SignupState extends ConsumerState<Signup> {
                               ),
                               Expanded(
                                 child: Divider(
-                                  color: ref.read(lightMode)
+                                  color: ref.watch(lightMode)
                                       ? Colors.blueAccent
                                       : Colors.teal,
                                 ),

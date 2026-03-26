@@ -1,8 +1,8 @@
-import 'dart:math';
-
+import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:intl/intl.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/utils.dart';
 
@@ -22,30 +22,6 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
   bool pastLectureIsActice = false;
 
   // Function to refresh the page
-  void _updateLectureList() {
-    //For autoamatic scroll to the last part of the page on update.
-    setState(() {
-      notifier(
-        context: context,
-        bg: ref.watch(lightMode)
-            ? Colors.blueAccent
-            : const Color.fromARGB(255, 31, 59, 107),
-        fg: ref.watch(lightMode) ? Colors.white : Colors.white,
-      );
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (listViewController.hasClients) {
-          listViewController.animateTo(
-            listViewController.position.minScrollExtent,
-            duration: Duration(milliseconds: 150),
-            curve: Curves.bounceInOut,
-          );
-        }
-      });
-    });
-
-    // });
-  }
 
   final duration = Duration(milliseconds: 100);
   @override
@@ -481,10 +457,10 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                 ),
                                 splashColor: Colors.transparent,
                                 onTap: () {
-                                  if (ref.read(LectureCardActive)) return;
+                                  if (ref.read(lectureCardActive)) return;
                                   ref.read(currentCourseCode.notifier).state =
                                       upcomingLectures[index]['title'];
-                                  ref.read(LectureCardActive.notifier).state =
+                                  ref.read(lectureCardActive.notifier).state =
                                       true;
                                 },
                               ),
@@ -499,11 +475,11 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
               firstChild: SizedBox(),
               secondChild: Builder(
                 builder: (context) => Center(
-                  child: cardOverlay(courseName: ref.watch(currentCourseCode)),
+                  child: Cardoverlay(courseName: ref.watch(currentCourseCode)),
                 ),
               ),
 
-              crossFadeState: ref.watch(LectureCardActive)
+              crossFadeState: ref.watch(lectureCardActive)
                   ? CrossFadeState.showSecond
                   : CrossFadeState.showFirst,
               duration: Duration(milliseconds: 150),
@@ -515,7 +491,38 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
       ),
       // The update button
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _updateLectureList,
+        onPressed: () {
+          //begining of temprorary experiment
+          var result = """
+[{\ntitle: COS 101\nstart_time: 9:00 AM\nend_time: 11:00 AM\ndayOfTheWeek: Monday\n}]""";
+          result = DateTime.now().weekday.toString();
+          ElegantNotification(
+            toastDuration: Duration(hours: 1),
+            description: Expanded(
+              child: SingleChildScrollView(child: Text(result ?? 'null')),
+            ),
+          ).show(context);
+
+          //end of temprorary experiment
+          notifier(
+            context: context,
+            bg: ref.watch(lightMode)
+                ? Colors.blueAccent
+                : const Color.fromARGB(255, 31, 59, 107),
+            fg: ref.watch(lightMode) ? Colors.white : Colors.white,
+          );
+          //For autoamatic scroll to the last part of the page on update.
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (listViewController.hasClients) {
+              listViewController.animateTo(
+                listViewController.position.minScrollExtent,
+                duration: Duration(milliseconds: 150),
+                curve: Curves.bounceInOut,
+              );
+            }
+          });
+        },
         icon: Icon(
           Icons.refresh,
           color: ref.read(lightMode) ? Colors.white : Colors.white,
@@ -532,6 +539,11 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
   }
 }
 
-final LectureCardActive = StateProvider<bool>((ref) {
+final lectureCardActive = StateProvider<bool>((ref) {
   return false;
 });
+final currentCourseCode = StateProvider(
+  (ref) {
+    return 'NULL';
+  },
+); //This is for the knowing the current course selected in the dahshboard so overlay can know the name of the said course
