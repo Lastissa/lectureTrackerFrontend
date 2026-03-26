@@ -37,11 +37,7 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: ref.watch(lightMode) ? Colors.white : Colors.black,
-        // backgroundColor: ref.watch(lightMode) ? Colors.white : Colors.black,
-      ),
+      appBar: AppBar(toolbarHeight: 0),
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {

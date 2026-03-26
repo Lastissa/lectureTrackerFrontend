@@ -7,15 +7,16 @@ import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/settings.dart';
 import 'package:lecture_tracker/screens/signup.dart';
+import 'package:lecture_tracker/screens/splashScreen.dart';
 import 'package:lecture_tracker/splahscreen.dart';
 
 GoRouter router = GoRouter(
-  initialLocation: "/dashboard",
-
+  initialLocation: "/splashScreen",
   routes: [
     GoRoute(path: "/dashboard", builder: (context, state) => Dashboard()),
     GoRoute(path: "/splashscreen", builder: (context, state) => Splahscreen()),
     GoRoute(path: "/settings", builder: (context, state) => Settings()),
+    GoRoute(path: '/splashScreen', builder: (context, state) => Splashscreen()),
     GoRoute(
       path: '/overlay',
       builder: (context, state) =>
@@ -39,41 +40,38 @@ final userName = StateProvider<String>((ref) {
   return "User";
 });
 
-//user interface configuration
-//Light Mode
+//Light Mode or darkmode
 final lightMode = StateProvider<bool>((ref) {
   return true;
 });
 
-//Dark Mode
-
-//this is just a decoy, the real user data will be updated to the database
-List userCourseInfo = [
-  // {
-  //   'title': 'COS 102',
-  //   'start_time': '9:00 AM',
-  //   'end_time': '11:00 AM',
-  //   'color': Colors.teal,
-  // },
-  // {
-  //   'title': 'STA 112',
-  //   'start_time': '11:30 AM',
-  //   'end_time': '01:00 AM',
-  //   'color': Colors.indigo,
-  // },
-  // {
-  //   'title': 'PHY 102',
-  //   'start_time': '2:00 AM',
-  //   'end_time': '3:00 PM',
-  //   'color': Colors.deepOrange,
-  // },
-  {
-    'title': 'SAMPLE',
-    'start_time': 'start',
-    'end_time': 'end',
-    'color': Colors.deepOrange,
-  },
-];
+// //this is just a decoy, the real user data will be updated to the database
+// List userCourseInfo = [
+//   // {
+//   //   'title': 'COS 102',
+//   //   'start_time': '9:00 AM',
+//   //   'end_time': '11:00 AM',
+//   //   'color': Colors.teal,
+//   // },
+//   // {
+//   //   'title': 'STA 112',
+//   //   'start_time': '11:30 AM',
+//   //   'end_time': '01:00 AM',
+//   //   'color': Colors.indigo,
+//   // },
+//   // {
+//   //   'title': 'PHY 102',
+//   //   'start_time': '2:00 AM',
+//   //   'end_time': '3:00 PM',
+//   //   'color': Colors.deepOrange,
+//   // },
+//   {
+//     'title': 'SAMPLE',
+//     'start_time': 'start',
+//     'end_time': 'end',
+//     'color': Colors.deepOrange,
+//   },
+// ];
 //The carrier of all the cards before the final push to the database ; did this incase the user close app while still regsitering
 final lecturesCard = StateProvider<List<Map>>((ref) {
   return [];
@@ -147,3 +145,79 @@ final wordWeekdayToInt = StateProvider<List<String>>((ref) {
     'Sunday',
   ];
 });
+
+//since i am done with the signup and upon create account, the lectureCard provider will pass off to the db, i need to use a decoy map to get all the dayOftheweeks
+//i am going to store the data in the db like this
+//index - title - start_time - end_time - day of the week
+// 0    - cos   - 1:10 PM    - 2 : 10PM -  Monday
+
+// a db store data like list(map())
+
+final decoyDB = StateProvider((ref) {
+  return [
+    {
+      'title': 'MON 101',
+      'start_time': '2:00 PM',
+      'end_time': '3:00 PM',
+      'dayOfTheWeek': 'Monday',
+    },
+    {
+      'title': 'MON 101',
+      'start_time': '3:00 PM',
+      'end_time': '4:00 PM',
+      'dayOfTheWeek': 'Monday',
+    },
+    {
+      'title': 'TUES 101',
+      'start_time': '2:00 PM',
+      'end_time': '3:00 PM',
+      'dayOfTheWeek': 'Tueday',
+    },
+    {
+      'title': 'TUES 101',
+      'start_time': '3:00 PM',
+      'end_time': '4:00 PM',
+      'dayOfTheWeek': 'Tuesday',
+    },
+    {
+      'title': 'WED 101',
+      'start_time': '2:00 PM',
+      'end_time': '3:00 PM',
+      'dayOfTheWeek': 'Wednesday',
+    },
+    {
+      'title': 'WED 101',
+      'start_time': '3:00 PM',
+      'end_time': '4:00 PM',
+      'dayOfTheWeek': 'Wednesday',
+    },
+    {
+      'title': 'THURS 101',
+      'start_time': '2:00 PM',
+      'end_time': '3:00 PM',
+      'dayOfTheWeek': 'Thursday',
+    },
+    {
+      'title': 'THURS 101',
+      'start_time': '3:00 PM',
+      'end_time': '4:00 PM',
+      'dayOfTheWeek': 'Thursday',
+    },
+    {
+      'title': 'FRI 101',
+      'start_time': '2:00 PM',
+      'end_time': '3:00 PM',
+      'dayOfTheWeek': 'Friday',
+    },
+    {
+      'title': 'FRI 101',
+      'start_time': '3:00 PM',
+      'end_time': '4:00 PM',
+      'dayOfTheWeek': 'Friday',
+    },
+  ];
+});
+
+//but based on the style i am using, if the user mark the course done for the day, it will not be updated but i can avoid that by creating a new db that checks if the course have been marked done for the day
+
+//brb

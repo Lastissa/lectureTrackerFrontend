@@ -45,10 +45,7 @@ class _SignupState extends ConsumerState<Signup> {
     final isLight = ref.watch(lightMode);
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: isLight ? Colors.white : Colors.black,
-      ),
+      appBar: AppBar(toolbarHeight: 0),
       backgroundColor: isLight ? Colors.white : Colors.black,
       body: PopScope(
         canPop: false,

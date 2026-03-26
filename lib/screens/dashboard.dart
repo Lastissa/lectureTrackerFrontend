@@ -2,7 +2,6 @@ import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:intl/intl.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/utils.dart';
 
@@ -24,26 +23,27 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
   // Function to refresh the page
 
   final duration = Duration(milliseconds: 100);
+  void knowCurrentDayCards() {
+    List<Map> listToUse =
+        []; // list we are returning for display, still need work as i need to remove the already marked done from this list
+    List upcomings = ref.watch(decoyDB).isNotEmpty ? ref.watch(decoyDB) : [];
+    for (Map i in upcomings) {
+      if (i['dayOfTheWeek'] ==
+          ref.read(wordWeekdayToInt)[DateTime.now().weekday - 1]) {
+        listToUse.add(i);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    List upcomingLectures = ref.watch(lecturesCard).isNotEmpty
-        ? ref.watch(lecturesCard)
-        : [
-            {
-              'title': 'SAMPLE',
-              'start_time': 'start',
-              'end_time': 'end',
-              'color': Colors.deepOrange,
-            },
-          ];
+    knowCurrentDayCards();
+    List upcomingLectures = ref.watch(decoyDB).isNotEmpty
+        ? ref.watch(decoyDB)
+        : [];
     return Scaffold(
       backgroundColor: ref.watch(lightMode) ? Colors.grey[100] : Colors.black87,
-      appBar: AppBar(
-        toolbarHeight: 10,
-        backgroundColor: ref.watch(lightMode)
-            ? Colors.grey[100]
-            : Colors.black87,
-      ),
+      appBar: AppBar(toolbarHeight: 10),
       body: PopScope(
         child: Stack(
           children: [
@@ -121,6 +121,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              // Text(DateFormat('EEEE').format(DateTime.now())),
                             ],
                           ),
                           InkWell(
@@ -131,24 +132,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                 ref.read(lightMode.notifier).state = true;
                               }
                             },
-                            // child:  AnimatedCrossFade(
-                            //   firstChild: Icon(
-                            //     Icons.sunny,
-                            //     color: Colors.white70,
-                            //     size: 40,
-                            //   ),
-                            //   secondChild: Icon(
-                            //     Icons.nightlight_round_sharp,
-                            //     color: Colors.white54,
 
-                            //     size: 40,
-                            //   ),
-                            //   crossFadeState: ref.watch(lightMode)
-                            //       ? CrossFadeState.showFirst
-                            //       : CrossFadeState.showSecond,
-                            //   duration: Duration(milliseconds: 1),
-                            //   sizeCurve: Curves.easeInOut,
-                            // ),
                             child: ref.watch(lightMode)
                                 ? Icon(
                                     Icons.sunny,
@@ -495,7 +479,8 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
           //begining of temprorary experiment
           var result = """
 [{\ntitle: COS 101\nstart_time: 9:00 AM\nend_time: 11:00 AM\ndayOfTheWeek: Monday\n}]""";
-          result = DateTime.now().weekday.toString();
+          result =
+              "today : ${ref.read(wordWeekdayToInt)[DateTime.now().weekday - 1]}";
           ElegantNotification(
             toastDuration: Duration(hours: 1),
             description: Expanded(
