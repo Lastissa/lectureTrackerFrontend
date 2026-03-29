@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lecture_tracker/db.dart';
+import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class Splashscreen extends ConsumerStatefulWidget {
   const Splashscreen({super.key});
@@ -10,22 +13,40 @@ class Splashscreen extends ConsumerStatefulWidget {
 }
 
 class _SplashscreenState extends ConsumerState<Splashscreen> {
-  void toRun() async {
-    //get the db values here(create if not exist before) and make sure it is ready for use, pass it to the decoyDB(rename later) to avoid always hitting the db constantly
-    //the db will have two tables, one for upcoming list; the oga patapata and one for past records
-    //the past records will store as much as possible and they will be used for statistic and analytics for user
-    //the upcomings will only be for the particular day lectures so i will have to filter the db content
-    //upon all this ready, pass the past lectures to the pastLectureSQLDecoy provider
+  @override
+  void initState() {
+    super.initState();
+    toRun();
+  }
 
-    //and at this point, all data should have load before the splashcreen remove, if error occurs? notify the user and allow reload
-    await Future.delayed(Duration(seconds: 2));
+  Future<void> toRun() async {
+    if (lookForSettingBox().get('lightMode') == null) {
+      //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
+      await lookForSettingBox().put('lightMode', true);
+    }
+    ref.read(lightMode.notifier).state = await lookForSettingBox().get(
+      'lightMode',
+    ); //setting the dark mode or light mode down
+
+    Database getRoute = await CustomDbClass.instance.getter;
+    // deleteAllRowsPastLectures(dbLocator: getRoute);
+    List lectureHistory = await fetchAll(
+      dbLocator: getRoute,
+      tableName: 'lectureTrackers',
+      limit: 1000,
+    );
+    //if lectureHistory is empty,   just return the default value that was there before
+    if (lectureHistory.isNotEmpty) {
+      ref.read(pastLectureSQLDecoy.notifier).state = lectureHistory;
+    }
+
     router.go('/dashboard');
   }
 
   @override
   Widget build(BuildContext context) {
-    toRun();
     return Scaffold(
+      backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,

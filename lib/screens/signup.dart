@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
 
 // Assuming your lightMode provider is defined in a providers file
@@ -25,6 +26,7 @@ class _SignupState extends ConsumerState<Signup> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _courseCodeController.dispose();
     super.dispose();
   }
 
@@ -45,7 +47,10 @@ class _SignupState extends ConsumerState<Signup> {
     final isLight = ref.watch(lightMode);
 
     return Scaffold(
-      appBar: AppBar(toolbarHeight: 0),
+      appBar: AppBar(
+        toolbarHeight: 0,
+        backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+      ),
       backgroundColor: isLight ? Colors.white : Colors.black,
       body: PopScope(
         canPop: false,
@@ -131,7 +136,6 @@ class _SignupState extends ConsumerState<Signup> {
                               hint: "Password",
                               icon: Icons.lock_open_rounded,
                               isPassword: true,
-
                               validator: (value) {
                                 if (_passwordController.text.trim().isEmpty) {
                                   ElegantNotification(
@@ -181,28 +185,27 @@ class _SignupState extends ConsumerState<Signup> {
                                     message:
                                         'impossible to show. ope wetin sup?',
                                   );
-                                } else if (_passwordConfirmController.text !=
-                                    _passwordController.text) {
-                                  // return 'Password mismatch';
-                                  notifier(
-                                    bg: ref.watch(lightMode)
-                                        ? Colors.red
-                                        : const Color.fromARGB(
-                                            255,
-                                            39,
-                                            83,
-                                            158,
-                                          ),
-                                    context: context,
-                                    message: 'Password is not the same',
-                                  );
                                 }
+                                // else if (_passwordConfirmController.text !=
+                                //     _passwordController.text) {
+                                //   // return 'Password mismatch';
+                                //   notifier(
+                                //     bg: ref.watch(lightMode)
+                                //         ? Colors.red
+                                //         : const Color.fromARGB(
+                                //             255,
+                                //             39,
+                                //             83,
+                                //             158,
+                                //           ),
+                                //     context: context,
+                                //     message: 'Password is not the same',
+                                //   );
+                                // }
                                 return null;
                               },
                             ),
-                            crossFadeState:
-                                ref.watch(_comfirmpasswordOpen) &&
-                                    _usernameController.text.isNotEmpty
+                            crossFadeState: ref.watch(_comfirmpasswordOpen)
                                 ? CrossFadeState.showSecond
                                 : CrossFadeState.showFirst,
                             duration: Duration(milliseconds: 600),
@@ -652,7 +655,7 @@ class _SignupState extends ConsumerState<Signup> {
                                   Container(width: 10),
                                   InkWell(
                                     onTap: () {
-                                      //check if alll feild have been
+                                      //check if alll field have been
                                       _formKey.currentState?.validate();
                                       if (_courseCodeController.text.isEmpty ||
                                           !ref.read(_dayOfTheWeekChoosen)) {
@@ -739,7 +742,7 @@ class _SignupState extends ConsumerState<Signup> {
                                                 .state =
                                             ref.read(_courseCreatedCount) +
                                             1; //increment the course count by one
-                                        //all feilds are filled, lecture card updated ,clear the feilds ready for another inputs
+                                        //all fields are filled, lecture card updated ,clear the fields ready for another inputs
                                         ref.invalidate(_dayOfTheWeekChoosen);
                                         ref.invalidate(
                                           _dayOfTheWeekChoosenText,
@@ -780,7 +783,70 @@ class _SignupState extends ConsumerState<Signup> {
 
                         // Main Action Button
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //accout creation
+                            if (_formKey.currentState?.validate() ?? false) {
+                              //validate the course code and the userName field and make sure they are not a threath any longer then focus on the password next and the day of the week last
+                              //password cannot be null is handled by the validator in the password formfield, handling mismatch betwwen password and confirm password will be handled here
+                              if (_passwordController.text.isNotEmpty) {
+                                //soon as the user have entered their password, change the formfield to confirmpassword
+                                ref.read(_comfirmpasswordOpen.notifier).state =
+                                    true;
+
+                                //for checking the validity of the password and the confirm password
+                                if (_passwordConfirmController.text !=
+                                    _passwordController.text) {
+                                  notifier(
+                                    context: context,
+                                    message: 'Passwords does not match',
+                                    bg: Colors.red,
+                                    fg: Colors.white,
+                                  );
+                                  _passwordConfirmController.text = '';
+                                  return;
+                                } else {
+                                  //this mean they are the same and password issue have been solved, next to the day of the week
+                                  if (ref.read(_dayOfTheWeekChoosen) == false ||
+                                      ref
+                                          .read(_dayOfTheWeekChoosenText)
+                                          .isEmpty) {
+                                    ElegantNotification(
+                                      description: Text(
+                                        'Day of the week Cannot be empty.\nSelect day of the week',
+                                      ),
+                                    ).show(context);
+                                  } else {
+                                    //this mean all fields have been filled and we are good to go with data addition and also leaving the page
+                                    //collect the data in the course selection last time just before creating account, this has to be last just before the page closes to avoid double entry
+                                    ref.read(
+                                      updateLectureCard({
+                                        'title': _courseCodeController.text
+                                            .trim()
+                                            .toUpperCase(),
+                                        'start_time':
+                                            '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                        'end_time':
+                                            '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+
+                                        'dayOfTheWeek': ref.read(
+                                          _dayOfTheWeekChoosenText,
+                                        ),
+                                      }),
+                                    );
+                                    //
+                                    // invalidate all now useless providers
+                                    ref.invalidate(_comfirmpasswordOpen);
+                                    ref.invalidate(_courseCreatedCount);
+                                    ref.invalidate(_dayOfTheWeekChoosen);
+                                    ref.invalidate(_dayOfTheWeekChoosenText);
+
+                                    //where to go
+                                    router.go('/splashScreen');
+                                  }
+                                }
+                              }
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isLight
                                 ? Colors.blueAccent
@@ -892,8 +958,10 @@ class _SignupState extends ConsumerState<Signup> {
                       onTap: () {
                         if (ref.read(lightMode)) {
                           ref.read(lightMode.notifier).state = false;
+                          lookForSettingBox().put('lightMode', false);
                         } else {
                           ref.read(lightMode.notifier).state = true;
+                          lookForSettingBox().put('lightMode', true);
                         }
                       },
                       child: CircleAvatar(

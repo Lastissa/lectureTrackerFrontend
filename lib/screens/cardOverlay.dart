@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:lecture_tracker/db.dart';
+import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class Cardoverlay extends ConsumerStatefulWidget {
   const Cardoverlay({super.key, required this.courseName});
@@ -9,6 +13,45 @@ class Cardoverlay extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<Cardoverlay> createState() => _cardOverlayState();
+}
+
+Future<void> _buttonClicked({
+  required WidgetRef ref, //bcos of the invalidate i am doing
+  required BuildContext context, //bcos of the notifier i am using
+  required Color bg, //bcos of the notifier i am using
+  required String message, //bcos of the notifier i am using
+  required String title, //for the sql and pastlecture riverpod update
+  required int accomplished, //for the sql and pastlecture riverpod update
+}) async {
+  notifier(context: context, message: message, bg: bg);
+  ref.invalidate(
+    lectureCardActive,
+  ); //so that the cardOverLay will leave automatically
+
+  //update the data into the sql table for pastLectures
+  Database locator = await CustomDbClass.instance.getter;
+  insertIntoLectureTrackers(
+    dbLocator: locator,
+    title: title,
+    date: DateFormat.yMMMEd().format(
+      DateTime.now(),
+    ), //to add the current date Sun, Mar 29, 2026
+    accomplised: accomplished,
+  );
+  //update the data in the paslecture sql
+  // List tempHolder = ref.read(pastLectureSQLDecoy);
+  // tempHolder.add({
+  //   'title': widget.courseName?.toUpperCase(),
+  //   'date': DateFormat.yMMMEd().format(DateTime.now()),
+  //   'accomplised': false,
+  // });
+  List<Map> fetchDataFromDb = await fetchAll(
+    dbLocator: locator,
+    tableName: 'lectureTrackers',
+    limit: 500,
+  );
+  ref.read(pastLectureSQLDecoy.notifier).state =
+      fetchDataFromDb; //passing the data from the db to the provider to avoid calling the db constantly while app is running
 }
 
 class _cardOverlayState extends ConsumerState<Cardoverlay> {
@@ -61,7 +104,15 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () => _buttonClicked(
+                  //Click the _buttonClikced to view more info
+                  ref: ref,
+                  context: context,
+                  bg: Colors.green,
+                  message: 'Weldone 👍',
+                  title: widget.courseName?.toUpperCase() ?? '',
+                  accomplished: 1,
+                ),
                 style: ElevatedButton.styleFrom(
                   shadowColor: Colors.black,
 
@@ -83,7 +134,15 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () => _buttonClicked(
+                  //Click the _buttonClikced to view more info
+                  ref: ref,
+                  context: context,
+                  bg: Colors.red,
+                  message: 'Do Not Miss Lecture Again!!!',
+                  title: widget.courseName?.toUpperCase() ?? '',
+                  accomplished: 0,
+                ),
                 style: ElevatedButton.styleFrom(
                   shadowColor: Colors.black,
 

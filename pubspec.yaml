@@ -38,8 +38,12 @@ dependencies:
   flutter_screenutil: ^5.9.3 # For the dynamic screen size 
   flutter_riverpod: ^3.2.1 #provider 
   intl: ^0.20.2 #Planned on using it for chaanging datetime to actual mondays, tuesday, etc
-  sqflite: ^2.4.2
+  sqflite: ^2.4.2 #For using the local db sql 
+  path: ^1.9.1 # For finding the location of the db on the phone.
+  hive_flutter: ^1.1.0 # For the noSql local database since hive does not understand flutter
+  hive: ^2.2.3 #the actual binary nosql db
   elegant_notification: ^2.5.1   #For secondary notification
+  sqflite_common_ffi: ^2.4.0+2 #this is temp as it is just for windows 
 
 dev_dependencies:
   flutter_test:

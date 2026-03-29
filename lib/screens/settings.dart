@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
 
 //If user have no account yet
@@ -37,7 +38,11 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(toolbarHeight: 0),
+      backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+      appBar: AppBar(
+        toolbarHeight: 0,
+        backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+      ),
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
@@ -350,8 +355,10 @@ class _SettingsState extends ConsumerState<Settings> {
                     onTap: () {
                       if (ref.read(lightMode)) {
                         ref.read(lightMode.notifier).state = false;
+                        lookForSettingBox().put('lightMode', false);
                       } else {
                         ref.read(lightMode.notifier).state = true;
+                        lookForSettingBox().put('lightMode', true);
                       }
                     },
                     child: CircleAvatar(
