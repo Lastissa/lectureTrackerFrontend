@@ -18,7 +18,9 @@ void main() async {
   }
   await Hive.initFlutter();
   //this hold everything that have to do with settings like lightmode,etc
-  await Hive.openBox('settingDb');
+  await Hive.openBox(
+    'settingDb',
+  ); // this is for loading the settingDB into memory
   //this hold past lectures in list format
   // await Hive.openBox('pastLectures');
 

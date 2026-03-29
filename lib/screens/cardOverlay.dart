@@ -39,7 +39,7 @@ Future<void> _buttonClicked({
     accomplised: accomplished,
   );
   //update the data in the paslecture sql
-  // List tempHolder = ref.read(pastLectureSQLDecoy);
+  // List tempHolder = ref.read(pastLectureSQLprovider);
   // tempHolder.add({
   //   'title': widget.courseName?.toUpperCase(),
   //   'date': DateFormat.yMMMEd().format(DateTime.now()),
@@ -50,7 +50,7 @@ Future<void> _buttonClicked({
     tableName: 'lectureTrackers',
     limit: 500,
   );
-  ref.read(pastLectureSQLDecoy.notifier).state =
+  ref.read(pastLectureSQLprovider.notifier).state =
       fetchDataFromDb; //passing the data from the db to the provider to avoid calling the db constantly while app is running
 }
 

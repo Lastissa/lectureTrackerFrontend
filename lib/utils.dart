@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lecture_tracker/errorpage.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/settings.dart';
@@ -17,6 +16,15 @@ GoRouter router = GoRouter(
     GoRoute(path: "/dashboard", builder: (context, state) => Dashboard()),
     GoRoute(path: "/settings", builder: (context, state) => Settings()),
     GoRoute(path: '/splashScreen', builder: (context, state) => Splashscreen()),
+    GoRoute(
+      path: '/error',
+      builder: (context, state) {
+        String messageToSend =
+            state.extra
+                as String; // the state.extra is for getting param from the context,go()
+        return Errorpage(errorMessage: messageToSend);
+      },
+    ),
     GoRoute(
       path: '/overlay',
       builder: (context, state) =>
@@ -36,7 +44,7 @@ final deviceSizeY = Provider<double>((ref) {
   return 766;
 });
 
-final userName = StateProvider<String>((ref) {
+final username = StateProvider<String>((ref) {
   return "User";
 });
 
@@ -44,34 +52,6 @@ final userName = StateProvider<String>((ref) {
 final lightMode = StateProvider<bool>((ref) {
   return false;
 });
-
-// //this is just a decoy, the real user data will be updated to the database
-// List userCourseInfo = [
-//   // {
-//   //   'title': 'COS 102',
-//   //   'start_time': '9:00 AM',
-//   //   'end_time': '11:00 AM',
-//   //   'color': Colors.teal,
-//   // },
-//   // {
-//   //   'title': 'STA 112',
-//   //   'start_time': '11:30 AM',
-//   //   'end_time': '01:00 AM',
-//   //   'color': Colors.indigo,
-//   // },
-//   // {
-//   //   'title': 'PHY 102',
-//   //   'start_time': '2:00 AM',
-//   //   'end_time': '3:00 PM',
-//   //   'color': Colors.deepOrange,
-//   // },
-//   {
-//     'title': 'SAMPLE',
-//     'start_time': 'start',
-//     'end_time': 'end',
-//     'color': Colors.deepOrange,
-//   },
-// ];
 
 //The carrier of all the cards before the final push to the database ; did this incase the user close app while still regsitering
 final lecturesCard = StateProvider<List<Map>>((ref) {
@@ -120,7 +100,19 @@ List colors = [
   Colors.indigoAccent,
   Colors.redAccent,
 ];
-final decoyDB = StateProvider((ref) {
+//the color coming from the db only carries this
+final ColorMapper = {
+  'red': Colors.red,
+  'green': Colors.green,
+  'tealAccent': Colors.tealAccent,
+  'cyanAccent': Colors.cyanAccent,
+  'deepOrangeAccent': Colors.deepOrangeAccent,
+  'orangeAccent': Colors.orangeAccent,
+  'lightGreen': Colors.lightGreen,
+  'indigoAccent': Colors.indigoAccent,
+  'redAccent': Colors.redAccent,
+};
+final decoyDB = StateProvider<List<Map>>((ref) {
   return [
     {
       'title': 'MON 101',
@@ -198,7 +190,7 @@ final decoyDB = StateProvider((ref) {
       'title': 'FRI STA 101',
       'start_time': '3:00 PM',
       'end_time': '4:00 PM',
-      'dayOfTheWeek': 'Friday',
+      'dayOfTheWeek': 'Sunday',
       'color':
           colors[9], //this will be chosen at random from a list using the course name as refrence as it is about to enter db and then onwards take a permanent value
     },
@@ -206,7 +198,7 @@ final decoyDB = StateProvider((ref) {
       'title': 'FRI PHY 101',
       'start_time': '4:30 PM',
       'end_time': '6:00 PM',
-      'dayOfTheWeek': 'Friday',
+      'dayOfTheWeek': 'Sunday',
       'color':
           colors[10], //this will be chosen at random from a list using the course name as refrence as it is about to enter db and then onwards take a permanent value
     },
@@ -221,8 +213,8 @@ final decoyDB = StateProvider((ref) {
   ];
 });
 
-//the holder of the previous ticks by the user
-final pastLectureSQLDecoy = StateProvider<List>((ref) {
+//it is used for faster access to past lectures since calling SELECT * FROM  can kinda get slow so i use this one to mask it up as user won't even notice
+final pastLectureSQLprovider = StateProvider<List>((ref) {
   return [
     {
       'title': 'No PAST LECTURE',
@@ -271,11 +263,3 @@ ScaffoldFeatureController? notifier({
   }
   return null;
 }
-
-
-//the db tables will be splitted into two part
-//1. This one holds the real data for the user, this table hold every classes the user can have within a week 
-//2. Thid one holds the decoy data(not decoy entirely) but this one holds the upcoming list for the day and it reset everyday (what diff it from the former is that it filter out already picked cards)
-//3. This one holds the record of past lecture, soon as you click on the attend / miss in overlay, a row will be created here.
-
-//the upcoming lectures will come from the decoy data tables.

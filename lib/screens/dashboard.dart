@@ -64,7 +64,8 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                   highlightColor: Colors.transparent,
 
                   onTap: ref.watch(lectureCardActive)
-                      ? null
+                      ? () =>
+                            ref.watch(lectureCardActive.notifier).state = false
                       : () => router.go("/settings"),
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
@@ -115,7 +116,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Welcome ${ref.watch(userName)}',
+                                'Welcome ${ref.watch(username)}',
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 16,
@@ -135,7 +136,11 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                           ),
                           InkWell(
                             onTap: ref.watch(lectureCardActive)
-                                ? null
+                                ? () =>
+                                      ref
+                                              .watch(lectureCardActive.notifier)
+                                              .state =
+                                          false
                                 : () {
                                     if (ref.read(lightMode)) {
                                       ref.read(lightMode.notifier).state =
@@ -176,7 +181,8 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                   child: InkWell(
                     splashColor: Colors.transparent,
                     onTap: ref.watch(lectureCardActive)
-                        ? null
+                        ? () => ref.watch(lectureCardActive.notifier).state =
+                              false
                         : () {
                             if (pastLectureIsActice) {
                               setState(() {
@@ -223,7 +229,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                           controller: listViewController,
                           shrinkWrap: true,
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          itemCount: ref.read(pastLectureSQLDecoy).length,
+                          itemCount: ref.read(pastLectureSQLprovider).length,
                           itemBuilder: (context, index) {
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12.0),
@@ -278,7 +284,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                 ),
                                 title: Text(
                                   (ref.read(
-                                    pastLectureSQLDecoy,
+                                    pastLectureSQLprovider,
                                   ))[index]["title"],
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -304,7 +310,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            '${ref.read(pastLectureSQLDecoy)[index]["date"]}',
+                                            '${ref.read(pastLectureSQLprovider)[index]["date"]}',
                                             style: TextStyle(
                                               color: ref.read(lightMode)
                                                   ? Colors.black
@@ -318,14 +324,14 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                 ),
                                 trailing: Icon(
                                   ref.read(
-                                            pastLectureSQLDecoy,
+                                            pastLectureSQLprovider,
                                           )[index]['accomplised'] ==
                                           1
                                       ? Icons.thumb_up_alt
                                       : Icons.thumb_down_alt,
                                   color:
                                       ref.read(
-                                            pastLectureSQLDecoy,
+                                            pastLectureSQLprovider,
                                           )[index]['accomplised'] ==
                                           1
                                       ? Colors.green
@@ -347,7 +353,8 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                   child: InkWell(
                     splashColor: Colors.transparent,
                     onTap: ref.watch(lectureCardActive)
-                        ? null
+                        ? () => ref.watch(lectureCardActive.notifier).state =
+                              false
                         : () {
                             if (upcomingLectureIsActive) {
                               setState(() {
@@ -453,7 +460,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                         height: double.infinity,
                                         decoration: BoxDecoration(
                                           color:
-                                              todayLectureCard()[index]["color"],
+                                              ColorMapper[todayLectureCard()[index]["color"]],
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
@@ -505,7 +512,14 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                       ),
                                       splashColor: Colors.transparent,
                                       onTap: ref.watch(lectureCardActive)
-                                          ? null
+                                          ? () =>
+                                                ref
+                                                        .watch(
+                                                          lectureCardActive
+                                                              .notifier,
+                                                        )
+                                                        .state =
+                                                    false
                                           : () {
                                               if (ref.read(lectureCardActive))
                                                 return;
@@ -577,10 +591,21 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
       // The update button
       floatingActionButton: FloatingActionButton.extended(
         onPressed: ref.watch(lectureCardActive)
-            ? null
+            ? () => ref.watch(lectureCardActive.notifier).state = false
             : () async {
-                //begining of temprorary experiment
-
+                final locator = await CustomDbClass.instance.getter;
+                List all = await fetchAll(
+                  dbLocator: locator,
+                  tableName: 'userAllTimetable',
+                  limit: 10000,
+                );
+                print(all);
+                //start
+                notifier(
+                  context: context,
+                  message: 'Refreshed😎',
+                  bg: Colors.blueAccent,
+                );
                 //For autoamatic scroll to the last part of the page on update.
 
                 WidgetsBinding.instance.addPostFrameCallback((_) {

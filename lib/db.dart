@@ -15,8 +15,17 @@ class CustomDbClass {
       path,
       version: 1,
       onCreate: (db, version) async {
+        //fOR THE LECTURE HISTORY
         await db.execute(
           """CREATE TABLE lectureTrackers(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT, date TEXT, accomplised INTEGER)""",
+        );
+        //fOR THE TIME TABLE HISTORY
+        await db.execute(
+          """CREATE TABLE userAllTimetable(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, start_time TEXT, end_time TEXT, dayOfTheWeek TEXT, color TEXT)""",
+        );
+        //For current day lecturesa
+        await db.execute(
+          """CREATE TABLE todayLectures(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, start_time TEXT, end_time TEXT, dayOfTheWeek TEXT, color TEXT)""",
         );
       },
     );
@@ -24,7 +33,7 @@ class CustomDbClass {
   }
 }
 
-//this is for fetching all data from the database works for any table
+//this is for fetching all data from the database works for any table -lectureTrackers, userAllTimetable, todayLectures
 Future<List<Map>> fetchAll({
   required Database dbLocator,
   required String tableName,
@@ -48,6 +57,9 @@ Future<void> insertIntoLectureTrackers({
     [title, date, accomplised],
   );
 }
+
+//This is for inserting specifically into the todayLectures
+Future<void> insertIntoTodayLectures() async {}
 
 //this is for deleting every data in the pastLectures itself
 Future<void> deleteAllRowsPastLectures({required Database dbLocator}) async {

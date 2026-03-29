@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
 
@@ -170,38 +171,17 @@ class _SignupState extends ConsumerState<Signup> {
                               validator: (value) {
                                 if (!ref.read(_comfirmpasswordOpen)) {
                                   return null;
-                                } else if (_passwordController.text.isEmpty) {
-                                  // return 'Confirm password';
-                                  notifier(
-                                    bg: ref.watch(lightMode)
-                                        ? Colors.blueAccent
-                                        : const Color.fromARGB(
-                                            255,
-                                            39,
-                                            83,
-                                            158,
-                                          ),
-                                    context: context,
-                                    message:
-                                        'impossible to show. ope wetin sup?',
-                                  );
                                 }
-                                // else if (_passwordConfirmController.text !=
+                                //else if (_passwordController.text !=
                                 //     _passwordController.text) {
-                                //   // return 'Password mismatch';
                                 //   notifier(
-                                //     bg: ref.watch(lightMode)
-                                //         ? Colors.red
-                                //         : const Color.fromARGB(
-                                //             255,
-                                //             39,
-                                //             83,
-                                //             158,
-                                //           ),
+                                //     bg: Colors.red,
+
                                 //     context: context,
-                                //     message: 'Password is not the same',
+                                //     message: 'Password Does Not Match ',
                                 //   );
                                 // }
+
                                 return null;
                               },
                             ),
@@ -783,7 +763,7 @@ class _SignupState extends ConsumerState<Signup> {
 
                         // Main Action Button
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             //accout creation
                             if (_formKey.currentState?.validate() ?? false) {
                               //validate the course code and the userName field and make sure they are not a threath any longer then focus on the password next and the day of the week last
@@ -833,7 +813,32 @@ class _SignupState extends ConsumerState<Signup> {
                                         ),
                                       }),
                                     );
-                                    //
+                                    List<Map> dataToSendToDB = ref.read(
+                                      lecturesCard,
+                                    );
+                                    final Dblocator =
+                                        await CustomDbClass.instance.getter;
+                                    int index =
+                                        0; //this is just for colot picking
+                                    //to make sure the tables get overidden
+                                    await Dblocator.rawDelete(
+                                      "DELETE FROM userAllTimetable",
+                                    );
+                                    for (Map i in dataToSendToDB) {
+                                      await Dblocator.rawInsert(
+                                        "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
+                                        [
+                                          i['title'],
+                                          i['start_time'],
+                                          i['end_time'],
+                                          i['dayOfTheWeek'],
+                                          (colors[index]).toString().split(
+                                            '.',
+                                          )[1], //splitting the Colors.red into colors.red and taking the red aspect
+                                        ],
+                                      );
+                                      index++;
+                                    }
                                     // invalidate all now useless providers
                                     ref.invalidate(_comfirmpasswordOpen);
                                     ref.invalidate(_courseCreatedCount);
