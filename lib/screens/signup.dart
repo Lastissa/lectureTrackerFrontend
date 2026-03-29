@@ -20,15 +20,25 @@ class Signup extends ConsumerStatefulWidget {
 class _SignupState extends ConsumerState<Signup> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _passwordConfirmController = TextEditingController();
+  // final _passwordController = TextEditingController();
+  // final _passwordConfirmController = TextEditingController();
   final _courseCodeController = TextEditingController();
   @override
   void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
+    // _usernameController.dispose();
+    // _passwordController.dispose();
     _courseCodeController.dispose();
     super.dispose();
+  }
+
+  void initState() {
+    super.initState();
+    _usernameController.text =
+        lookForSettingBox().get('username')?.toLowerCase() ?? 'user';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(decoyDB.notifier).state =
+          []; //empty it, the splashscreen will update it back incase the user cancel
+    });
   }
 
   int firstHour = 0;
@@ -56,7 +66,7 @@ class _SignupState extends ConsumerState<Signup> {
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
-          router.go('/dashboard');
+          router.go('/splashScreen');
         },
         child: SizedBox(
           width: ref.watch(deviceSizeX).w,
@@ -103,95 +113,95 @@ class _SignupState extends ConsumerState<Signup> {
                         SizedBox(height: ref.watch(deviceSizeY) * 0.02.h),
 
                         // Password Input with Shadow
-                        Container(
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                offset: Offset(1, 0),
-                                blurRadius: 3,
-                              ),
-                            ],
-                          ),
-                          child: AnimatedCrossFade(
-                            firstChild: _buildModernField(
-                              suffix: InkWell(
-                                onTap: () {
-                                  _passwordConfirmController.text = '';
-                                  ref
-                                          .read(_comfirmpasswordOpen.notifier)
-                                          .state =
-                                      true;
-                                },
-                                child: Icon(
-                                  Icons.chevron_right,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.teal,
-                                ),
-                              ),
-                              isLight: isLight,
-                              controller: _passwordController,
-                              hint: "Password",
-                              icon: Icons.lock_open_rounded,
-                              isPassword: true,
-                              validator: (value) {
-                                if (_passwordController.text.trim().isEmpty) {
-                                  ElegantNotification(
-                                    background: Colors.red,
-                                    description: Text(
-                                      style: TextStyle(color: Colors.white),
-                                      'password cannot be null',
-                                    ),
-                                  ).show(context);
-                                }
-                              },
-                            ),
-                            secondChild: _buildModernField(
-                              isLight: isLight,
-                              controller: _passwordConfirmController,
-                              hint: "Confirm Password",
-                              suffix: InkWell(
-                                onTap: () {
-                                  ref.invalidate(_comfirmpasswordOpen);
-                                  _passwordConfirmController.text = '';
-                                },
-                                child: Icon(
-                                  Icons.chevron_left,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.teal,
-                                ),
-                              ),
-                              icon: Icons.recycling_sharp,
-                              isPassword: true,
+                        // Container(
+                        //   clipBehavior: Clip.hardEdge,
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.all(Radius.circular(15)),
+                        //     boxShadow: [
+                        //       BoxShadow(
+                        //         color: Colors.black12,
+                        //         offset: Offset(1, 0),
+                        //         blurRadius: 3,
+                        //       ),
+                        //     ],
+                        //   ),
+                        //   child: AnimatedCrossFade(
+                        //     firstChild: _buildModernField(
+                        //       suffix: InkWell(
+                        //         onTap: () {
+                        //           _passwordConfirmController.text = '';
+                        //           ref
+                        //                   .read(_comfirmpasswordOpen.notifier)
+                        //                   .state =
+                        //               true;
+                        //         },
+                        //         child: Icon(
+                        //           Icons.chevron_right,
+                        //           color: ref.watch(lightMode)
+                        //               ? Colors.blueAccent
+                        //               : Colors.teal,
+                        //         ),
+                        //       ),
+                        //       isLight: isLight,
+                        //       controller: _passwordController,
+                        //       hint: "Password",
+                        //       icon: Icons.lock_open_rounded,
+                        //       isPassword: true,
+                        //       validator: (value) {
+                        //         if (_passwordController.text.trim().isEmpty) {
+                        //           ElegantNotification(
+                        //             background: Colors.red,
+                        //             description: Text(
+                        //               style: TextStyle(color: Colors.white),
+                        //               'password cannot be null',
+                        //             ),
+                        //           ).show(context);
+                        //         }
+                        //       },
+                        //     ),
+                        //     secondChild: _buildModernField(
+                        //       isLight: isLight,
+                        //       controller: _passwordConfirmController,
+                        //       hint: "Confirm Password",
+                        //       suffix: InkWell(
+                        //         onTap: () {
+                        //           ref.invalidate(_comfirmpasswordOpen);
+                        //           _passwordConfirmController.text = '';
+                        //         },
+                        //         child: Icon(
+                        //           Icons.chevron_left,
+                        //           color: ref.watch(lightMode)
+                        //               ? Colors.blueAccent
+                        //               : Colors.teal,
+                        //         ),
+                        //       ),
+                        //       icon: Icons.recycling_sharp,
+                        //       isPassword: true,
 
-                              validator: (value) {
-                                if (!ref.read(_comfirmpasswordOpen)) {
-                                  return null;
-                                }
-                                //else if (_passwordController.text !=
-                                //     _passwordController.text) {
-                                //   notifier(
-                                //     bg: Colors.red,
+                        //       validator: (value) {
+                        //         if (!ref.read(_comfirmpasswordOpen)) {
+                        //           return null;
+                        //         }
+                        //         //else if (_passwordController.text !=
+                        //         //     _passwordController.text) {
+                        //         //   notifier(
+                        //         //     bg: Colors.red,
 
-                                //     context: context,
-                                //     message: 'Password Does Not Match ',
-                                //   );
-                                // }
+                        //         //     context: context,
+                        //         //     message: 'Password Does Not Match ',
+                        //         //   );
+                        //         // }
 
-                                return null;
-                              },
-                            ),
-                            crossFadeState: ref.watch(_comfirmpasswordOpen)
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
-                            duration: Duration(milliseconds: 600),
-                            sizeCurve: Curves.bounceIn,
-                          ),
-                        ),
+                        //         return null;
+                        //       },
+                        //     ),
+                        //     crossFadeState: ref.watch(_comfirmpasswordOpen)
+                        //         ? CrossFadeState.showSecond
+                        //         : CrossFadeState.showFirst,
+                        //     duration: Duration(milliseconds: 600),
+                        //     sizeCurve: Curves.bounceIn,
+                        //   ),
+                        // ),
 
                         // _buildModernField(isLight: isLight, controller: _courseCountController, hint: 'Number of Courses', icon: Icons., validator: validator)
                         Container(
@@ -647,61 +657,62 @@ class _SignupState extends ConsumerState<Signup> {
                                         return;
                                       }
                                       //before you add the data, check if data already exists, to know wether we should update or add new
-                                      if (ref.read(lecturesCard).length >
-                                          ref.read(
-                                            _courseCreatedCount,
-                                          ) //this to check wether the user already have a made data entry before , if so, the relation beween former and latter will not be the same and i can work with that to update istead of adding to the list
-                                          ) {
-                                        List<Map> dataToUpdate = ref.read(
-                                          lecturesCard,
-                                        );
-                                        dataToUpdate.removeAt(
-                                          ref.read(_courseCreatedCount),
-                                        ); //remove the former list so we can set the new updated one
+                                      // if (ref.read(decoyDB).length >
+                                      //     ref.read(
+                                      //       _courseCreatedCount,
+                                      //     ) //this to check wether the user already have a made data entry before , if so, the relation beween former and latter will not be the same and i can work with that to update istead of adding to the list
+                                      //     ) {
+                                      //   List<Map> dataToUpdate = ref.read(
+                                      //     lecturesCard,
+                                      //   );
+                                      //   dataToUpdate.removeAt(
+                                      //     ref.read(_courseCreatedCount),
+                                      //   ); //remove the former list so we can set the new updated one
 
-                                        dataToUpdate.insert(
-                                          ref.read(_courseCreatedCount),
-                                          {
-                                            'title': _courseCodeController.text
-                                                .trim()
-                                                .toUpperCase(),
-                                            'start_time':
-                                                '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
-                                            'end_time':
-                                                '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
-                                            'dayOfTheWeek': ref.read(
-                                              _dayOfTheWeekChoosenText,
-                                            ),
-                                          },
-                                        );
-                                        ref.read(lecturesCard.notifier).state =
-                                            dataToUpdate; //update the data from the temp holder (dataToUpdate) to the riverpod
-                                        _courseCodeController.text = '';
-                                        ref.invalidate(_dayOfTheWeekChoosen);
-                                        ref.invalidate(
-                                          _dayOfTheWeekChoosenText,
-                                        );
-                                        setState(() {
-                                          firstHour = 0;
-                                          firstMinute = 0;
-                                          firstIndex = 0;
-                                          secondHour = 0;
-                                          secondIndex = 0;
-                                        });
-                                        //increment the _courseCreatedCount to male it even with the lenght of the riverpod
-                                        ref
-                                                .read(
-                                                  _courseCreatedCount.notifier,
-                                                )
-                                                .state =
-                                            ref.read(_courseCreatedCount) + 1;
-                                        ElegantNotification(
-                                          description: Text('Updated'),
-                                        ).show(context);
-                                      } else {
+                                      //   dataToUpdate.insert(
+                                      //     ref.read(_courseCreatedCount),
+                                      //     {
+                                      //       'title': _courseCodeController.text
+                                      //           .trim()
+                                      //           .toUpperCase(),
+                                      //       'start_time':
+                                      //           '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                      //       'end_time':
+                                      //           '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+                                      //       'dayOfTheWeek': ref.read(
+                                      //         _dayOfTheWeekChoosenText,
+                                      //       ),
+                                      //     },
+                                      //   );
+                                      //   ref.read(lecturesCard.notifier).state =
+                                      //       dataToUpdate; //update the data from the temp holder (dataToUpdate) to the riverpod
+                                      //   _courseCodeController.text = '';
+                                      //   ref.invalidate(_dayOfTheWeekChoosen);
+                                      //   ref.invalidate(
+                                      //     _dayOfTheWeekChoosenText,
+                                      //   );
+                                      //   setState(() {
+                                      //     firstHour = 0;
+                                      //     firstMinute = 0;
+                                      //     firstIndex = 0;
+                                      //     secondHour = 0;
+                                      //     secondIndex = 0;
+                                      //   });
+                                      //   //increment the _courseCreatedCount to make it even with the lenght of the riverpod
+                                      //   ref
+                                      //           .read(
+                                      //             _courseCreatedCount.notifier,
+                                      //           )
+                                      //           .state =
+                                      //       ref.read(_courseCreatedCount) + 1;
+                                      //   ElegantNotification(
+                                      //     description: Text('Updated'),
+                                      //   ).show(context);
+                                      // } else
+                                      {
                                         //add the already data to the provider
                                         ref.read(
-                                          updateLectureCard({
+                                          updateDecoyDb({
                                             'title': _courseCodeController.text
                                                 .trim()
                                                 .toUpperCase(),
@@ -764,92 +775,86 @@ class _SignupState extends ConsumerState<Signup> {
                         // Main Action Button
                         ElevatedButton(
                           onPressed: () async {
-                            //accout creation
-                            if (_formKey.currentState?.validate() ?? false) {
-                              //validate the course code and the userName field and make sure they are not a threath any longer then focus on the password next and the day of the week last
-                              //password cannot be null is handled by the validator in the password formfield, handling mismatch betwwen password and confirm password will be handled here
-                              if (_passwordController.text.isNotEmpty) {
-                                //soon as the user have entered their password, change the formfield to confirmpassword
-                                ref.read(_comfirmpasswordOpen.notifier).state =
-                                    true;
-
-                                //for checking the validity of the password and the confirm password
-                                if (_passwordConfirmController.text !=
-                                    _passwordController.text) {
-                                  notifier(
-                                    context: context,
-                                    message: 'Passwords does not match',
-                                    bg: Colors.red,
-                                    fg: Colors.white,
-                                  );
-                                  _passwordConfirmController.text = '';
-                                  return;
-                                } else {
-                                  //this mean they are the same and password issue have been solved, next to the day of the week
-                                  if (ref.read(_dayOfTheWeekChoosen) == false ||
-                                      ref
-                                          .read(_dayOfTheWeekChoosenText)
-                                          .isEmpty) {
-                                    ElegantNotification(
-                                      description: Text(
-                                        'Day of the week Cannot be empty.\nSelect day of the week',
+                            try {
+                              //accout creation
+                              if (_formKey.currentState?.validate() ?? false) {
+                                //validate the course code and the userName field and make sure they are not a threath any longer then focus day of the week
+                                if (ref.read(_dayOfTheWeekChoosen) == false) {
+                                  ElegantNotification(
+                                    description: Text(
+                                      'Day of the week Cannot be empty.\nSelect day of the week',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    ).show(context);
-                                  } else {
-                                    //this mean all fields have been filled and we are good to go with data addition and also leaving the page
-                                    //collect the data in the course selection last time just before creating account, this has to be last just before the page closes to avoid double entry
-                                    ref.read(
-                                      updateLectureCard({
-                                        'title': _courseCodeController.text
-                                            .trim()
-                                            .toUpperCase(),
-                                        'start_time':
-                                            '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
-                                        'end_time':
-                                            '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+                                    ),
+                                  ).show(context);
+                                } else {
+                                  //this mean all fields have been filled and we are good to go with data addition and also leaving the page
+                                  //collect the data in the course selection last time just before creating account, this has to be last just before the page closes to avoid double entry
+                                  List<Map> allDataCollected = await ref.read(
+                                    decoyDB,
+                                  );
+                                  // print(allDataCollected);
+                                  // return;
+                                  allDataCollected.add({
+                                    'title': _courseCodeController.text
+                                        .trim()
+                                        .toUpperCase(),
+                                    'start_time':
+                                        '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                    'end_time':
+                                        '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
 
-                                        'dayOfTheWeek': ref.read(
-                                          _dayOfTheWeekChoosenText,
-                                        ),
-                                      }),
+                                    'dayOfTheWeek': ref.read(
+                                      _dayOfTheWeekChoosenText,
+                                    ),
+                                  });
+                                  //now i can go ahead and clear the entered fields{optional}
+                                  final Dblocator =
+                                      await CustomDbClass.instance.getter;
+                                  int index =
+                                      0; //this is just for color picking
+                                  //to make sure the tables get overidden
+                                  await Dblocator.rawDelete(
+                                    "DELETE FROM userAllTimetable",
+                                  );
+                                  for (Map i in allDataCollected) {
+                                    await Dblocator.rawInsert(
+                                      "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
+                                      [
+                                        i['title'],
+                                        i['start_time'],
+                                        i['end_time'],
+                                        i['dayOfTheWeek'],
+                                        colors[index],
+                                      ],
                                     );
-                                    List<Map> dataToSendToDB = ref.read(
-                                      lecturesCard,
-                                    );
-                                    final Dblocator =
-                                        await CustomDbClass.instance.getter;
-                                    int index =
-                                        0; //this is just for colot picking
-                                    //to make sure the tables get overidden
-                                    await Dblocator.rawDelete(
-                                      "DELETE FROM userAllTimetable",
-                                    );
-                                    for (Map i in dataToSendToDB) {
-                                      await Dblocator.rawInsert(
-                                        "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
-                                        [
-                                          i['title'],
-                                          i['start_time'],
-                                          i['end_time'],
-                                          i['dayOfTheWeek'],
-                                          (colors[index]).toString().split(
-                                            '.',
-                                          )[1], //splitting the Colors.red into colors.red and taking the red aspect
-                                        ],
-                                      );
-                                      index++;
-                                    }
-                                    // invalidate all now useless providers
-                                    ref.invalidate(_comfirmpasswordOpen);
-                                    ref.invalidate(_courseCreatedCount);
-                                    ref.invalidate(_dayOfTheWeekChoosen);
-                                    ref.invalidate(_dayOfTheWeekChoosenText);
-
-                                    //where to go
-                                    router.go('/splashScreen');
+                                    index++;
                                   }
+                                  //update the username if it is changed else just leave it
+                                  if (_usernameController.text
+                                          .trim()
+                                          .toLowerCase() !=
+                                      'user') {
+                                    lookForSettingBox().put(
+                                      'username',
+                                      _usernameController.text
+                                          .trim()
+                                          .toUpperCase(),
+                                    );
+                                  }
+                                  // invalidate all now useless providers
+                                  ref.invalidate(_comfirmpasswordOpen);
+                                  ref.invalidate(_courseCreatedCount);
+                                  ref.invalidate(_dayOfTheWeekChoosen);
+                                  ref.invalidate(_dayOfTheWeekChoosenText);
+
+                                  //where to go
+                                  router.go('/splashScreen');
                                 }
                               }
+                            } catch (e) {
+                              router.go('/error', extra: e.toString());
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -912,7 +917,7 @@ class _SignupState extends ConsumerState<Signup> {
                         // Back to Login
                         TextButton(
                           onPressed: () {
-                            router.go('/settings');
+                            router.go('/splashScreen');
                             ref.invalidate(_comfirmpasswordOpen);
                             ref.invalidate(_courseCreatedCount);
                             ref.invalidate(_dayOfTheWeekChoosen);
@@ -939,7 +944,7 @@ class _SignupState extends ConsumerState<Signup> {
                   children: [
                     InkWell(
                       onTap: () {
-                        router.go('/dashboard');
+                        router.go('/splashScreen');
                         ref.invalidate(_comfirmpasswordOpen);
                         ref.invalidate(_courseCreatedCount);
                         ref.invalidate(_dayOfTheWeekChoosen);

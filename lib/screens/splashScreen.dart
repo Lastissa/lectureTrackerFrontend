@@ -33,7 +33,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         ref.read(lightMode.notifier).state = await lookForSettingBox().get(
           'lightMode',
         );
-        //if the userName don change already
+        //if the userName don change already`
         Database sqlDbLocator = await CustomDbClass.instance.getter;
 
         if (lookForSettingBox().get('username') != null) {
@@ -68,6 +68,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           limit: 1000,
         );
         ref.read(decoyDB.notifier).state = userTimeTable;
+        print(userTimeTable);
       } catch (e) {
         await Future.delayed(
           Duration(seconds: 1),
