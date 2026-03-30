@@ -19,7 +19,7 @@ class CustomDbClass {
         await db.execute(
           """CREATE TABLE lectureTrackers(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT, date TEXT, accomplised INTEGER)""",
         );
-        //fOR THE TIME TABLE HISTORY
+        //fOR THE TIME TABLE HISTORY - MAIN TABLEEEEE!!!
         await db.execute(
           """CREATE TABLE userAllTimetable(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, start_time TEXT, end_time TEXT, dayOfTheWeek TEXT, color TEXT)""",
         );
@@ -46,7 +46,7 @@ Future<List<Map>> fetchAll({
 }
 
 //this is for inserting specifically into the lectureTrackers table
-Future<void> insertIntoLectureTrackers({
+Future<void> insertIntoPastLectureTrackers({
   required Database dbLocator,
   required String title,
   required String date,
@@ -59,7 +59,19 @@ Future<void> insertIntoLectureTrackers({
 }
 
 //This is for inserting specifically into the todayLectures
-Future<void> insertIntoTodayLectures() async {}
+Future<void> insertIntoTodayLectures({
+  required Database dbLocator,
+  required String title,
+  required String start_time,
+  required String end_time,
+  required String dayOfTheWeek,
+  required String color,
+}) async {
+  await dbLocator.rawInsert(
+    "INSERT INTO todayLectures(title, start_time, end_time, dayOfTheWeek, color) VALUES (?, ?, ?, ?, ?)",
+    [title, start_time, end_time, dayOfTheWeek, color],
+  );
+}
 
 //this is for deleting every data in the pastLectures itself
 Future<void> deleteAllRowsPastLectures({required Database dbLocator}) async {

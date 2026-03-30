@@ -44,7 +44,7 @@ dependencies:
   hive: ^2.2.3 #the actual binary nosql db
   elegant_notification: ^2.5.1   #For secondary notification
   sqflite_common_ffi: ^2.4.0+2 #this is temp as it is just for windows 
-
+  carousel_slider: ^5.1.2 #for the auto scroll
 dev_dependencies:
   flutter_test:
     sdk: flutter

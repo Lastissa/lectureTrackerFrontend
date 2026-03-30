@@ -2,14 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
-import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class Cardoverlay extends ConsumerStatefulWidget {
-  const Cardoverlay({super.key, required this.courseName});
+  const Cardoverlay({
+    super.key,
+    this.courseName,
+    required this.start_time,
+    required this.end_time,
+    required this.dayOfTheWeek,
+    required this.color,
+  });
   final String? courseName;
+  final String start_time;
+  final String end_time;
+  final String dayOfTheWeek;
+  final String color;
 
   @override
   ConsumerState<Cardoverlay> createState() => _cardOverlayState();
@@ -22,6 +32,11 @@ Future<void> _buttonClicked({
   required String message, //bcos of the notifier i am using
   required String title, //for the sql and pastlecture riverpod update
   required int accomplished, //for the sql and pastlecture riverpod update
+  required String courseName,
+  required String start_time,
+  required String end_time,
+  required String dayOfTheWeek,
+  required String color,
 }) async {
   notifier(context: context, message: message, bg: bg);
   ref.invalidate(
@@ -30,7 +45,8 @@ Future<void> _buttonClicked({
 
   //update the data into the sql table for pastLectures
   Database locator = await CustomDbClass.instance.getter;
-  insertIntoLectureTrackers(
+  //for updating the lecture history - table name is lectureTrackers
+  insertIntoPastLectureTrackers(
     dbLocator: locator,
     title: title,
     date: DateFormat.yMMMEd().format(
@@ -38,20 +54,31 @@ Future<void> _buttonClicked({
     ), //to add the current date Sun, Mar 29, 2026
     accomplised: accomplished,
   );
-  //update the data in the paslecture sql
-  // List tempHolder = ref.read(pastLectureSQLprovider);
-  // tempHolder.add({
-  //   'title': widget.courseName?.toUpperCase(),
-  //   'date': DateFormat.yMMMEd().format(DateTime.now()),
-  //   'accomplised': false,
-  // });
+  //fetch the new updated table again so i will pass it into the provider
   List<Map> fetchDataFromDb = await fetchAll(
     dbLocator: locator,
     tableName: 'lectureTrackers',
     limit: 500,
   );
-  ref.read(pastLectureSQLprovider.notifier).state =
-      fetchDataFromDb; //passing the data from the db to the provider to avoid calling the db constantly while app is running
+  //passing the data from the db to the provider to avoid calling the db constantly while app is running
+  ref.read(pastLectureSQLprovider.notifier).state = fetchDataFromDb;
+
+  //this is for updating the stuff in today lecture table and the decoydb riverpod
+  //first get all data from the today lecture
+  final dbLocator = await CustomDbClass.instance.getter;
+
+  //del the entered card from it
+  dbLocator.rawDelete(
+    "DELETE FROM todayLectures WHERE title = ? AND start_time = ? AND  end_time = ? AND dayOfTheWeek = ? AND color = ?",
+    [courseName, start_time, end_time, dayOfTheWeek, color],
+  );
+  //fetch the new updated table
+  List<Map> allData = await fetchAll(
+    dbLocator: dbLocator,
+    tableName: 'todayLectures',
+    limit: 1000,
+  );
+  ref.read(decoyDB.notifier).state = allData;
 }
 
 class _cardOverlayState extends ConsumerState<Cardoverlay> {
@@ -112,6 +139,11 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                   message: 'Weldone 👍',
                   title: widget.courseName?.toUpperCase() ?? '',
                   accomplished: 1,
+                  courseName: widget.courseName ?? '',
+                  start_time: widget.start_time,
+                  end_time: widget.end_time,
+                  dayOfTheWeek: widget.dayOfTheWeek,
+                  color: widget.color,
                 ),
                 style: ElevatedButton.styleFrom(
                   shadowColor: Colors.black,
@@ -142,6 +174,11 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                   message: 'Do Not Miss Lecture Again!!!',
                   title: widget.courseName?.toUpperCase() ?? '',
                   accomplished: 0,
+                  courseName: widget.courseName ?? '',
+                  start_time: widget.start_time,
+                  end_time: widget.end_time,
+                  dayOfTheWeek: widget.dayOfTheWeek,
+                  color: widget.color,
                 ),
                 style: ElevatedButton.styleFrom(
                   shadowColor: Colors.black,

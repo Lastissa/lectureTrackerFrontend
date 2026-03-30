@@ -8,7 +8,6 @@ import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/utils.dart';
-import 'package:sqflite/sqlite_api.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
@@ -27,16 +26,16 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
 
   List<Map> todayLectureCard() {
     //all data have been provided from the splashscreen before we got here so there should not be any async and await issue
-    //brb ; start fixing from here , goodluck bro
-    List<Map> listToUse =
-        []; // list we are returning for display, still need work as i need to remove the already marked done from this list
+    List<Map> listToUse = []; // list we are returning for display,
     List upcomings = ref.watch(decoyDB).isNotEmpty ? ref.watch(decoyDB) : [];
     for (Map i in upcomings) {
-      if (i['dayOfTheWeek'] ==
-          ref.read(wordWeekdayToInt)[DateTime.now().weekday - 1]) {
+      if (i.containsKey('dayOfTheWeek') &&
+          i['dayOfTheWeek'] ==
+              ref.read(wordWeekdayToInt)[DateTime.now().weekday - 1]) {
         listToUse.add(i);
       }
     }
+
     return listToUse;
   }
 
@@ -69,7 +68,17 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                     onTap: ref.watch(lectureCardActive)
                         ? () => ref.watch(lectureCardActive.notifier).state =
                               false
-                        : () => router.go("/settings"),
+                        : () async {
+                            bool? userHaveRegisteredCourses =
+                                await lookForSettingBox().get(
+                                  'userHaveCreatedCourses',
+                                );
+                            if (userHaveRegisteredCourses != null) {
+                              router.go('/settings');
+                            } else {
+                              router.go("/signup");
+                            }
+                          },
                     child: Padding(
                       padding: EdgeInsets.all(16.0),
                       child: Container(
@@ -132,7 +141,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  '${ref.watch(decoyDB).length} Classes Today',
+                                  '${todayLectureCard().length} ${todayLectureCard().length > 1 ? "Classes" : "Class"} Today',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 24,
@@ -242,8 +251,24 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
                             ),
-                            itemCount: ref.read(pastLectureSQLprovider).length,
+                            itemCount: ref.read(pastLectureSQLprovider).isEmpty
+                                ? 1
+                                : ref.read(pastLectureSQLprovider).length,
                             itemBuilder: (context, index) {
+                              //incase the provider is empty, just use this data
+                              List dataToUse = [
+                                {
+                                  'title': 'No PAST LECTURE',
+                                  'date': DateFormat.yMMMEd().format(
+                                    DateTime.now(),
+                                  ),
+                                  'accomplised':
+                                      1, //zero mean false, 1 mean true
+                                },
+                              ];
+                              if (ref.read(pastLectureSQLprovider).isNotEmpty) {
+                                dataToUse = ref.read(pastLectureSQLprovider);
+                              }
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 12.0),
                                 decoration: BoxDecoration(
@@ -296,9 +321,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                     ),
                                   ),
                                   title: Text(
-                                    (ref.read(
-                                      pastLectureSQLprovider,
-                                    ))[index]["title"],
+                                    dataToUse[index]["title"],
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: ref.read(lightMode)
@@ -323,7 +346,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              '${ref.read(pastLectureSQLprovider)[index]["date"]}',
+                                              '${dataToUse[index]["date"]}',
                                               style: TextStyle(
                                                 color: ref.read(lightMode)
                                                     ? Colors.black
@@ -336,17 +359,10 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                     ),
                                   ),
                                   trailing: Icon(
-                                    ref.read(
-                                              pastLectureSQLprovider,
-                                            )[index]['accomplised'] ==
-                                            1
+                                    dataToUse[index]['accomplised'] == 1
                                         ? Icons.thumb_up_alt
                                         : Icons.thumb_down_alt,
-                                    color:
-                                        ref.read(
-                                              pastLectureSQLprovider,
-                                            )[index]['accomplised'] ==
-                                            1
+                                    color: dataToUse[index]['accomplised'] == 1
                                         ? Colors.green
                                         : Colors.redAccent,
                                   ),
@@ -418,8 +434,24 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                   ),
-                                  itemCount: todayLectureCard().length,
+                                  itemCount: todayLectureCard().isEmpty
+                                      ? 1
+                                      : todayLectureCard().length,
                                   itemBuilder: (context, index) {
+                                    //to return nothing when today lecture card is empty
+                                    List dataToUse = [
+                                      {
+                                        'title': 'No Upcoming Lecture',
+                                        'start_time': 'X:XX PM',
+                                        'end_time': 'X:XX PM',
+                                        'dayOfTheWeek': '',
+                                        'color': colors[0],
+                                      },
+                                    ];
+                                    if (todayLectureCard().isNotEmpty) {
+                                      dataToUse = todayLectureCard();
+                                    }
+                                    print(dataToUse[index]["title"]);
                                     return Container(
                                       // duration: duration,
                                       margin: const EdgeInsets.only(
@@ -477,14 +509,14 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                           height: double.infinity,
                                           decoration: BoxDecoration(
                                             color:
-                                                ColorMapper[todayLectureCard()[index]["color"]],
+                                                ColorMapper[dataToUse[index]["color"]],
                                             borderRadius: BorderRadius.circular(
                                               4,
                                             ),
                                           ),
                                         ),
                                         title: Text(
-                                          todayLectureCard()[index]["title"],
+                                          "${dataToUse[index]["title"]}",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: ref.read(lightMode)
@@ -511,7 +543,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    '${todayLectureCard()[index]["start_time"]} - ${todayLectureCard()[index]["end_time"]}',
+                                                    '${dataToUse[index]["start_time"]} - ${dataToUse[index]["end_time"]}',
                                                     style: TextStyle(
                                                       color: ref.read(lightMode)
                                                           ? Colors.black
@@ -537,17 +569,55 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                                           )
                                                           .state =
                                                       false
-                                            : () {
-                                                if (ref.read(lectureCardActive))
+                                            : () async {
+                                                //to make sure the overlay does not work if the title is NO UPCOMING LECTURE
+                                                if (dataToUse[index]['title'] ==
+                                                    'No Upcoming Lecture') {
                                                   return;
+                                                }
+                                                //if the text is not 'No Upcoming Lecture', just continue with the overlay
+
+                                                //updating the courseName provider
                                                 ref
-                                                    .read(
-                                                      currentCourseCode
-                                                          .notifier,
-                                                    )
-                                                    .state = ref.watch(
-                                                  decoyDB,
-                                                )[index]['title'];
+                                                        .read(
+                                                          currentCourseCode
+                                                              .notifier,
+                                                        )
+                                                        .state =
+                                                    await dataToUse[index]['title'];
+                                                //updating the start_time provider
+                                                ref
+                                                        .read(
+                                                          currentStartTime
+                                                              .notifier,
+                                                        )
+                                                        .state =
+                                                    await dataToUse[index]['start_time'];
+
+                                                //updating the end_time provider
+                                                ref
+                                                        .read(
+                                                          currentEndTime
+                                                              .notifier,
+                                                        )
+                                                        .state =
+                                                    await dataToUse[index]['end_time'];
+                                                //updating the current day of the week provider
+                                                ref
+                                                        .read(
+                                                          currentDayOfTheWeek
+                                                              .notifier,
+                                                        )
+                                                        .state =
+                                                    await dataToUse[index]['dayOfTheWeek'];
+                                                //updating the colour provider
+                                                ref
+                                                        .read(
+                                                          currentColor.notifier,
+                                                        )
+                                                        .state =
+                                                    await dataToUse[index]['color'];
+                                                //to bring the overlay alive
                                                 ref
                                                         .read(
                                                           lectureCardActive
@@ -591,6 +661,10 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                       //add this to the sql for past lecture tracker
                       child: Cardoverlay(
                         courseName: ref.watch(currentCourseCode),
+                        start_time: ref.watch(currentStartTime),
+                        end_time: ref.watch(currentEndTime),
+                        dayOfTheWeek: ref.watch(currentDayOfTheWeek),
+                        color: ref.watch(currentColor),
                       ),
                     );
                   },
@@ -661,3 +735,17 @@ final currentCourseCode = StateProvider(
     return 'NULL';
   },
 ); //This is for the knowing the current course selected in the dahshboard so overlay can know the name of the said course
+
+final currentStartTime = StateProvider((ref) {
+  return 'NULL';
+}); // 'x:xx AM'
+final currentEndTime = StateProvider((ref) {
+  return 'NULL';
+}); //'x:xx AM'
+final currentColor = StateProvider((ref) {
+  return 'NULL';
+}); //red
+final currentDayOfTheWeek = StateProvider((ref) {
+  return 'NULL';
+});//Monday
+

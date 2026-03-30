@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/errorpage.dart';
 import 'package:lecture_tracker/main.dart';
@@ -33,9 +34,9 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         ref.read(lightMode.notifier).state = await lookForSettingBox().get(
           'lightMode',
         );
+
         //if the userName don change already`
         Database sqlDbLocator = await CustomDbClass.instance.getter;
-
         if (lookForSettingBox().get('username') != null) {
           //if the user already changed their name from user, if the name is still user, just leave the provider to handle the task else change the username provider
           ref.read(username.notifier).state = lookForSettingBox().get(
@@ -43,32 +44,82 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           );
         }
 
-        //Setting the lecture history after setting the lightmode
-        // deleteAllRowsPastLectures(dbLocator: getRoute);
+        //Setting the lecture history to the provider - first get the data from its the past lecture table
         List lectureHistory = await fetchAll(
           dbLocator: sqlDbLocator,
           tableName: 'lectureTrackers',
           limit: 1000,
         );
-        //if lectureHistory is empty,   just return the default value that was there before
-        if (lectureHistory.isNotEmpty) {
-          ref.read(pastLectureSQLprovider.notifier).state = lectureHistory;
+        ref.read(pastLectureSQLprovider.notifier).state = lectureHistory;
+
+        //keep tab of today's date for knowing when to reset todaysLectures
+        if (lookForSettingBox().get('todayDate') == null) {
+          //this mean this is the first time the user is opening the app hence do not pass any data from the db cos it will still be empty list and let all the rivepod be empty(their default, check utils) for now
+          //just pass today date to the hive
+          await lookForSettingBox().put(
+            'todayDate',
+            DateTime.now().day - 1,
+          ); //draw the day back by 1 on purpose, this is to allow the app know that isDataPassedForTodaymis false when it is reloading the splashscreen and know that it need to INSERT before SELECT
+        } else {
+          //this mean the user have open our app before and they have made some sort of interactions
+          //here, you can pass the data from the maintable to the today lecture table only if today date and what is in the history of the hive are the same, else pass from the main table to the riverpod straight
+          if (lookForSettingBox().get('todayDate') == DateTime.now().day) {
+            //stil the current day, so just ignore the updating of today lectuer table
+            List<Map> todayLecture = await fetchAll(
+              dbLocator: sqlDbLocator,
+              tableName: 'todayLectures',
+              limit: 1000,
+            );
+            // todayLecture.reversed;
+            print('today lecture sql is passed');
+            ref.read(decoyDB.notifier).state =
+                todayLecture; //pass the data to the provider
+            await Future.delayed(
+              Duration(milliseconds: 500),
+            ); //this is just a gimmick, to stop the transitioning from beign too fast
+
+            router.go('/dashboard');
+            return; //stop all below from running
+            //this mean, the user is still in the current day they open the app last.
+          } else {
+            //this mean the user come back the following date or some days after their last coming, record all the day they did not come as missed lectures
+            //todo - record all missed days
+            //do this last
+            await lookForSettingBox().put('isDataPassedForToday', false);
+          }
         }
+        //this is to make sure the data in main table for a particular day e.g Tuesday is passed to today lecture soon as we start our day and this must happen only once a day
+        if (lookForSettingBox().get('isDataPassedForToday') == false) {
+          List<Map> userTimeTable = await fetchAll(
+            dbLocator: sqlDbLocator,
+            tableName: 'userAllTimetable',
+            limit: 1000,
+          );
+          //clear the today lecture table
+          await sqlDbLocator.rawDelete("DELETE FROM todayLectures");
+          for (Map i in userTimeTable) {
+            if (i.containsKey('dayOfTheWeek') &&
+                i['dayOfTheWeek'] ==
+                    ref.read(wordWeekdayToInt)[DateTime.now().weekday - 1]) {
+              await insertIntoTodayLectures(
+                dbLocator: sqlDbLocator,
+                title: i['title'],
+                start_time: i['start_time'],
+                end_time: i['end_time'],
+                dayOfTheWeek: i['dayOfTheWeek'],
+                color: i['color'],
+              );
+            }
+          }
+          // userTimeTable.reversed;
+          print('main time table sql is passed');
+          ref.read(decoyDB.notifier).state = userTimeTable;
+        }
+        print(lookForSettingBox().get('todayDate'));
         await Future.delayed(
-          Duration(seconds: 1),
+          Duration(milliseconds: 500),
         ); //this is just a gimmick, to stop the transitioning from beign too fast
         router.go('/dashboard');
-        //i dey fear say user fit force close the app while sql process is in progress
-
-        //this is for passing data to the lectureCard soon as user signUp or Anything involving splashscrren is called
-
-        List<Map> userTimeTable = await fetchAll(
-          dbLocator: sqlDbLocator,
-          tableName: 'userAllTimetable',
-          limit: 1000,
-        );
-        ref.read(decoyDB.notifier).state = userTimeTable;
-        print(userTimeTable);
       } catch (e) {
         await Future.delayed(
           Duration(seconds: 1),
