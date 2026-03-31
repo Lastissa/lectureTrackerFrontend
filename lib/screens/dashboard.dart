@@ -428,225 +428,186 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                   upcomingLectureIsActive
                       ? Expanded(
                           //for the upcoming lecture cards
-                          child: ref.watch(decoyDB).isNotEmpty
-                              ? ListView.builder(
-                                  controller: listViewController,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
+                          child: ListView.builder(
+                            controller: listViewController,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            itemCount: todayLectureCard().isEmpty
+                                ? 1
+                                : todayLectureCard().length,
+                            itemBuilder: (context, index) {
+                              //to return nothing when today lecture card is empty
+                              List dataToUse = [
+                                {
+                                  'title': 'No Upcoming Lecture',
+                                  'start_time': '',
+                                  'end_time': '',
+                                  'dayOfTheWeek': '',
+                                  'color': colors[0],
+                                },
+                              ];
+                              if (todayLectureCard().isNotEmpty) {
+                                dataToUse = todayLectureCard();
+                              }
+
+                              return Container(
+                                // duration: duration,
+                                margin: const EdgeInsets.only(bottom: 12.0),
+
+                                decoration: BoxDecoration(
+                                  color: ref.watch(lightMode)
+                                      ? Colors.white
+                                      : Colors.black54,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(14),
                                   ),
-                                  itemCount: todayLectureCard().isEmpty
-                                      ? 1
-                                      : todayLectureCard().length,
-                                  itemBuilder: (context, index) {
-                                    //to return nothing when today lecture card is empty
-                                    List dataToUse = [
-                                      {
-                                        'title': 'No Upcoming Lecture',
-                                        'start_time': 'X:XX PM',
-                                        'end_time': 'X:XX PM',
-                                        'dayOfTheWeek': '',
-                                        'color': colors[0],
-                                      },
-                                    ];
-                                    if (todayLectureCard().isNotEmpty) {
-                                      dataToUse = todayLectureCard();
-                                    }
-                                    print(dataToUse[index]["title"]);
-                                    return Container(
-                                      // duration: duration,
-                                      margin: const EdgeInsets.only(
-                                        bottom: 12.0,
-                                      ),
-
-                                      decoration: BoxDecoration(
-                                        color: ref.watch(lightMode)
-                                            ? Colors.white
-                                            : Colors.black54,
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(14),
-                                        ),
-                                        boxShadow: ref.watch(lightMode)
-                                            ? [
-                                                BoxShadow(
-                                                  color: Color.fromARGB(
-                                                    96,
-                                                    0,
-                                                    0,
-                                                    0,
-                                                  ),
-                                                  offset: Offset(1, 1),
-                                                  blurRadius: 1,
-                                                ),
-                                              ]
-                                            : [
-                                                BoxShadow(
-                                                  color: const Color.fromARGB(
-                                                    255,
-                                                    43,
-                                                    42,
-                                                    42,
-                                                  ),
-                                                  offset: Offset(1, 1),
-                                                ),
-                                                BoxShadow(
-                                                  color: const Color.fromRGBO(
-                                                    77,
-                                                    76,
-                                                    76,
-                                                    1,
-                                                  ),
-                                                  offset: Offset(0, -1),
-                                                ),
-                                              ],
-                                      ),
-                                      child: ListTile(
-                                        contentPadding: const EdgeInsets.all(
-                                          16,
-                                        ),
-                                        leading: Container(
-                                          // duration: duration,
-                                          width: 4,
-                                          height: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color:
-                                                ColorMapper[dataToUse[index]["color"]],
-                                            borderRadius: BorderRadius.circular(
-                                              4,
+                                  boxShadow: ref.watch(lightMode)
+                                      ? [
+                                          BoxShadow(
+                                            color: Color.fromARGB(96, 0, 0, 0),
+                                            offset: Offset(1, 1),
+                                            blurRadius: 1,
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: const Color.fromARGB(
+                                              255,
+                                              43,
+                                              42,
+                                              42,
                                             ),
+                                            offset: Offset(1, 1),
                                           ),
-                                        ),
-                                        title: Text(
-                                          "${dataToUse[index]["title"]}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: ref.read(lightMode)
-                                                ? Colors.black
-                                                : Colors.white,
+                                          BoxShadow(
+                                            color: const Color.fromRGBO(
+                                              77,
+                                              76,
+                                              76,
+                                              1,
+                                            ),
+                                            offset: Offset(0, -1),
                                           ),
-                                        ),
-                                        subtitle: Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 8.0,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.access_time,
-                                                    size: 16,
-                                                    color: ref.read(lightMode)
-                                                        ? Colors.black
-                                                        : Colors.white,
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Text(
-                                                    '${dataToUse[index]["start_time"]} - ${dataToUse[index]["end_time"]}',
-                                                    style: TextStyle(
-                                                      color: ref.read(lightMode)
-                                                          ? Colors.black
-                                                          : Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        trailing: Icon(
-                                          Icons.chevron_right,
-                                          color: Colors.grey[400],
-                                        ),
-                                        splashColor: Colors.transparent,
-                                        onTap: ref.watch(lectureCardActive)
-                                            ? () =>
-                                                  ref
-                                                          .watch(
-                                                            lectureCardActive
-                                                                .notifier,
-                                                          )
-                                                          .state =
-                                                      false
-                                            : () async {
-                                                //to make sure the overlay does not work if the title is NO UPCOMING LECTURE
-                                                if (dataToUse[index]['title'] ==
-                                                    'No Upcoming Lecture') {
-                                                  return;
-                                                }
-                                                //if the text is not 'No Upcoming Lecture', just continue with the overlay
-
-                                                //updating the courseName provider
-                                                ref
-                                                        .read(
-                                                          currentCourseCode
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    await dataToUse[index]['title'];
-                                                //updating the start_time provider
-                                                ref
-                                                        .read(
-                                                          currentStartTime
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    await dataToUse[index]['start_time'];
-
-                                                //updating the end_time provider
-                                                ref
-                                                        .read(
-                                                          currentEndTime
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    await dataToUse[index]['end_time'];
-                                                //updating the current day of the week provider
-                                                ref
-                                                        .read(
-                                                          currentDayOfTheWeek
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    await dataToUse[index]['dayOfTheWeek'];
-                                                //updating the colour provider
-                                                ref
-                                                        .read(
-                                                          currentColor.notifier,
-                                                        )
-                                                        .state =
-                                                    await dataToUse[index]['color'];
-                                                //to bring the overlay alive
-                                                ref
-                                                        .read(
-                                                          lectureCardActive
-                                                              .notifier,
-                                                        )
-                                                        .state =
-                                                    true;
-                                              },
-                                      ),
-                                    );
-                                  },
-                                )
-                              : Container(
-                                  clipBehavior: Clip.hardEdge,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(15),
+                                        ],
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(16),
+                                  leading: Container(
+                                    // duration: duration,
+                                    width: 4,
+                                    height: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          ColorMapper[dataToUse[index]["color"]],
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
                                   ),
-                                  margin: EdgeInsets.all(10),
-                                  width: 360,
-                                  height: 10,
-                                  child: LinearProgressIndicator(
-                                    backgroundColor: ref.watch(lightMode)
-                                        ? Colors.grey[100]
-                                        : Colors.black,
-                                    color: Colors.blueAccent,
+                                  title: Text(
+                                    "${dataToUse[index]["title"]}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: ref.read(lightMode)
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
                                   ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.access_time,
+                                              size: 16,
+                                              color: ref.read(lightMode)
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${dataToUse[index]["start_time"]} - ${dataToUse[index]["end_time"]}',
+                                              style: TextStyle(
+                                                color: ref.read(lightMode)
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.chevron_right,
+                                    color: Colors.grey[400],
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  onTap: ref.watch(lectureCardActive)
+                                      ? () =>
+                                            ref
+                                                    .watch(
+                                                      lectureCardActive
+                                                          .notifier,
+                                                    )
+                                                    .state =
+                                                false
+                                      : () async {
+                                          //to make sure the overlay does not work if the title is NO UPCOMING LECTURE
+                                          if (dataToUse[index]['title'] ==
+                                              'No Upcoming Lecture') {
+                                            return;
+                                          }
+                                          //if the text is not 'No Upcoming Lecture', just continue with the overlay
+
+                                          //updating the courseName provider
+                                          ref
+                                                  .read(
+                                                    currentCourseCode.notifier,
+                                                  )
+                                                  .state =
+                                              await dataToUse[index]['title'];
+                                          //updating the start_time provider
+                                          ref
+                                                  .read(
+                                                    currentStartTime.notifier,
+                                                  )
+                                                  .state =
+                                              await dataToUse[index]['start_time'];
+
+                                          //updating the end_time provider
+                                          ref
+                                                  .read(currentEndTime.notifier)
+                                                  .state =
+                                              await dataToUse[index]['end_time'];
+                                          //updating the current day of the week provider
+                                          ref
+                                                  .read(
+                                                    currentDayOfTheWeek
+                                                        .notifier,
+                                                  )
+                                                  .state =
+                                              await dataToUse[index]['dayOfTheWeek'];
+                                          //updating the colour provider
+                                          ref
+                                                  .read(currentColor.notifier)
+                                                  .state =
+                                              await dataToUse[index]['color'];
+                                          //to bring the overlay alive
+                                          ref
+                                                  .read(
+                                                    lectureCardActive.notifier,
+                                                  )
+                                                  .state =
+                                              true;
+                                        },
                                 ),
+                              );
+                            },
+                          ),
                         )
                       : SizedBox(),
                 ],
@@ -692,7 +653,6 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                   tableName: 'userAllTimetable',
                   limit: 10000,
                 );
-                print(all);
                 //start
                 notifier(
                   context: context,

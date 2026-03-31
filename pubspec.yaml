@@ -45,9 +45,20 @@ dependencies:
   elegant_notification: ^2.5.1   #For secondary notification
   sqflite_common_ffi: ^2.4.0+2 #this is temp as it is just for windows 
   carousel_slider: ^5.1.2 #for the auto scroll
+  flutter_svg: ^2.2.4 #for svg images and strings
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.15.0 # For the app icon
+  flutter_native_splash: ^2.3.0 # For the splash screen just before my own splashscreen opens
+
+# flutter_launcher_icons:
+#   android: true
+#   ios: false
+  # image_path: "assets/staticImages/appIcon.png"
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -69,7 +80,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/staticImages/signUpLogInBg.jpg
+    - assets/staticImages/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

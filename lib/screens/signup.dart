@@ -406,6 +406,11 @@ class _SignupState extends ConsumerState<Signup> {
                                         setState(() {
                                           if (firstHour == 11) {
                                             firstHour = 0;
+                                            secondHour = 0;
+                                            firstIndex = firstIndex == 0
+                                                ? 1
+                                                : 0;
+                                            secondIndex = firstIndex;
                                           } else {
                                             firstHour = firstHour + 1;
                                             secondHour = firstHour;
@@ -428,10 +433,23 @@ class _SignupState extends ConsumerState<Signup> {
                                     _timeWidget(
                                       ontap: () {
                                         setState(() {
-                                          if (firstMinute >= 50) {
+                                          if (firstMinute >= 55) {
+                                            if (firstHour == 11) {
+                                              firstIndex = firstIndex == 0
+                                                  ? 1
+                                                  : 0;
+                                              secondIndex = firstIndex;
+                                            }
                                             firstMinute = 0;
+                                            secondMinute = 0;
+                                            firstHour = firstHour == 11
+                                                ? 0
+                                                : firstHour + 1;
+                                            secondHour = secondHour == 11
+                                                ? 0
+                                                : secondHour + 1;
                                           } else {
-                                            firstMinute = firstMinute + 10;
+                                            firstMinute = firstMinute + 5;
                                             secondMinute = firstMinute;
                                           }
                                         });
@@ -478,6 +496,9 @@ class _SignupState extends ConsumerState<Signup> {
                                         setState(() {
                                           if (secondHour == 11) {
                                             secondHour = 0;
+                                            secondIndex = secondIndex == 0
+                                                ? 1
+                                                : 0;
                                           } else {
                                             secondHour = secondHour + 1;
                                           }
@@ -500,10 +521,18 @@ class _SignupState extends ConsumerState<Signup> {
                                     _timeWidget(
                                       ontap: () {
                                         setState(() {
-                                          if (secondMinute >= 50) {
+                                          if (secondMinute >= 55) {
+                                            if (secondHour == 11) {
+                                              secondIndex = secondIndex == 0
+                                                  ? 1
+                                                  : 0;
+                                            }
                                             secondMinute = 0;
+                                            secondHour = secondHour == 11
+                                                ? 0
+                                                : secondHour + 1;
                                           } else {
-                                            secondMinute = secondMinute + 10;
+                                            secondMinute = secondMinute + 5;
                                           }
                                         });
                                       },
@@ -561,11 +590,12 @@ class _SignupState extends ConsumerState<Signup> {
                                   Container(width: 10),
                                   InkWell(
                                     onTap: ref.watch(_courseCreatedCount) == 0
-                                        ? () => router.go(
-                                            '/error',
-                                            extra:
-                                                'error, courseCount is not zero meaning there is in imblance between the dbDecoy and courseCount',
-                                          )
+                                        ? null
+                                        // () => router.go(
+                                        //     '/error',
+                                        //     extra:
+                                        //         'error, courseCount is not zero meaning there is in imblance between the dbDecoy and courseCount',
+                                        //   )
                                         : () {
                                             try {
                                               ref
@@ -604,7 +634,6 @@ class _SignupState extends ConsumerState<Signup> {
                                             currentDataInDecoyDb.removeAt(
                                               ref.read(_courseCreatedCount),
                                             ); //i do not know how but this somehow remove the last entry in the riverpod and then i update the riverpod with the new list that have the last entry removed, this is for making sure say if user click the back button, e go just remove the last entry wey user add and then update the feilds with the data of the last entry wey be like a preview of the last entry, this one go make user experience better as e go make user know say na the last entry wey e add e be like e just remove and also e go make am easier for user to edit any mistake wey e make in the last entry without having to retype everything, user fit just click the back button and then correct the mistake and then click the add button again, this one go make the app more user friendly
-                                            // print(ref.read(decoyDB));
                                             _courseCodeController.text =
                                                 dataToReturnTo['title'];
                                             ref
@@ -779,18 +808,12 @@ class _SignupState extends ConsumerState<Signup> {
                                             ref.read(_courseCreatedCount) +
                                             1; //increment the course count by one
                                         //all fields are filled, lecture card updated ,clear only the unnecesary feild and get ready for another inputs
-                                        // ref.invalidate(_dayOfTheWeekChoosen);
-                                        // ref.invalidate(
-                                        //   _dayOfTheWeekChoosenText,
-                                        // );
+
                                         _courseCodeController.text = '';
                                         setState(() {
                                           firstHour = secondHour;
                                           firstMinute = secondMinute;
                                           firstIndex = secondIndex;
-                                          // secondHour = 0;
-                                          // secondMinute = 0;
-                                          // // secondIndex = 0;
                                         });
                                         ElegantNotification(
                                           progressIndicatorBackground:
@@ -857,7 +880,6 @@ class _SignupState extends ConsumerState<Signup> {
                                   List<Map> allDataCollected = await ref.read(
                                     decoyDB,
                                   );
-                                  // print(allDataCollected);
                                   // return;
                                   allDataCollected.add({
                                     'title': _courseCodeController.text
@@ -906,7 +928,6 @@ class _SignupState extends ConsumerState<Signup> {
                                             ref.read(
                                               wordWeekdayToInt,
                                             )[DateTime.now().weekday - 1]) {
-                                      // print(i);
                                       await insertIntoTodayLectures(
                                         dbLocator: Dblocator,
                                         title: i['title'],
@@ -916,7 +937,12 @@ class _SignupState extends ConsumerState<Signup> {
                                         color: colors[index],
                                       );
                                     }
-                                    index++;
+                                    //incase index get to twelve which is the maximum colour available, reset index to 0 -remove in the future if i have a way to add more colour
+                                    if ((colors.length - 1) == index) {
+                                      index = 0;
+                                    } else {
+                                      index++;
+                                    }
                                   }
 
                                   //update the username if it is changed else just leave it
@@ -936,11 +962,11 @@ class _SignupState extends ConsumerState<Signup> {
                                   ref.invalidate(_courseCreatedCount);
                                   ref.invalidate(_dayOfTheWeekChoosen);
                                   ref.invalidate(_dayOfTheWeekChoosenText);
-
+                                  //this is for knowing wether to skip the signup page when user press the settings
                                   await lookForSettingBox().put(
                                     'userHaveCreatedCourses',
                                     true,
-                                  ); //this is for knowing wether to skip the signup page when user press the settings
+                                  );
                                   await lookForSettingBox().put(
                                     'todayDate',
                                     DateTime.now().day,
@@ -1012,7 +1038,7 @@ class _SignupState extends ConsumerState<Signup> {
                           ),
                         ),
 
-                        // Back to Login
+                        // Back to dashboard
                         TextButton(
                           onPressed: () {
                             router.go('/splashScreen');

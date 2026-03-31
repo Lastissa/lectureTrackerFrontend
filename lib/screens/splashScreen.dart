@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
-import 'package:lecture_tracker/errorpage.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -25,6 +23,8 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
   Future<void> toRun() async {
     //i am using widgetsbinding to avoid the issue of router.go during build
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      print('starting starting starting...');
+      ref.invalidate(decoyDB);
       try {
         //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
         if (lookForSettingBox().get('lightMode') == null) {
@@ -65,6 +65,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           //here, you can pass the data from the maintable to the today lecture table only if today date and what is in the history of the hive are the same, else pass from the main table to the riverpod straight
           if (lookForSettingBox().get('todayDate') == DateTime.now().day) {
             //stil the current day, so just ignore the updating of today lectuer table
+            print('just before today lecture sql is passed');
             List<Map> todayLecture = await fetchAll(
               dbLocator: sqlDbLocator,
               tableName: 'todayLectures',
@@ -97,6 +98,8 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           );
           //clear the today lecture table
           await sqlDbLocator.rawDelete("DELETE FROM todayLectures");
+          print('just before main time table sql is passed');
+
           for (Map i in userTimeTable) {
             if (i.containsKey('dayOfTheWeek') &&
                 i['dayOfTheWeek'] ==
@@ -122,7 +125,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         router.go('/dashboard');
       } catch (e) {
         await Future.delayed(
-          Duration(seconds: 1),
+          Duration(seconds: 2),
         ); //this is just a gimmick, to stop the transitioning from beign too fast
         router.go('/error', extra: e.toString());
       }
