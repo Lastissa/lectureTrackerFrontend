@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
 
@@ -28,468 +30,630 @@ class Settings extends ConsumerStatefulWidget {
 
 class _SettingsState extends ConsumerState<Settings> {
   @override
-  bool isChangeUserNameActive = false;
-  double temp = 0;
+  bool confirmdeleteAccountPopup = false;
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+      backgroundColor: ref.watch(lightMode) ? Colors.grey[100] : Colors.black,
       appBar: AppBar(
         toolbarHeight: ref.read(deviceSizeY) * 0.2.h,
-        backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
-        title: Center(
-          child: Text(
-            '\nSETTINGS',
-            textAlign: TextAlign.center,
 
-            style: TextStyle(
-              fontSize: 28.sp.clamp(0, 28),
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
-              color: ref.watch(lightMode)
-                  ? Colors.blueAccent
-                  : Colors.greenAccent,
+        backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+        title: Container(
+          width: ref.watch(deviceSizeX).w,
+          height: ref.watch(deviceSizeY) * 0.2.h,
+          color: ref.watch(lightMode) ? Colors.grey[100] : Colors.black,
+          child: Center(
+            child: Text(
+              '\nSETTINGS',
+              textAlign: TextAlign.center,
+
+              style: TextStyle(
+                fontSize: 28.sp.clamp(0, 28),
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.5,
+                color: ref.watch(lightMode)
+                    ? Colors.blueAccent
+                    : Colors.greenAccent,
+              ),
             ),
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          Column(
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) => router.go('/dashboard'),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: ref.watch(deviceSizeX) * 0.09.w,
+          ),
+          child: Stack(
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      //the change username
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: ref.watch(deviceSizeY) * 0.02.h,
-                          ),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Icon(
-                                  Icons.person,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
-                                ),
-                              ),
-                              Text(
-                                'Change Username',
-                                style: TextStyle(
-                                  letterSpacing: -1,
-                                  fontSize: 17.sp.clamp(0, 17),
-                                  fontWeight: FontWeight.w600,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      //the change theme
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {},
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: ref.watch(deviceSizeY) * 0.02.h,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        ref.watch(lightMode)
-                                            ? Icons.sunny
-                                            : Icons.nightlight_round_sharp,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.blueAccent
-                                            : Colors.greenAccent,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Change Theme",
-                                      style: TextStyle(
-                                        letterSpacing: -1,
-                                        fontSize: 17.sp.clamp(0, 17),
-                                        fontWeight: FontWeight.w600,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.blueAccent
-                                            : Colors.greenAccent,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Switch(
-                            trackOutlineColor: WidgetStatePropertyAll(
-                              ref.watch(lightMode)
-                                  ? Colors.blueAccent
-                                  : Colors.greenAccent,
-                            ),
-                            thumbColor: WidgetStateProperty.all(
-                              ref.watch(lightMode)
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                            trackColor: WidgetStateProperty.all(
-                              ref.watch(lightMode)
-                                  ? Colors.blueAccent
-                                  : Colors.greenAccent,
-                            ),
-
-                            value: !ref.watch(lightMode),
-                            onChanged: (v) async {
-                              ref.watch(lightMode.notifier).state = !v;
-                              await lookForSettingBox().put('lightMode', !v);
-                            },
-                          ),
-                        ],
-                      ),
-                      //edit registered courses
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: ref.watch(deviceSizeY) * 0.02.h,
-                          ),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(
-                                  Icons.edit_document,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
-                                ),
-                              ),
-                              Text(
-                                "Edit Registered Course",
-                                style: TextStyle(
-                                  letterSpacing: -1,
-                                  fontSize: 17.sp.clamp(0, 17),
-                                  fontWeight: FontWeight.w600,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      //analysis widget
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: ref.watch(deviceSizeY) * 0.02.h,
-                          ),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(
-                                  Icons.analytics,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
-                                ),
-                              ),
-                              Text(
-                                "Analysis",
-                                style: TextStyle(
-                                  letterSpacing: -1,
-                                  fontSize: 17.sp.clamp(0, 17),
-                                  fontWeight: FontWeight.w600,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              //the backup and restore container
-              Container(
-                width: ref.read(deviceSizeX).w,
-                height: 40,
-                child: Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    SizedBox(width: ref.read(deviceSizeX) * 0.06.w),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              backgroundColor: ref.watch(lightMode)
-                                  ? Colors.blueAccent
-                                  : Colors.greenAccent,
-                              foregroundColor: ref.watch(lightMode)
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                            onPressed: () {},
-                            child: Text(
-                              "Restore Data",
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: ref.watch(deviceSizeX) * 0.06.w),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              elevation: 1,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              backgroundColor: ref.watch(lightMode)
-                                  ? Colors.blueAccent
-                                  : Colors.greenAccent,
-                              foregroundColor: ref.watch(lightMode)
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                            onPressed: () {},
-                            child: Text(
-                              "Backup Data",
-                              style: TextStyle(),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: ref.read(deviceSizeX) * 0.06.w),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ref.read(deviceSizeX) * 0.06.w,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: ref.watch(lightMode)
-                            ? Colors.blueAccent
-                            : Colors.teal,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ref.watch(deviceSizeX) * 0.06.w,
-                        vertical: ref.watch(deviceSizeY) * 0.001.h.clamp(0, 10),
-                      ),
-                      child: Text(
-                        "OR",
-                        style: TextStyle(
-                          color: ref.watch(lightMode)
-                              ? Colors.black87
-                              : Colors.white70,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: ref.watch(lightMode)
-                            ? Colors.blueAccent
-                            : Colors.teal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Back to Login
-              TextButton(
-                onPressed: () {
-                  router.go('/splashScreen');
-                },
-
-                child: Text(
-                  "Back to Dashboard",
-                  style: TextStyle(
-                    color: ref.read(lightMode)
-                        ? Colors.grey[700]
-                        : Colors.grey[400],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              SizedBox(height: ref.watch(deviceSizeY) * 0.04.h.clamp(0, 15)),
-
               Column(
                 children: [
-                  //for my own previous works
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.grey[700]),
-                        Text(
-                          '\tDevOpe built it.Want to Connect?👇',
-                          style: TextStyle(
-                            color: ref.watch(lightMode)
-                                ? Colors.grey[700]
-                                : Colors.white70,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: ref.read(deviceSizeX) * 0.65.w.clamp(0.5, 0.75),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: ref.watch(lightMode)
-                          ? Colors.blueAccent
-                          : Colors.greenAccent,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 28, // 85.r.clamp(0, 32),
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(),
-                          child: SvgPicture.asset(
-                            'assets/staticImages/whatsapp.svg',
-                          ),
-                        ), //for my whatsapp link ; whatsapp logo
-                        SizedBox(width: 15),
-                        Container(
-                          width: 28, //85.r.clamp(0, 30),
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(),
-                          child: SvgPicture.asset(
-                            'assets/staticImages/github.svg',
-                          ),
-                        ), //for my twitter link ; twitter logo
-                        SizedBox(width: 15),
-                        Container(
-                          width: 28, //85.r.clamp(0, 30),
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(),
-                          child: SvgPicture.asset(
-                            'assets/staticImages/twitter_light.svg',
-                          ),
-                        ), //for my github link ; github logo
-                        SizedBox(width: 15),
-                        Container(
-                          width: 25, //85.r.clamp(0, 25),
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(),
-                          child: SvgPicture.asset(
-                            'assets/staticImages/gmail_light.svg',
-                          ),
-                        ), //for my email address ; use email logo
-                        SizedBox(width: 15),
-                        Container(
-                          width: 25, //85.r.clamp(0, 25),
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(),
-                          child: SvgPicture.asset(
-                            'assets/staticImages/share.svg',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: ref.watch(deviceSizeY) * 0.02.h.clamp(0, 8)),
-            ],
-          ),
-          Positioned(
-            right: 0,
-            child:
-                0 ==
-                    0 //make this false to make the other part come up
-                ? SizedBox()
-                : Row(
-                    children: [
-                      InkWell(
-                        onTap: () => router.go('/dashboard'),
-                        child: Container(
-                          margin: EdgeInsets.all(10),
-                          child: CircleAvatar(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              185,
-                              56,
-                              46,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          //the change username
+                          InkWell(
+                            onTap: () {},
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: ref.watch(deviceSizeY) * 0.02.h,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    child: Icon(
+                                      Icons.person,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Change Username',
+                                    style: TextStyle(
+                                      letterSpacing: -1,
+                                      fontSize: 17.sp.clamp(0, 17),
+                                      fontWeight: FontWeight.w600,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-
-                            child: Icon(Icons.close, color: Colors.white),
                           ),
+                          //the change theme
+                          Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: ref.watch(deviceSizeY) * 0.02.h,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Icon(
+                                            ref.watch(lightMode)
+                                                ? Icons.sunny
+                                                : Icons.nightlight_round_sharp,
+                                            color: ref.watch(lightMode)
+                                                ? Colors.blueAccent
+                                                : Colors.greenAccent,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Change Theme",
+                                          style: TextStyle(
+                                            letterSpacing: -1,
+                                            fontSize: 17.sp.clamp(0, 17),
+                                            fontWeight: FontWeight.w600,
+                                            color: ref.watch(lightMode)
+                                                ? Colors.blueAccent
+                                                : Colors.greenAccent,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Switch(
+                                trackOutlineColor: WidgetStatePropertyAll(
+                                  ref.watch(lightMode)
+                                      ? Colors.blueAccent
+                                      : Colors.greenAccent,
+                                ),
+                                thumbColor: WidgetStateProperty.all(
+                                  ref.watch(lightMode)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                                trackColor: WidgetStateProperty.all(
+                                  ref.watch(lightMode)
+                                      ? Colors.blueAccent
+                                      : Colors.greenAccent,
+                                ),
+
+                                value: !ref.watch(lightMode),
+                                onChanged: (v) async {
+                                  ref.watch(lightMode.notifier).state = !v;
+                                  await lookForSettingBox().put(
+                                    'lightMode',
+                                    !v,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          //edit registered courses
+                          InkWell(
+                            onTap: () {},
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: ref.watch(deviceSizeY) * 0.02.h,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.edit_document,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Edit Registered Course",
+                                    style: TextStyle(
+                                      letterSpacing: -1,
+                                      fontSize: 17.sp.clamp(0, 17),
+                                      fontWeight: FontWeight.w600,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          //analysis widget
+                          InkWell(
+                            onTap: () {},
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: ref.watch(deviceSizeY) * 0.02.h,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.analytics,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Analysis",
+                                    style: TextStyle(
+                                      letterSpacing: -1,
+                                      fontSize: 17.sp.clamp(0, 17),
+                                      fontWeight: FontWeight.w600,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          //delete account confirmation
+                          AnimatedCrossFade(
+                            firstChild: //delete account widget
+                            InkWell(
+                              onTap: () {
+                                notifier(
+                                  context: context,
+                                  message: 'Long Press to Delete Account',
+                                  bg: ref.read(lightMode)
+                                      ? Colors.red
+                                      : Colors.redAccent,
+                                );
+                              },
+
+                              onLongPress: () {
+                                setState(() {
+                                  confirmdeleteAccountPopup = true;
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.delete,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.red
+                                          : Colors.redAccent,
+                                    ),
+                                  ),
+                                  Text(
+                                    "DELETE ACCOUNT",
+                                    style: TextStyle(
+                                      letterSpacing: -1,
+                                      fontSize: 17.sp.clamp(0, 17),
+                                      fontWeight: FontWeight.w600,
+                                      color: ref.watch(lightMode)
+                                          ? Colors.red
+                                          : Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            secondChild: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: ref.watch(lightMode)
+                                          ? Colors.blueAccent
+                                          : Colors.greenAccent,
+                                      foregroundColor: ref.watch(lightMode)
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        confirmdeleteAccountPopup = false;
+                                      });
+                                    },
+                                    child: Icon(Icons.cancel_outlined),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: ref.watch(lightMode)
+                                          ? Colors.red
+                                          : Colors.red,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    onPressed: () async {
+                                      final locator =
+                                          await CustomDbClass.instance.getter;
+                                      await locator.rawDelete(
+                                        "DELETE FROM todayLectures",
+                                      );
+                                      await locator.rawDelete(
+                                        "DELETE FROM userAllTimetable",
+                                      );
+                                      await locator.rawDelete(
+                                        "DELETE FROM lectureTrackers",
+                                      );
+                                      await lookForSettingBox().delete(
+                                        'lightMode',
+                                      );
+                                      await lookForSettingBox().delete(
+                                        'username',
+                                      );
+                                      await lookForSettingBox().delete(
+                                        'todayDate',
+                                      );
+                                      await lookForSettingBox().delete(
+                                        'isDataPassedForToday',
+                                      );
+                                      await lookForSettingBox().delete(
+                                        'userHaveCreatedCourses',
+                                      );
+
+                                      router.go('/splashScreen');
+                                    },
+                                    child: Text('Yes, Delete Account'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            crossFadeState: confirmdeleteAccountPopup
+                                ? CrossFadeState.showSecond
+                                : CrossFadeState.showFirst,
+                            duration: Duration(milliseconds: 200),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  //the backup and restore container
+                  Container(
+                    width: ref.read(deviceSizeX).w,
+                    height: 40,
+                    child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SizedBox(width: ref.read(deviceSizeX) * 0.06.w),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Instead of an ElevatedButton, try this:
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  backgroundColor: ref.watch(lightMode)
+                                      ? Colors.blueAccent
+                                      : Colors.greenAccent,
+                                  foregroundColor: ref.watch(lightMode)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                                onPressed: () {},
+                                child: Text(
+                                  "Restore Data",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: ref.watch(deviceSizeX) * 0.06.w),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  backgroundColor: ref.watch(lightMode)
+                                      ? Colors.blueAccent
+                                      : Colors.greenAccent,
+                                  foregroundColor: ref.watch(lightMode)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                                onPressed: () {},
+                                child: Text(
+                                  "Backup Data",
+                                  style: TextStyle(),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: ref.read(deviceSizeX) * 0.06.w),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ref.read(deviceSizeX) * 0.06.w,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: ref.watch(lightMode)
+                                ? Colors.blueAccent
+                                : Colors.teal,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ref.watch(deviceSizeX) * 0.06.w,
+                            vertical:
+                                ref.watch(deviceSizeY) * 0.001.h.clamp(0, 10),
+                          ),
+                          child: Text(
+                            "OR",
+                            style: TextStyle(
+                              color: ref.watch(lightMode)
+                                  ? Colors.black87
+                                  : Colors.white70,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: ref.watch(lightMode)
+                                ? Colors.blueAccent
+                                : Colors.teal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Back to Login
+                  TextButton(
+                    onPressed: () {
+                      router.go('/splashScreen');
+                    },
+
+                    child: Text(
+                      "Back to Dashboard",
+                      style: TextStyle(
+                        color: ref.read(lightMode)
+                            ? Colors.grey[700]
+                            : Colors.grey[400],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: ref.watch(deviceSizeY) * 0.04.h.clamp(0, 15),
+                  ),
+
+                  Column(
+                    children: [
+                      //for my own previous works
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+
+                          children: [
+                            Icon(Icons.info_outline, color: Colors.grey[700]),
+                            Text(
+                              '\tDevOpe built it.Want to Connect?👇',
+                              style: TextStyle(
+                                color: ref.watch(lightMode)
+                                    ? Colors.grey[700]
+                                    : Colors.white70,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      InkWell(
-                        onTap: () {
-                          if (ref.read(lightMode)) {
-                            ref.read(lightMode.notifier).state = false;
-                            lookForSettingBox().put('lightMode', false);
-                          } else {
-                            ref.read(lightMode.notifier).state = true;
-                            lookForSettingBox().put('lightMode', true);
-                          }
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: ref.watch(lightMode)
-                              ? Colors.black87
-                              : Colors.white70,
-
-                          child: Icon(
-                            ref.watch(lightMode)
-                                ? Icons.sunny
-                                : Icons.nightlight_round_sharp,
-                            color: ref.watch(lightMode)
-                                ? Colors.white
-                                : Colors.black,
-                          ),
+                      Container(
+                        width: ref.read(deviceSizeX) * 0.65.w.clamp(0.5, 0.75),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ref.watch(lightMode)
+                              ? Colors.blueAccent
+                              : Colors.greenAccent,
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                //navigate to my whatsapp link using the url launcher
+                              },
+                              child: Container(
+                                width: 28, // 85.r.clamp(0, 32),
+                                clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(),
+                                child: SvgPicture.asset(
+                                  'assets/staticImages/whatsapp.svg',
+                                ),
+                              ),
+                            ), //for my whatsapp link ; whatsapp logo
+                            SizedBox(width: 15),
+                            InkWell(
+                              onTap: () {
+                                //navigate to my github profile using the url launcher
+                              },
+                              child: Container(
+                                width: 28, //85.r.clamp(0, 30),
+                                clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(),
+                                child: SvgPicture.asset(
+                                  'assets/staticImages/github.svg',
+                                ),
+                              ),
+                            ), //for my twitter link ; twitter logo
+                            SizedBox(width: 15),
+                            InkWell(
+                              onTap: () {
+                                //navigate to my twitter handle using the url launcher
+                              },
+                              child: Container(
+                                width: 28, //85.r.clamp(0, 30),
+                                clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(),
+                                child: SvgPicture.asset(
+                                  'assets/staticImages/twitter_light.svg',
+                                ),
+                              ),
+                            ), //for my github link ; github logo
+                            SizedBox(width: 15),
+                            InkWell(
+                              onTap: () {
+                                //navigate to my email with predefined composed message of wanting to link up with me formally using the url launcher
+                              },
+                              child: Container(
+                                width: 25, //85.r.clamp(0, 25),
+                                clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(),
+                                child: SvgPicture.asset(
+                                  'assets/staticImages/gmail_light.svg',
+                                ),
+                              ),
+                            ), //for my email address ; use email logo
+                            SizedBox(width: 15),
+                            InkWell(
+                              onTap: () {
+                                //bring up the share app - i do not know the package i will use for now
+                              },
+                              child: Container(
+                                width: 24, //85.r.clamp(0, 25),
+                                clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(),
+                                child: SvgPicture.asset(
+                                  'assets/staticImages/shareIcon.svg',
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
+                  SizedBox(height: ref.watch(deviceSizeY) * 0.02.h.clamp(0, 8)),
+                ],
+              ),
+              Positioned(
+                right: 0,
+                child:
+                    0 ==
+                        0 //make this false to make the other part come up
+                    ? SizedBox()
+                    : Row(
+                        children: [
+                          InkWell(
+                            onTap: () => router.go('/dashboard'),
+                            child: Container(
+                              margin: EdgeInsets.all(10),
+                              child: CircleAvatar(
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  185,
+                                  56,
+                                  46,
+                                ),
+
+                                child: Icon(Icons.close, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              if (ref.read(lightMode)) {
+                                ref.read(lightMode.notifier).state = false;
+                                lookForSettingBox().put('lightMode', false);
+                              } else {
+                                ref.read(lightMode.notifier).state = true;
+                                lookForSettingBox().put('lightMode', true);
+                              }
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: ref.watch(lightMode)
+                                  ? Colors.black87
+                                  : Colors.white70,
+
+                              child: Icon(
+                                ref.watch(lightMode)
+                                    ? Icons.sunny
+                                    : Icons.nightlight_round_sharp,
+                                color: ref.watch(lightMode)
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -23,7 +23,11 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
   Future<void> toRun() async {
     //i am using widgetsbinding to avoid the issue of router.go during build
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // await lookForSettingBox().delete('userHaveCreatedCourses');
+
       print('starting starting starting...');
+      // lookForSettingBox().put('todayDate', DateTime.now().day);
+      print(lookForSettingBox().get('todayDate'));
       ref.invalidate(decoyDB);
       try {
         //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
@@ -35,16 +39,18 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           'lightMode',
         );
 
-        //if the userName don change already`
+        //if the userName don change already
         Database sqlDbLocator = await CustomDbClass.instance.getter;
         if (lookForSettingBox().get('username') != null) {
           //if the user already changed their name from user, if the name is still user, just leave the provider to handle the task else change the username provider
           ref.read(username.notifier).state = lookForSettingBox().get(
             'username',
           );
+        } else {
+          ref.read(username.notifier).state = 'user';
         }
 
-        //Setting the lecture history to the provider - first get the data from its the past lecture table
+        //Setting the lecture history to the provider - first get the data from the past lecture table
         List lectureHistory = await fetchAll(
           dbLocator: sqlDbLocator,
           tableName: 'lectureTrackers',
@@ -64,7 +70,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           //this mean the user have open our app before and they have made some sort of interactions
           //here, you can pass the data from the maintable to the today lecture table only if today date and what is in the history of the hive are the same, else pass from the main table to the riverpod straight
           if (lookForSettingBox().get('todayDate') == DateTime.now().day) {
-            //stil the current day, so just ignore the updating of today lectuer table
+            //stil the current day , so just ignore the updating of today lectuer table
             print('just before today lecture sql is passed');
             List<Map> todayLecture = await fetchAll(
               dbLocator: sqlDbLocator,
@@ -117,12 +123,16 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           // userTimeTable.reversed;
           print('main time table sql is passed');
           ref.read(decoyDB.notifier).state = userTimeTable;
+          await lookForSettingBox().put('isDataPassedForToday', true);
         }
-        print(lookForSettingBox().get('todayDate'));
         await Future.delayed(
           Duration(milliseconds: 500),
         ); //this is just a gimmick, to stop the transitioning from beign too fast
         router.go('/dashboard');
+        //this print is to knoe wether data was updated today, it is meant to let us know if at least one of the table passed data
+        print(
+          'is data passed for today: ${lookForSettingBox().get('isDataPassedForToday')}',
+        );
       } catch (e) {
         await Future.delayed(
           Duration(seconds: 2),

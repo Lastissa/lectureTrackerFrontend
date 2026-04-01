@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lecture_tracker/errorpage.dart';
-import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/settings.dart';
 import 'package:lecture_tracker/screens/signup.dart';
@@ -152,6 +151,7 @@ ScaffoldFeatureController? notifier({
           ),
         ),
         behavior: SnackBarBehavior.floating,
+
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),

@@ -50,13 +50,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.15.0 # For the app icon
+  flutter_launcher_icons: ^0.14.4 # For the app icon
   flutter_native_splash: ^2.3.0 # For the splash screen just before my own splashscreen opens
 
-# flutter_launcher_icons:
-#   android: true
-#   ios: false
-  # image_path: "assets/staticImages/appIcon.png"
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/staticImages/mainicon.png"
 
 
 

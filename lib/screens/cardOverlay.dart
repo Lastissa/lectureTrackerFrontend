@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
+import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -64,21 +65,20 @@ Future<void> _buttonClicked({
   ref.read(pastLectureSQLprovider.notifier).state = fetchDataFromDb;
 
   //this is for updating the stuff in today lecture table and the decoydb riverpod
-  //first get all data from the today lecture
-  final dbLocator = await CustomDbClass.instance.getter;
-
   //del the entered card from it
-  dbLocator.rawDelete(
+  locator.rawDelete(
     "DELETE FROM todayLectures WHERE title = ? AND start_time = ? AND  end_time = ? AND dayOfTheWeek = ? AND color = ?",
     [courseName, start_time, end_time, dayOfTheWeek, color],
   );
   //fetch the new updated table
   List<Map> allData = await fetchAll(
-    dbLocator: dbLocator,
+    dbLocator: locator,
     tableName: 'todayLectures',
     limit: 1000,
   );
   ref.read(decoyDB.notifier).state = allData;
+  //update the today date hive box so the splashscrren knows it is supposed to load from today lectures and not main table
+  await lookForSettingBox().put('todayDate', DateTime.now().day);
 }
 
 class _cardOverlayState extends ConsumerState<Cardoverlay> {

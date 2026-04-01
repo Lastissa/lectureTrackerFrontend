@@ -24,7 +24,6 @@ void main() async {
   //this hold past lectures in list format
   // await Hive.openBox('pastLectures');
 
-  //come back and do for the lecture card later
   runApp(ProviderScope(child: HomeFile()));
 }
 
