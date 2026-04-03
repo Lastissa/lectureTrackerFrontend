@@ -33,24 +33,34 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
       );
       //this is to get to get tommorrow data like for the next day
       List<Map> tommorrowData = [];
-      // List<Map> twoDaysFromNowData = [];
-      // List<Map> threeDaysFromNowData = [];
-      // List<Map> fourDaysFromNowData = [];
-      // List<Map> fiveDaysAwayFromNowData
+      List<Map> twoDaysFromNowData = [];
+      List<Map> threeDaysFromNowData = [];
+      List<Map> fourDaysFromNowData = [];
+      List<Map> fiveDaysAwayFromNowData = [];
+      List<Map> sizDaysAwayFromNowData = [];
       String tommorowDate = DateTime.now().weekday == 7
           ? ref.read(wordWeekdayToInt)[0]
           : ref.read(wordWeekdayToInt)[DateTime.now()
                 .weekday]; //this is to get wether the day is Monday, Tuesdat,etc
+      String twoDaysFromDate = DateTime.now().weekday == 7
+          ? ref.read(wordWeekdayToInt)[1]
+          : ref.read(wordWeekdayToInt)[DateTime.now().weekday + 1];
 
       for (Map i in userTimeTable) {
+        //checking if tommorrow is seem
         if (i.containsKey('dayOfTheWeek') &&
             i['dayOfTheWeek'] == tommorowDate) {
           tommorrowData.add(i);
         }
-        ref.read(tommorowLectureSQLprovider.notifier).state =
-            await tommorrowData; //adding the data to the next day provider
-      } //brb
+        //Checking if next tommorrow is seem
+        else if (i.containsKey('dayOfTheWeek') &&
+            i['dayOfTheWeek'] == twoDaysFromDate) {
+          twoDaysFromNowData.add(i);
+        }
+      }
       ref.read(tommorowLectureSQLprovider.notifier).state = await tommorrowData;
+      ref.read(twoDaysLaterLectureSQLprovider.notifier).state =
+          twoDaysFromNowData;
       print('starting starting starting...');
       // lookForSettingBox().put('todayDate', DateTime.now().day);
       print('today date: ${lookForSettingBox().get('todayDate')}');
