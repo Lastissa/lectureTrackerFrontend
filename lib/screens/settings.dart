@@ -29,9 +29,15 @@ class Settings extends ConsumerStatefulWidget {
 }
 
 class _SettingsState extends ConsumerState<Settings> {
-  @override
-  bool confirmdeleteAccountPopup = false;
+  void initState() {
+    super.initState();
+    changeNameController.text = lookForSettingBox().get('username') ?? '';
+  }
 
+  bool confirmdeleteAccountPopup = false;
+  bool isChangeUsernameActive = false;
+  final changeNameController = TextEditingController();
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ref.watch(lightMode) ? Colors.grey[100] : Colors.black,
@@ -76,39 +82,90 @@ class _SettingsState extends ConsumerState<Settings> {
                       child: Column(
                         children: [
                           //the change username
-                          InkWell(
-                            onTap: () {},
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                vertical: ref.watch(deviceSizeY) * 0.02.h,
-                              ),
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10,
+                          AnimatedCrossFade(
+                            firstChild: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  isChangeUsernameActive = true;
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: ref.watch(deviceSizeY) * 0.02.h,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      child: Icon(
+                                        Icons.person,
+                                        color: ref.watch(lightMode)
+                                            ? Colors.blueAccent
+                                            : Colors.greenAccent,
+                                      ),
                                     ),
-                                    child: Icon(
-                                      Icons.person,
-                                      color: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
+                                    Text(
+                                      'Change Username',
+                                      style: TextStyle(
+                                        letterSpacing: -1,
+                                        fontSize: 17.sp.clamp(0, 17),
+                                        fontWeight: FontWeight.w600,
+                                        color: ref.watch(lightMode)
+                                            ? Colors.blueAccent
+                                            : Colors.greenAccent,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Change Username',
-                                    style: TextStyle(
-                                      letterSpacing: -1,
-                                      fontSize: 17.sp.clamp(0, 17),
-                                      fontWeight: FontWeight.w600,
-                                      color: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
+                            secondChild: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: changeNameController,
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () async {
+                                    await lookForSettingBox().put(
+                                      'username',
+                                      changeNameController.text
+                                          .trim()
+                                          .toUpperCase(),
+                                    );
+                                    ref.read(username.notifier).state =
+                                        changeNameController.text;
+                                    setState(() {
+                                      isChangeUsernameActive = false;
+                                    });
+                                  },
+                                  child: Icon(
+                                    Icons.cloud_done_rounded,
+                                    color: ref.watch(lightMode)
+                                        ? Colors.blueAccent
+                                        : Colors.greenAccent,
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      isChangeUsernameActive = false;
+                                    });
+                                  },
+                                  child: Icon(
+                                    color: Colors.red,
+                                    Icons.cancel_rounded,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            crossFadeState: isChangeUsernameActive
+                                ? CrossFadeState.showSecond
+                                : CrossFadeState.showFirst,
+                            duration: Duration(milliseconds: 350),
                           ),
                           //the change theme
                           Row(
@@ -179,7 +236,9 @@ class _SettingsState extends ConsumerState<Settings> {
                           ),
                           //edit registered courses
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              router.push('/Editcourse');
+                            },
                             child: Container(
                               padding: EdgeInsets.symmetric(
                                 vertical: ref.watch(deviceSizeY) * 0.02.h,

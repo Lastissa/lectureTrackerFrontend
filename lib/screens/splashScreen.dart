@@ -27,7 +27,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
 
       print('starting starting starting...');
       // lookForSettingBox().put('todayDate', DateTime.now().day);
-      print(lookForSettingBox().get('todayDate'));
+      print('today date: ${lookForSettingBox().get('todayDate')}');
       ref.invalidate(decoyDB);
       try {
         //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
@@ -77,10 +77,10 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               tableName: 'todayLectures',
               limit: 1000,
             );
-            // todayLecture.reversed;
             print('today lecture sql is passed');
             ref.read(decoyDB.notifier).state =
                 todayLecture; //pass the data to the provider
+            // print(ref.read(decoyDB));
             await Future.delayed(
               Duration(milliseconds: 500),
             ); //this is just a gimmick, to stop the transitioning from beign too fast
@@ -120,19 +120,17 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               );
             }
           }
-          // userTimeTable.reversed;
           print('main time table sql is passed');
           ref.read(decoyDB.notifier).state = userTimeTable;
+          // print(ref.read(decoyDB));
           await lookForSettingBox().put('isDataPassedForToday', true);
         }
         await Future.delayed(
           Duration(milliseconds: 500),
         ); //this is just a gimmick, to stop the transitioning from beign too fast
-        router.go('/dashboard');
         //this print is to knoe wether data was updated today, it is meant to let us know if at least one of the table passed data
-        print(
-          'is data passed for today: ${lookForSettingBox().get('isDataPassedForToday')}',
-        );
+
+        router.go('/dashboard');
       } catch (e) {
         await Future.delayed(
           Duration(seconds: 2),

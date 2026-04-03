@@ -1,3 +1,5 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,9 +23,15 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
 
   bool upcomingLectureIsActive = true;
   bool pastLectureIsActice = false;
+  int displayToday = 1;
+  int displayTommorow = 2;
+  int displayNextTommorow = 3;
+  int displayNextThirdDay = 4;
+  int displayNextFourthDay = 5;
+  int displayNextFifthDay = 6;
+  int displayNextSixthDay = 7;
 
-  // Function to refresh the page
-
+  // Function to to pick today lecture
   List<Map> todayLectureCard() {
     //all data have been provided from the splashscreen before we got here so there should not be any async and await issue
     List<Map> listToUse = []; // list we are returning for display,
@@ -36,6 +44,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
       }
     }
 
+    listToUse = listToUse.reversed.toList();
     return listToUse;
   }
 
@@ -60,136 +69,135 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Dashboard Header / Summary Area
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    hoverDuration: Duration.zero,
-                    highlightColor: Colors.transparent,
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Container(
+                      // duration: duration,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        boxShadow: ref.watch(lightMode)
+                            ? [
+                                BoxShadow(
+                                  color: ref.watch(lightMode)
+                                      ? Colors.black38
+                                      : Colors.black87,
+                                  offset: Offset(2, 2),
+                                  blurRadius: 3,
+                                ),
 
-                    onTap: ref.watch(lectureCardActive)
-                        ? () => ref.watch(lectureCardActive.notifier).state =
-                              false
-                        : () async {
-                            bool? userHaveRegisteredCourses =
-                                await lookForSettingBox().get(
-                                  'userHaveCreatedCourses',
-                                );
-                            if (userHaveRegisteredCourses != null) {
-                              router.go('/settings');
-                            } else {
-                              router.go("/signup");
-                            }
-                          },
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Container(
-                        // duration: duration,
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          boxShadow: ref.watch(lightMode)
-                              ? [
-                                  BoxShadow(
-                                    color: ref.watch(lightMode)
-                                        ? Colors.black38
-                                        : Colors.black87,
-                                    offset: Offset(2, 2),
-                                    blurRadius: 3,
-                                  ),
+                                BoxShadow(
+                                  color: ref.watch(lightMode)
+                                      ? Colors.black38
+                                      : Colors.black87,
+                                  offset: Offset(-2, 0),
+                                  blurRadius: 3,
+                                ),
+                              ]
+                            : [
+                                BoxShadow(
+                                  color: Color.fromARGB(221, 59, 59, 59),
+                                  offset: Offset(2, 2),
+                                  blurRadius: 3,
+                                ),
 
-                                  BoxShadow(
-                                    color: ref.watch(lightMode)
-                                        ? Colors.black38
-                                        : Colors.black87,
-                                    offset: Offset(-2, 0),
-                                    blurRadius: 3,
-                                  ),
-                                ]
-                              : [
-                                  BoxShadow(
-                                    color: Color.fromARGB(221, 59, 59, 59),
-                                    offset: Offset(2, 2),
-                                    blurRadius: 3,
-                                  ),
-
-                                  BoxShadow(
-                                    color: const Color.fromARGB(
-                                      221,
-                                      59,
-                                      59,
-                                      59,
+                                BoxShadow(
+                                  color: const Color.fromARGB(221, 59, 59, 59),
+                                  offset: Offset(-2, -2),
+                                  blurRadius: 3,
+                                ),
+                              ],
+                        color: ref.watch(lightMode)
+                            ? Colors.blueAccent
+                            : const Color.fromARGB(255, 4, 24, 59),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AnimatedTextKit(
+                                pause: Duration(seconds: 5),
+                                totalRepeatCount: 1,
+                                animatedTexts: [
+                                  ScrambleAnimatedText(
+                                    'Dev Ope Greet You',
+                                    textStyle: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 16,
                                     ),
-                                    offset: Offset(-2, -2),
-                                    blurRadius: 3,
+                                  ),
+                                  TypewriterAnimatedText(
+                                    'Welcome ${ref.watch(username)}',
+                                    textStyle: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ],
-                          color: ref.watch(lightMode)
-                              ? Colors.blueAccent
-                              : const Color.fromARGB(255, 4, 24, 59),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Welcome ${ref.watch(username)}',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '${todayLectureCard().length} ${todayLectureCard().length > 1 ? "Classes" : "Class"} Today',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                // Text(DateFormat('EEEE').format(DateTime.now())),
-                              ],
-                            ),
-                            InkWell(
-                              onTap: ref.watch(lectureCardActive)
-                                  ? () =>
-                                        ref
-                                                .watch(
-                                                  lectureCardActive.notifier,
-                                                )
-                                                .state =
-                                            false
-                                  : () {
-                                      if (ref.read(lightMode)) {
-                                        ref.read(lightMode.notifier).state =
-                                            false;
-                                        lookForSettingBox().put(
-                                          'lightMode',
-                                          false,
-                                        );
-                                      } else {
-                                        ref.read(lightMode.notifier).state =
-                                            true;
-                                        lookForSettingBox().put(
-                                          'lightMode',
-                                          true,
-                                        );
-                                      }
-                                    },
-
-                              child: Icon(
-                                ref.watch(lightMode)
-                                    ? Icons.sunny
-                                    : Icons.nightlight_round_sharp,
-                                color: ref.watch(lightMode)
-                                    ? Colors.white70
-                                    : Colors.white54,
-                                size: 40.r,
                               ),
+
+                              const SizedBox(height: 8),
+                              AnimatedTextKit(
+                                pause: Duration(seconds: 8),
+                                repeatForever: true,
+                                animatedTexts: [
+                                  TypewriterAnimatedText(
+                                    '${DateFormat.yMMMEd().format(DateTime.now())}',
+                                    textStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TypewriterAnimatedText(
+                                    '${todayLectureCard().length} ${todayLectureCard().length > 1 ? "Classes" : "Class"} Today',
+                                    textStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          InkWell(
+                            onTap: ref.watch(lectureCardActive)
+                                ? () =>
+                                      ref
+                                              .watch(lectureCardActive.notifier)
+                                              .state =
+                                          false
+                                : () {
+                                    if (ref.read(lightMode)) {
+                                      ref.read(lightMode.notifier).state =
+                                          false;
+                                      lookForSettingBox().put(
+                                        'lightMode',
+                                        false,
+                                      );
+                                    } else {
+                                      ref.read(lightMode.notifier).state = true;
+                                      lookForSettingBox().put(
+                                        'lightMode',
+                                        true,
+                                      );
+                                    }
+                                  },
+
+                            child: Icon(
+                              ref.watch(lightMode)
+                                  ? Icons.sunny
+                                  : Icons.nightlight_round_sharp,
+                              color: ref.watch(lightMode)
+                                  ? Colors.white70
+                                  : Colors.white54,
+                              size: 40.r,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -263,7 +271,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                     DateTime.now(),
                                   ),
                                   'accomplised':
-                                      1, //zero mean false, 1 mean true
+                                      2, //zero mean false, 1 mean true, 2 mean nullified
                                 },
                               ];
                               if (ref.read(pastLectureSQLprovider).isNotEmpty) {
@@ -361,10 +369,16 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                   trailing: Icon(
                                     dataToUse[index]['accomplised'] == 1
                                         ? Icons.thumb_up_alt
-                                        : Icons.thumb_down_alt,
+                                        : (dataToUse[index]['accomplised'] == 0
+                                              ? Icons.thumb_down_alt
+                                              : Icons.multiple_stop_sharp),
                                     color: dataToUse[index]['accomplised'] == 1
                                         ? Colors.green
-                                        : Colors.redAccent,
+                                        : (dataToUse[index]['accomplised'] == 0
+                                              ? Colors.redAccent
+                                              : (ref.watch(lightMode)
+                                                    ? Colors.black
+                                                    : Colors.white70)),
                                   ),
                                   splashColor: Colors.transparent,
                                   // onTap: () {},
@@ -441,14 +455,72 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                               List dataToUse = [
                                 {
                                   'title': 'No Upcoming Lecture',
-                                  'start_time': '',
-                                  'end_time': '',
+                                  'start_time': ':',
+                                  'end_time': ':',
                                   'dayOfTheWeek': '',
                                   'color': colors[0],
                                 },
                               ];
                               if (todayLectureCard().isNotEmpty) {
                                 dataToUse = todayLectureCard();
+                              }
+
+                              //the db is returning 0 for 12 so i want to cover that with 12 and also set the hour to have a zero before it, istead of 1 it should be 01
+                              List<String> start_hour_cover =
+                                  dataToUse[index]['start_time']
+                                      .toString()
+                                      .split(':'); // ['hour', 'minutes AM']
+
+                              String? start_hour;
+                              if (start_hour_cover[0].trim().isEmpty) {
+                                start_hour = '';
+                              } else if (start_hour_cover[0].length == 1) {
+                                start_hour = "0${start_hour_cover[0]}";
+                              } else {
+                                start_hour = start_hour_cover[0];
+                              } //start_hour_cover[0];
+                              String? start_minutes =
+                                  start_hour_cover[1].isEmpty
+                                  ? ''
+                                  : start_hour_cover[1];
+                              if (start_hour_cover[1].split(' ')[0].isEmpty) {
+                                start_minutes =
+                                    ''; //this will only happen if there are no more lecture card available for the day
+                              } else if (start_hour_cover[1]
+                                      .split(' ')[0]
+                                      .length ==
+                                  1) {
+                                start_minutes = "0${start_minutes}";
+                              } else {
+                                start_minutes = start_hour_cover[1];
+                              }
+
+                              List<String> end_hour_cover =
+                                  dataToUse[index]['end_time'].toString().split(
+                                    ':',
+                                  ); // ['hour', 'minutes AM']
+
+                              String? end_hour;
+                              if (end_hour_cover[0].trim().isEmpty) {
+                                end_hour = '';
+                              } else if (end_hour_cover[0].length == 1) {
+                                end_hour = "0${end_hour_cover[0]}";
+                              } else {
+                                end_hour = end_hour_cover[0];
+                              } //end_hour_cover[0];
+                              String? end_minutes = end_hour_cover[1].isEmpty
+                                  ? ''
+                                  : end_hour_cover[1];
+                              if (end_hour_cover[1].split(' ')[0].isEmpty) {
+                                end_minutes =
+                                    ''; //this will only happen if there are no more lecture card available for the day
+                              } else if (end_hour_cover[1]
+                                      .split(' ')[0]
+                                      .length ==
+                                  1) {
+                                end_minutes = "0${end_minutes}";
+                              } else {
+                                end_minutes = end_hour_cover[1];
                               }
 
                               return Container(
@@ -529,7 +601,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              '${dataToUse[index]["start_time"]} - ${dataToUse[index]["end_time"]}',
+                                              '$start_hour ${start_hour.isEmpty ? '' : ':'} $start_minutes ${start_hour.isEmpty ? '' : '-'}  $end_hour${end_hour.isEmpty ? '' : ':'} $end_minutes',
                                               style: TextStyle(
                                                 color: ref.read(lightMode)
                                                     ? Colors.black
@@ -643,46 +715,26 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
         ),
       ),
       // The update button
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: ref.watch(lectureCardActive)
             ? () => ref.watch(lectureCardActive.notifier).state = false
             : () async {
-                final locator = await CustomDbClass.instance.getter;
-                List all = await fetchAll(
-                  dbLocator: locator,
-                  tableName: 'userAllTimetable',
-                  limit: 10000,
+                bool? userHaveRegisteredCourses = await lookForSettingBox().get(
+                  'userHaveCreatedCourses',
                 );
-                //start
-                notifier(
-                  context: context,
-                  message: 'Refreshed😎',
-                  bg: Colors.blueAccent,
-                );
-                //For autoamatic scroll to the last part of the page on update.
-
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (listViewController.hasClients) {
-                    listViewController.animateTo(
-                      listViewController.position.minScrollExtent,
-                      duration: Duration(milliseconds: 150),
-                      curve: Curves.bounceInOut,
-                    );
-                  }
-                });
+                if (userHaveRegisteredCourses != null) {
+                  router.go('/settings');
+                } else {
+                  router.go("/signup");
+                }
               },
-        icon: Icon(
-          Icons.refresh,
+        child: Icon(
+          Icons.settings,
           color: ref.read(lightMode) ? Colors.white : Colors.white,
-        ),
-        label: Text(
-          'Refresh',
-          style: TextStyle(
-            color: ref.read(lightMode) ? Colors.black : Colors.white,
-          ),
         ),
         backgroundColor: Colors.blueAccent,
       ),
+      bottomNavigationBar: customBottomNavBar(),
     );
   }
 }
@@ -707,5 +759,61 @@ final currentColor = StateProvider((ref) {
 }); //red
 final currentDayOfTheWeek = StateProvider((ref) {
   return 'NULL';
-});//Monday
+}); //Monday
 
+Widget customBottomNavBar() {
+  return Container(
+    height: 48,
+    width: 100,
+    padding: EdgeInsets.symmetric(vertical: 2),
+    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    decoration: BoxDecoration(
+      color: Colors.blueAccent,
+      borderRadius: BorderRadius.all(Radius.circular(2)),
+      boxShadow: [
+        BoxShadow(offset: Offset(1, 1), color: Colors.black54, blurRadius: 4),
+      ],
+    ),
+    // child: Expanded(child: SizedBox(width: 10)),
+    child: Expanded(
+      child: CarouselSlider(
+        items: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.home_rounded, color: Colors.white, size: 40),
+              // Text('Today', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          bottomNavChildren(value: '1'),
+          bottomNavChildren(value: '2'),
+          bottomNavChildren(value: '3'),
+          bottomNavChildren(value: '4'),
+          bottomNavChildren(value: '5'),
+          bottomNavChildren(value: '6'),
+        ],
+        options: CarouselOptions(
+          pauseAutoPlayOnManualNavigate: true,
+          enableInfiniteScroll: true,
+          viewportFraction: 0.3,
+          autoPlayInterval: Duration(seconds: 5),
+          autoPlay: true,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget bottomNavChildren({required String value}) {
+  return CircleAvatar(
+    backgroundColor: Colors.blueAccent,
+    child: Text(
+      value,
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 30,
+      ),
+    ),
+  );
+}

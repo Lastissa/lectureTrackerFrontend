@@ -329,6 +329,9 @@ class _SignupState extends ConsumerState<Signup> {
                                                   }[knownIndex]!;
                                                 },
                                                 child: Text(
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.visible,
                                                   [
                                                     'M',
                                                     'Tu',
@@ -417,7 +420,9 @@ class _SignupState extends ConsumerState<Signup> {
                                           }
                                         });
                                       },
-                                      text: firstHour.toString(),
+                                      text: firstHour == 0
+                                          ? '12'
+                                          : firstHour.toString(),
                                       ref: ref,
                                     ),
                                     Text(
@@ -454,7 +459,9 @@ class _SignupState extends ConsumerState<Signup> {
                                           }
                                         });
                                       },
-                                      text: firstMinute.toString(),
+                                      text: firstMinute < 10
+                                          ? "0${firstMinute}"
+                                          : firstMinute.toString(),
                                       ref: ref,
                                     ),
                                     //First meridien - AM or PM
@@ -504,7 +511,9 @@ class _SignupState extends ConsumerState<Signup> {
                                           }
                                         });
                                       },
-                                      text: secondHour.toString(),
+                                      text: secondHour == 0
+                                          ? '12'
+                                          : secondHour.toString(),
                                       ref: ref,
                                     ),
 
@@ -536,7 +545,9 @@ class _SignupState extends ConsumerState<Signup> {
                                           }
                                         });
                                       },
-                                      text: secondMinute.toString(),
+                                      text: secondMinute < 10
+                                          ? "0${secondMinute}"
+                                          : secondMinute.toString(),
                                       ref: ref,
                                     ),
                                     //second meridien - AM or PM
@@ -566,7 +577,6 @@ class _SignupState extends ConsumerState<Signup> {
                                   InkWell(
                                     onTap: () {
                                       //wiping everything clean
-                                      ref.invalidate(_courseCreatedCount);
                                       ref.invalidate(_dayOfTheWeekChoosen);
                                       ref.invalidate(_dayOfTheWeekChoosenText);
                                       _courseCodeController.text = '';
@@ -670,7 +680,7 @@ class _SignupState extends ConsumerState<Signup> {
                                                   2,
                                                 ),
                                               );
-                                              // taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
+                                              // taking the second index 'minute meridien' and since minutes cannot have more than two var i just substring the werey
                                               firstIndex = ['AM', 'PM'].indexOf(
                                                 (_start_time[1])
                                                     .substring(3, 5)
@@ -685,10 +695,32 @@ class _SignupState extends ConsumerState<Signup> {
                                               secondMinute = int.parse(
                                                 (_end_time[1]).substring(0, 2),
                                               ); //taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
+                                              print(
+                                                _end_time[1]
+                                                    .substring(
+                                                      _end_time[1]
+                                                              .toString()
+                                                              .length -
+                                                          2,
+                                                      _end_time[1]
+                                                          .toString()
+                                                          .length,
+                                                    )
+                                                    .toString()
+                                                    .trim(),
+                                              );
                                               secondIndex = ['AM', 'PM']
                                                   .indexOf(
                                                     (_end_time[1])
-                                                        .substring(3, 5)
+                                                        .substring(
+                                                          _end_time[1]
+                                                                  .toString()
+                                                                  .length -
+                                                              2,
+                                                          _end_time[1]
+                                                              .toString()
+                                                              .length,
+                                                        )
                                                         .toString()
                                                         .trim(),
                                                   );
@@ -721,68 +753,19 @@ class _SignupState extends ConsumerState<Signup> {
                                     onTap: () {
                                       //check if alll field have been
                                       _formKey.currentState?.validate();
-                                      if (_courseCodeController.text.isEmpty ||
-                                          !ref.read(_dayOfTheWeekChoosen)) {
+                                      if (!ref.read(_dayOfTheWeekChoosen)) {
                                         ElegantNotification(
                                           description: Text(
                                             'Day of week cannot be empty',
                                           ),
                                         ).show(context);
                                         return;
+                                      } else if (_courseCodeController
+                                          .text
+                                          .isEmpty) {
+                                        return;
                                       }
-                                      //before you add the data, check if data already exists, to know wether we should update or add new
-                                      // if (ref.read(decoyDB).length >
-                                      //     ref.read(
-                                      //       _courseCreatedCount,
-                                      //     ) //this to check wether the user already have a made data entry before , if so, the relation beween former and latter will not be the same and i can work with that to update istead of adding to the list
-                                      //     ) {
-                                      //   List<Map> dataToUpdate = ref.read(
-                                      //     lecturesCard,
-                                      //   );
-                                      //   dataToUpdate.removeAt(
-                                      //     ref.read(_courseCreatedCount),
-                                      //   ); //remove the former list so we can set the new updated one
 
-                                      //   dataToUpdate.insert(
-                                      //     ref.read(_courseCreatedCount),
-                                      //     {
-                                      //       'title': _courseCodeController.text
-                                      //           .trim()
-                                      //           .toUpperCase(),
-                                      //       'start_time':
-                                      //           '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
-                                      //       'end_time':
-                                      //           '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
-                                      //       'dayOfTheWeek': ref.read(
-                                      //         _dayOfTheWeekChoosenText,
-                                      //       ),
-                                      //     },
-                                      //   );
-                                      //   ref.read(lecturesCard.notifier).state =
-                                      //       dataToUpdate; //update the data from the temp holder (dataToUpdate) to the riverpod
-                                      //   _courseCodeController.text = '';
-                                      //   ref.invalidate(_dayOfTheWeekChoosen);
-                                      //   ref.invalidate(
-                                      //     _dayOfTheWeekChoosenText,
-                                      //   );
-                                      //   setState(() {
-                                      //     firstHour = 0;
-                                      //     firstMinute = 0;
-                                      //     firstIndex = 0;
-                                      //     secondHour = 0;
-                                      //     secondIndex = 0;
-                                      //   });
-                                      //   //increment the _courseCreatedCount to make it even with the lenght of the riverpod
-                                      //   ref
-                                      //           .read(
-                                      //             _courseCreatedCount.notifier,
-                                      //           )
-                                      //           .state =
-                                      //       ref.read(_courseCreatedCount) + 1;
-                                      //   ElegantNotification(
-                                      //     description: Text('Updated'),
-                                      //   ).show(context);
-                                      // } else
                                       {
                                         //add the already data to the provider
                                         ref.read(
@@ -814,6 +797,8 @@ class _SignupState extends ConsumerState<Signup> {
                                           firstHour = secondHour;
                                           firstMinute = secondMinute;
                                           firstIndex = secondIndex;
+                                          secondHour = 0;
+                                          secondMinute = 0;
                                         });
                                         ElegantNotification(
                                           progressIndicatorBackground:

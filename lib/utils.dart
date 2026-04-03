@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lecture_tracker/errorpage.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
+import 'package:lecture_tracker/screens/editCourse.dart';
 import 'package:lecture_tracker/screens/settings.dart';
 import 'package:lecture_tracker/screens/signup.dart';
 import 'package:lecture_tracker/screens/splashScreen.dart';
@@ -23,12 +24,9 @@ GoRouter router = GoRouter(
         return Errorpage(errorMessage: messageToSend);
       },
     ),
-    // GoRoute(
-    //   path: '/overlay',
-    //   builder: (context, state) =>
-    //       Cardoverlay(courseName: currentCourseCode.name, start_time: '', end_time: '', dayOfTheWeek: '', color: '',),
-    // ),
+
     GoRoute(path: '/signup', builder: (context, state) => Signup()),
+    GoRoute(path: '/Editcourse', builder: (context, state) => Editcourse()),
   ],
 );
 

@@ -39,6 +39,8 @@ Future<void> _buttonClicked({
   required String dayOfTheWeek,
   required String color,
 }) async {
+  await ScaffoldMessenger.of(context).clearSnackBars;
+
   notifier(context: context, message: message, bg: bg);
   ref.invalidate(
     lectureCardActive,
@@ -113,6 +115,7 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
       width: 200,
       padding: EdgeInsets.all(10),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -124,13 +127,20 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
               ),
             ),
           ),
-          SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
 
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
+                onLongPress: () async {
+                  await ScaffoldMessenger.of(context).clearSnackBars;
+                  notifier(
+                    context: context,
+                    message: 'When Lecture is Attended',
+                    bg: Colors.blueAccent,
+                  );
+                },
                 onPressed: () => _buttonClicked(
                   //Click the _buttonClikced to view more info
                   ref: ref,
@@ -166,6 +176,13 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                 ),
               ),
               ElevatedButton(
+                onLongPress: () {
+                  notifier(
+                    context: context,
+                    message: 'When Lecture is Missed',
+                    bg: Colors.blueAccent,
+                  );
+                },
                 onPressed: () => _buttonClicked(
                   //Click the _buttonClikced to view more info
                   ref: ref,
@@ -202,13 +219,20 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
               ),
             ],
           ),
-          Expanded(child: SizedBox()),
           Padding(
             padding: EdgeInsetsGeometry.only(top: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
+                  onLongPress: () async {
+                    await ScaffoldMessenger.of(context).clearSnackBars;
+                    notifier(
+                      context: context,
+                      message: 'Close the interface',
+                      bg: Colors.blueAccent,
+                    );
+                  },
                   onPressed: () {
                     ref.invalidate(currentCourseCode);
                     ref.invalidate(lectureCardActive);
@@ -226,7 +250,48 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                       ),
                     ),
                   ),
-                  child: Text("CLOSE", style: TextStyle(color: Colors.white)),
+                  child: Text("X", style: TextStyle(color: Colors.white)),
+                ),
+
+                ElevatedButton(
+                  onLongPress: () {
+                    notifier(
+                      context: context,
+                      message: 'When Lecture is Nullfied',
+                      bg: Colors.blueAccent,
+                    );
+                  },
+                  onPressed: () => _buttonClicked(
+                    //Click the _buttonClikced to view more info
+                    ref: ref,
+                    context: context,
+                    bg: Colors.blueAccent,
+                    message: 'ple',
+                    title: widget.courseName?.toUpperCase() ?? '',
+                    accomplished: 2,
+                    courseName: widget.courseName ?? '',
+                    start_time: widget.start_time,
+                    end_time: widget.end_time,
+                    dayOfTheWeek: widget.dayOfTheWeek,
+                    color: widget.color,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    shadowColor: Colors.black,
+
+                    padding: EdgeInsets.all(15),
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(
+                        Radius.circular(6),
+                      ),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "NULLIFIED",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ],
             ),
