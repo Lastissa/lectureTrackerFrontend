@@ -157,3 +157,28 @@ ScaffoldFeatureController? notifier({
   }
   return null;
 }
+
+//tommorow lectures
+final tommorowLectureSQLprovider = StateProvider<List>((ref) {
+  return [];
+});
+//2 days later lectures
+final twoDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
+  return [];
+});
+//3 days later lectures
+final threeDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
+  return [];
+});
+//4 days later lectures
+final fourDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
+  return [];
+});
+//5 days later lectures
+final fiveDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
+  return [];
+});
+//6 days later lectures
+final sixDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
+  return [];
+});

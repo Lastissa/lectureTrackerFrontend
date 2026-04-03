@@ -24,7 +24,33 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
     //i am using widgetsbinding to avoid the issue of router.go during build
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // await lookForSettingBox().delete('userHaveCreatedCourses');
+      Database sqlDbLocator = await CustomDbClass.instance.getter;
 
+      List<Map> userTimeTable = await fetchAll(
+        dbLocator: sqlDbLocator,
+        tableName: 'userAllTimetable',
+        limit: 1000,
+      );
+      //this is to get to get tommorrow data like for the next day
+      List<Map> tommorrowData = [];
+      // List<Map> twoDaysFromNowData = [];
+      // List<Map> threeDaysFromNowData = [];
+      // List<Map> fourDaysFromNowData = [];
+      // List<Map> fiveDaysAwayFromNowData
+      String tommorowDate = DateTime.now().weekday == 7
+          ? ref.read(wordWeekdayToInt)[0]
+          : ref.read(wordWeekdayToInt)[DateTime.now()
+                .weekday]; //this is to get wether the day is Monday, Tuesdat,etc
+
+      for (Map i in userTimeTable) {
+        if (i.containsKey('dayOfTheWeek') &&
+            i['dayOfTheWeek'] == tommorowDate) {
+          tommorrowData.add(i);
+        }
+        ref.read(tommorowLectureSQLprovider.notifier).state =
+            await tommorrowData; //adding the data to the next day provider
+      } //brb
+      ref.read(tommorowLectureSQLprovider.notifier).state = await tommorrowData;
       print('starting starting starting...');
       // lookForSettingBox().put('todayDate', DateTime.now().day);
       print('today date: ${lookForSettingBox().get('todayDate')}');
@@ -40,7 +66,6 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         );
 
         //if the userName don change already
-        Database sqlDbLocator = await CustomDbClass.instance.getter;
         if (lookForSettingBox().get('username') != null) {
           //if the user already changed their name from user, if the name is still user, just leave the provider to handle the task else change the username provider
           ref.read(username.notifier).state = lookForSettingBox().get(
@@ -97,15 +122,10 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         }
         //this is to make sure the data in main table for a particular day e.g Tuesday is passed to today lecture soon as we start our day and this must happen only once a day
         if (lookForSettingBox().get('isDataPassedForToday') == false) {
-          List<Map> userTimeTable = await fetchAll(
-            dbLocator: sqlDbLocator,
-            tableName: 'userAllTimetable',
-            limit: 1000,
-          );
           //clear the today lecture table
           await sqlDbLocator.rawDelete("DELETE FROM todayLectures");
           print('just before main time table sql is passed');
-
+          //adding from the main table cos its a new day
           for (Map i in userTimeTable) {
             if (i.containsKey('dayOfTheWeek') &&
                 i['dayOfTheWeek'] ==
