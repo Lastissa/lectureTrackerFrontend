@@ -20,7 +20,7 @@ class ThirdDayState extends ConsumerState<ThirdDay> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                '${ref.read(wordWeekdayToInt)[DateTime.now().weekday + 1]} Lectures',
+                '${ref.read(wordWeekdayToInt)[(DateTime.now().weekday + 1) % 7]} Lectures',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

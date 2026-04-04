@@ -266,7 +266,7 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                     ref: ref,
                     context: context,
                     bg: Colors.blueAccent,
-                    message: 'ple',
+                    message: 'Use This Period to read!!',
                     title: widget.courseName?.toUpperCase() ?? '',
                     accomplished: 2,
                     courseName: widget.courseName ?? '',

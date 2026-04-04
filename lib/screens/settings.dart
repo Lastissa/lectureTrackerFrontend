@@ -40,15 +40,15 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ref.watch(lightMode) ? Colors.grey[100] : Colors.black,
+      backgroundColor: ref.watch(backgroundColor),
       appBar: AppBar(
         toolbarHeight: ref.read(deviceSizeY) * 0.2.h,
 
-        backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+        backgroundColor: ref.read(backgroundColor),
         title: Container(
           width: ref.watch(deviceSizeX).w,
           height: ref.watch(deviceSizeY) * 0.2.h,
-          color: ref.watch(lightMode) ? Colors.grey[100] : Colors.black,
+          color: ref.watch(backgroundColor),
           child: Center(
             child: Text(
               '\nSETTINGS',
@@ -58,9 +58,7 @@ class _SettingsState extends ConsumerState<Settings> {
                 fontSize: 28.sp.clamp(0, 28),
                 fontWeight: FontWeight.w900,
                 letterSpacing: -0.5,
-                color: ref.watch(lightMode)
-                    ? Colors.blueAccent
-                    : Colors.greenAccent,
+                color: ref.watch(foreGroundColor),
               ),
             ),
           ),
@@ -101,9 +99,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                       ),
                                       child: Icon(
                                         Icons.person,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.blueAccent
-                                            : Colors.greenAccent,
+                                        color: ref.watch(foreGroundColor),
                                       ),
                                     ),
                                     Text(
@@ -112,9 +108,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                         letterSpacing: -1,
                                         fontSize: 17.sp.clamp(0, 17),
                                         fontWeight: FontWeight.w600,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.blueAccent
-                                            : Colors.greenAccent,
+                                        color: ref.watch(foreGroundColor),
                                       ),
                                     ),
                                   ],
@@ -144,9 +138,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                   },
                                   child: Icon(
                                     Icons.cloud_done_rounded,
-                                    color: ref.watch(lightMode)
-                                        ? Colors.blueAccent
-                                        : Colors.greenAccent,
+                                    color: ref.watch(foreGroundColor),
                                   ),
                                 ),
                                 InkWell(
@@ -185,9 +177,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                             ref.watch(lightMode)
                                                 ? Icons.sunny
                                                 : Icons.nightlight_round_sharp,
-                                            color: ref.watch(lightMode)
-                                                ? Colors.blueAccent
-                                                : Colors.greenAccent,
+                                            color: ref.watch(foreGroundColor),
                                           ),
                                         ),
                                         Text(
@@ -196,9 +186,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                             letterSpacing: -1,
                                             fontSize: 17.sp.clamp(0, 17),
                                             fontWeight: FontWeight.w600,
-                                            color: ref.watch(lightMode)
-                                                ? Colors.blueAccent
-                                                : Colors.greenAccent,
+                                            color: ref.watch(foreGroundColor),
                                           ),
                                         ),
                                       ],
@@ -208,9 +196,7 @@ class _SettingsState extends ConsumerState<Settings> {
                               ),
                               Switch(
                                 trackOutlineColor: WidgetStatePropertyAll(
-                                  ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
+                                  ref.watch(foreGroundColor),
                                 ),
                                 thumbColor: WidgetStateProperty.all(
                                   ref.watch(lightMode)
@@ -218,9 +204,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                       : Colors.black,
                                 ),
                                 trackColor: WidgetStateProperty.all(
-                                  ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
+                                  ref.watch(foreGroundColor),
                                 ),
 
                                 value: !ref.watch(lightMode),
@@ -249,9 +233,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Icon(
                                       Icons.edit_document,
-                                      color: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
+                                      color: ref.watch(foreGroundColor),
                                     ),
                                   ),
                                   Text(
@@ -260,9 +242,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                       letterSpacing: -1,
                                       fontSize: 17.sp.clamp(0, 17),
                                       fontWeight: FontWeight.w600,
-                                      color: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
+                                      color: ref.watch(foreGroundColor),
                                     ),
                                   ),
                                 ],
@@ -282,9 +262,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Icon(
                                       Icons.analytics,
-                                      color: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
+                                      color: ref.watch(foreGroundColor),
                                     ),
                                   ),
                                   Text(
@@ -293,9 +271,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                       letterSpacing: -1,
                                       fontSize: 17.sp.clamp(0, 17),
                                       fontWeight: FontWeight.w600,
-                                      color: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
+                                      color: ref.watch(foreGroundColor),
                                     ),
                                   ),
                                 ],
@@ -354,9 +330,10 @@ class _SettingsState extends ConsumerState<Settings> {
                                 children: [
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: ref.watch(lightMode)
-                                          ? Colors.blueAccent
-                                          : Colors.greenAccent,
+                                      backgroundColor: ref.watch(
+                                        foreGroundColor,
+                                      ),
+
                                       foregroundColor: ref.watch(lightMode)
                                           ? Colors.white
                                           : Colors.black,
@@ -440,9 +417,8 @@ class _SettingsState extends ConsumerState<Settings> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  backgroundColor: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
+                                  backgroundColor: ref.watch(foreGroundColor),
+
                                   foregroundColor: ref.watch(lightMode)
                                       ? Colors.white
                                       : Colors.black,
@@ -468,9 +444,8 @@ class _SettingsState extends ConsumerState<Settings> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  backgroundColor: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.greenAccent,
+                                  backgroundColor: ref.watch(foreGroundColor),
+
                                   foregroundColor: ref.watch(lightMode)
                                       ? Colors.white
                                       : Colors.black,
@@ -573,9 +548,8 @@ class _SettingsState extends ConsumerState<Settings> {
                         width: ref.read(deviceSizeX) * 0.65.w.clamp(0.5, 0.75),
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: ref.watch(lightMode)
-                              ? Colors.blueAccent
-                              : Colors.greenAccent,
+                          color: ref.watch(foreGroundColor),
+
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         child: Row(

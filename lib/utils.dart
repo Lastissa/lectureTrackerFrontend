@@ -182,3 +182,26 @@ final fiveDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
 final sixDaysLaterLectureSQLprovider = StateProvider<List>((ref) {
   return [];
 });
+
+//colours
+final foreGroundColor = StateProvider<Color>((ref) {
+  Color toReturn = ref.watch(lightMode)
+      ? Colors.blueAccent
+      : Colors.greenAccent;
+  return toReturn;
+});
+final backgroundColor = StateProvider<Color>((ref) {
+  Color? toReturn = ref.watch(lightMode)
+      ? (Colors.grey[100] ?? Colors.white)
+      : Colors.black;
+  return toReturn;
+});
+final lectureMissedIcon = StateProvider<IconData>((ref) {
+  return Icons.thumb_down_alt;
+});
+final lectureAttendedIcon = StateProvider<IconData>((ref) {
+  return Icons.thumb_up_alt;
+});
+final lectureCancelledIcon = StateProvider<IconData>((ref) {
+  return Icons.multiple_stop_sharp;
+});

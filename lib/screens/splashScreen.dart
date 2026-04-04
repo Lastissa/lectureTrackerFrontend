@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
@@ -23,49 +24,84 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
   Future<void> toRun() async {
     //i am using widgetsbinding to avoid the issue of router.go during build
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // await lookForSettingBox().delete('userHaveCreatedCourses');
-      Database sqlDbLocator = await CustomDbClass.instance.getter;
-
-      List<Map> userTimeTable = await fetchAll(
-        dbLocator: sqlDbLocator,
-        tableName: 'userAllTimetable',
-        limit: 1000,
-      );
-      //this is to get to get tommorrow data like for the next day
-      List<Map> tommorrowData = [];
-      List<Map> twoDaysFromNowData = [];
-      List<Map> threeDaysFromNowData = [];
-      List<Map> fourDaysFromNowData = [];
-      List<Map> fiveDaysAwayFromNowData = [];
-      List<Map> sizDaysAwayFromNowData = [];
-      String tommorowDate = DateTime.now().weekday == 7
-          ? ref.read(wordWeekdayToInt)[0]
-          : ref.read(wordWeekdayToInt)[DateTime.now()
-                .weekday]; //this is to get wether the day is Monday, Tuesdat,etc
-      String twoDaysFromDate = DateTime.now().weekday == 7
-          ? ref.read(wordWeekdayToInt)[1]
-          : ref.read(wordWeekdayToInt)[DateTime.now().weekday + 1];
-
-      for (Map i in userTimeTable) {
-        //checking if tommorrow is seem
-        if (i.containsKey('dayOfTheWeek') &&
-            i['dayOfTheWeek'] == tommorowDate) {
-          tommorrowData.add(i);
-        }
-        //Checking if next tommorrow is seem
-        else if (i.containsKey('dayOfTheWeek') &&
-            i['dayOfTheWeek'] == twoDaysFromDate) {
-          twoDaysFromNowData.add(i);
-        }
-      }
-      ref.read(tommorowLectureSQLprovider.notifier).state = await tommorrowData;
-      ref.read(twoDaysLaterLectureSQLprovider.notifier).state =
-          twoDaysFromNowData;
-      print('starting starting starting...');
-      // lookForSettingBox().put('todayDate', DateTime.now().day);
-      print('today date: ${lookForSettingBox().get('todayDate')}');
-      ref.invalidate(decoyDB);
       try {
+        // await lookForSettingBox().delete('userHaveCreatedCourses');
+        Database sqlDbLocator = await CustomDbClass.instance.getter;
+
+        List<Map> userTimeTable = await fetchAll(
+          dbLocator: sqlDbLocator,
+          tableName: 'userAllTimetable',
+          limit: 1000,
+        );
+        //this is to get to get tommorrow data like for the next day
+        List<Map> tommorrowData = [];
+        List<Map> twoDaysFromNowData = [];
+        List<Map> threeDaysFromNowData = [];
+        List<Map> fourDaysFromNowData = [];
+        List<Map> fiveDaysAwayFromNowData = [];
+        List<Map> sixDaysAwayFromNowData = [];
+        // print(userTimeTable);
+        String tommorowDate =
+            ref.read(wordWeekdayToInt)[DateTime.now().weekday %
+                7]; //this is to get wether the day is Monday, Tuesdat,etc
+        String twoDaysFromDate = ref.read(
+          wordWeekdayToInt,
+        )[(DateTime.now().weekday + 1) % 7];
+        String threeDaysFromDate = ref.read(
+          wordWeekdayToInt,
+        )[(DateTime.now().weekday + 2) % 7];
+        String fourDaysFromDate = ref.read(
+          wordWeekdayToInt,
+        )[(DateTime.now().weekday + 3) % 7];
+        String fifthDaysFromDate = ref.read(
+          wordWeekdayToInt,
+        )[(DateTime.now().weekday + 4) % 7];
+        String sixthDaysFromDate = ref.read(
+          wordWeekdayToInt,
+        )[(DateTime.now().weekday + 5) % 7];
+
+        for (Map i in userTimeTable) {
+          //checking if tommorrow is seem
+          if (i.containsKey('dayOfTheWeek') &&
+              i['dayOfTheWeek'] == tommorowDate) {
+            tommorrowData.add(i);
+          }
+          //Checking if next tommorrow is seem
+          else if (i.containsKey('dayOfTheWeek') &&
+              i['dayOfTheWeek'] == twoDaysFromDate) {
+            twoDaysFromNowData.add(i);
+          } else if (i.containsKey('dayOfTheWeek') &&
+              i['dayOfTheWeek'] == threeDaysFromDate) {
+            threeDaysFromNowData.add(i);
+          } else if (i.containsKey('dayOfTheWeek') &&
+              i['dayOfTheWeek'] == fourDaysFromDate) {
+            fourDaysFromNowData.add(i);
+          } else if (i.containsKey('dayOfTheWeek') &&
+              i['dayOfTheWeek'] == fifthDaysFromDate) {
+            fiveDaysAwayFromNowData.add(i);
+          } else if (i.containsKey('dayOfTheWeek') &&
+              i['dayOfTheWeek'] == sixthDaysFromDate) {
+            sixDaysAwayFromNowData.add(i);
+          }
+        }
+        ref.read(tommorowLectureSQLprovider.notifier).state =
+            await tommorrowData;
+        ref.read(twoDaysLaterLectureSQLprovider.notifier).state =
+            twoDaysFromNowData;
+        ref.read(threeDaysLaterLectureSQLprovider.notifier).state =
+            threeDaysFromNowData;
+        ref.read(fourDaysLaterLectureSQLprovider.notifier).state =
+            fourDaysFromNowData;
+        ref.read(fiveDaysLaterLectureSQLprovider.notifier).state =
+            fiveDaysAwayFromNowData;
+        ref.read(sixDaysLaterLectureSQLprovider.notifier).state =
+            sixDaysAwayFromNowData;
+
+        //end of data putting into each provider
+        print('starting starting starting...');
+        // lookForSettingBox().put('todayDate', DateTime.now().day);
+        print('today date: ${lookForSettingBox().get('todayDate')}');
+        ref.invalidate(decoyDB);
         //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
         if (lookForSettingBox().get('lightMode') == null) {
           await Hive.box('settingDb').put('lightMode', true);
@@ -174,26 +210,48 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+      backgroundColor: ref.read(backgroundColor),
       appBar: AppBar(
         toolbarHeight: 0,
-        backgroundColor: ref.read(lightMode) ? Colors.grey[100] : Colors.black,
+        backgroundColor: ref.read(backgroundColor),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 10),
-            Text(
-              'PLEASE WAIT...',
-              style: TextStyle(
-                color: ref.watch(lightMode) ? Colors.black : Colors.white,
-                fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    clipBehavior: Clip.hardEdge,
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                    ),
+                    child: Image.asset(
+                      'assets/staticImages/appicon2.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          Text(
+            'Lecture Tracker',
+            style: TextStyle(
+              fontSize: 20.sp.clamp(0, 20),
+              color: ref.watch(lightMode) ? Colors.black : Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          SizedBox(
+            child: CircularProgressIndicator(color: ref.watch(foreGroundColor)),
+          ),
+          SizedBox(height: 10),
+        ],
       ),
     );
   }

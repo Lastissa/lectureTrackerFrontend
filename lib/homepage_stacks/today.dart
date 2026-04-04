@@ -41,7 +41,7 @@ class _TodayState extends ConsumerState<Today> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    'Upcoming Lectures',
+                    'Today Lectures',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -125,92 +125,127 @@ class _TodayState extends ConsumerState<Today> {
                     end_minutes = end_hour_cover[1];
                   }
 
-                  return Container(
-                    // duration: duration,
-                    margin: const EdgeInsets.only(bottom: 12.0),
+                  return InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      ref.read(lectureCardActive.notifier).state = true;
+                      ref.read(currentCourseCode.notifier).state =
+                          dataToUse[index]["title"];
 
-                    decoration: BoxDecoration(
-                      color: ref.watch(lightMode)
-                          ? Colors.white
-                          : Colors.black54,
-                      borderRadius: BorderRadius.all(Radius.circular(14)),
-                      boxShadow: ref.watch(lightMode)
-                          ? [
-                              BoxShadow(
-                                color: Color.fromARGB(96, 0, 0, 0),
-                                offset: Offset(1, 1),
-                                blurRadius: 1,
-                              ),
-                              BoxShadow(
-                                color: Color.fromARGB(40, 0, 0, 0),
-                                offset: Offset(1, -1),
-                                blurRadius: 1,
-                              ),
-                            ]
-                          : [
-                              BoxShadow(
-                                color: const Color.fromARGB(255, 43, 42, 42),
-                                offset: Offset(1, 1),
-                              ),
-                              BoxShadow(
-                                color: const Color.fromRGBO(77, 76, 76, 1),
-                                offset: Offset(0, -1),
-                              ),
-                            ],
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: Container(
-                        // duration: duration,
-                        width: 4,
-                        height: double.infinity,
-                        decoration: BoxDecoration(
-                          color: ColorMapper[dataToUse[index]["color"]],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      title: Text(
-                        "${dataToUse[index]["title"]}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: ref.read(lightMode)
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  size: 16,
-                                  color: ref.read(lightMode)
-                                      ? Colors.black
-                                      : Colors.white,
+                      // ' '
+                      ref.read(currentStartTime.notifier).state =
+                          "${int.parse(start_hour ?? '0')}${start_hour!.isEmpty ? '' : ':'}$start_minutes";
+                      ref.read(currentEndTime.notifier).state =
+                          '${int.parse(end_hour ?? '')}${end_hour!.isEmpty ? '' : ':'} $end_minutes';
+
+                      ref.read(currentDayOfTheWeek.notifier).state =
+                          dataToUse[index]['dayOfTheWeek'];
+                      ref.read(currentColor.notifier).state =
+                          dataToUse[index]['color'];
+                      if (dataToUse[index]['dayOfTheWeek'] == 'Saturday') {
+                        print(dataToUse[index]);
+                        print("title: ${ref.read(currentCourseCode)}");
+                        print(
+                          "start_time: ${int.parse(start_hour ?? '0')}${start_hour!.isEmpty ? '' : ':'}$start_minutes",
+                        );
+                        print(
+                          "End time: ${int.parse(end_hour ?? '')}${end_hour!.isEmpty ? '' : ':'} $end_minutes'",
+                        );
+                        print(
+                          "dayofthe week ${dataToUse[index]['dayOfTheWeek']}",
+                        );
+                        print("color: ${dataToUse[index]['color']}");
+                      }
+                    },
+
+                    child: Container(
+                      // duration: duration,
+                      margin: const EdgeInsets.only(bottom: 12.0),
+
+                      decoration: BoxDecoration(
+                        color: ref.watch(lightMode)
+                            ? Colors.white
+                            : Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        boxShadow: ref.watch(lightMode)
+                            ? [
+                                BoxShadow(
+                                  color: Color.fromARGB(96, 0, 0, 0),
+                                  offset: Offset(1, 1),
+                                  blurRadius: 1,
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '$start_hour ${start_hour.isEmpty ? '' : ':'} $start_minutes ${start_hour.isEmpty ? '' : '-'}  $end_hour${end_hour.isEmpty ? '' : ':'} $end_minutes',
-                                  style: TextStyle(
+                                BoxShadow(
+                                  color: Color.fromARGB(40, 0, 0, 0),
+                                  offset: Offset(1, -1),
+                                  blurRadius: 1,
+                                ),
+                              ]
+                            : [
+                                BoxShadow(
+                                  color: const Color.fromARGB(255, 43, 42, 42),
+                                  offset: Offset(1, 1),
+                                ),
+                                BoxShadow(
+                                  color: const Color.fromRGBO(77, 76, 76, 1),
+                                  offset: Offset(0, -1),
+                                ),
+                              ],
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        leading: Container(
+                          // duration: duration,
+                          width: 4,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: ColorMapper[dataToUse[index]["color"]],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        title: Text(
+                          "${dataToUse[index]["title"]}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: ref.read(lightMode)
+                                ? Colors.black
+                                : Colors.white,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    size: 16,
                                     color: ref.read(lightMode)
                                         ? Colors.black
                                         : Colors.white,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$start_hour ${start_hour.isEmpty ? '' : ':'} $start_minutes ${start_hour.isEmpty ? '' : '-'}  $end_hour${end_hour.isEmpty ? '' : ':'} $end_minutes',
+                                    style: TextStyle(
+                                      color: ref.read(lightMode)
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey[400],
+                        ),
+                        splashColor: Colors.transparent,
                       ),
-                      trailing: Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey[400],
-                      ),
-                      splashColor: Colors.transparent,
                     ),
                   );
                 },
