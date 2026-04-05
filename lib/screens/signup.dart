@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/find_locale.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
@@ -27,8 +26,6 @@ class _SignupState extends ConsumerState<Signup> {
   final _courseCodeController = TextEditingController();
   @override
   void dispose() {
-    // _usernameController.dispose();
-    // _passwordController.dispose();
     _courseCodeController.dispose();
     super.dispose();
   }

@@ -129,11 +129,13 @@ class _TodayState extends ConsumerState<Today> {
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     onTap: () {
+                      if (dataToUse[index]['title'] == 'No Upcoming Lecture') {
+                        return;
+                      }
                       ref.read(lectureCardActive.notifier).state = true;
                       ref.read(currentCourseCode.notifier).state =
                           dataToUse[index]["title"];
 
-                      // ' '
                       ref.read(currentStartTime.notifier).state =
                           "${int.parse(start_hour ?? '0')}${start_hour!.isEmpty ? '' : ':'}$start_minutes";
                       ref.read(currentEndTime.notifier).state =
@@ -147,10 +149,10 @@ class _TodayState extends ConsumerState<Today> {
                         print(dataToUse[index]);
                         print("title: ${ref.read(currentCourseCode)}");
                         print(
-                          "start_time: ${int.parse(start_hour ?? '0')}${start_hour!.isEmpty ? '' : ':'}$start_minutes",
+                          "start_time: ${int.parse(start_hour)}${start_hour.isEmpty ? '' : ':'}$start_minutes",
                         );
                         print(
-                          "End time: ${int.parse(end_hour ?? '')}${end_hour!.isEmpty ? '' : ':'} $end_minutes'",
+                          "End time: ${int.parse(end_hour)}${end_hour.isEmpty ? '' : ':'} $end_minutes'",
                         );
                         print(
                           "dayofthe week ${dataToUse[index]['dayOfTheWeek']}",

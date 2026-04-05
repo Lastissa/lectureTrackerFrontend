@@ -246,11 +246,11 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: ref.watch(deviceSizeY) * 0.1.h),
           SizedBox(
             child: CircularProgressIndicator(color: ref.watch(foreGroundColor)),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: ref.watch(deviceSizeY) * 0.1.h),
         ],
       ),
     );
