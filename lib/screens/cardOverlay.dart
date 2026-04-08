@@ -68,6 +68,7 @@ Future<void> _buttonClicked({
 
   //this is for updating the stuff in today lecture table and the decoydb riverpod
   //del the entered card from it
+
   locator.rawDelete(
     "DELETE FROM todayLectures WHERE title = ? AND start_time = ? AND  end_time = ? AND dayOfTheWeek = ? AND color = ?",
     [courseName, start_time, end_time, dayOfTheWeek, color],
@@ -81,6 +82,8 @@ Future<void> _buttonClicked({
   ref.read(decoyDB.notifier).state = allData;
   //update the today date hive box so the splashscrren knows it is supposed to load from today lectures and not main table
   await lookForSettingBox().put('todayDate', DateTime.now().day);
+  //for updating the lecture counts
+  ref.read(todayLectureCount.notifier).state = ref.read(todayLectureCount) - 1;
 }
 
 class _cardOverlayState extends ConsumerState<Cardoverlay> {
@@ -176,7 +179,8 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                 ),
               ),
               ElevatedButton(
-                onLongPress: () {
+                onLongPress: () async {
+                  await ScaffoldMessenger.of(context).clearSnackBars;
                   notifier(
                     context: context,
                     message: 'When Lecture is Missed',
@@ -254,7 +258,8 @@ class _cardOverlayState extends ConsumerState<Cardoverlay> {
                 ),
 
                 ElevatedButton(
-                  onLongPress: () {
+                  onLongPress: () async {
+                    await ScaffoldMessenger.of(context).clearSnackBars;
                     notifier(
                       context: context,
                       message: 'When Lecture is Nullfied',

@@ -19,29 +19,34 @@ class _ErrorpageState extends ConsumerState<Errorpage> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: SafeArea(
-          child: Column(
-            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconButton(
-                onPressed: () => router.go('/splashScreen'),
-                icon: Icon(Icons.chevron_left, color: Colors.black),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text('ERROR STACK👇')],
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 10),
-                decoration: BoxDecoration(
-                  border: BoxBorder.all(color: Colors.black45),
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) =>
+                router.go('/splashScreen'),
+            child: Column(
+              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  onPressed: () => router.go('/splashScreen'),
+                  icon: Icon(Icons.chevron_left, color: Colors.black),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(widget.errorMessage),
-              ),
-            ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Text('ERROR STACK👇')],
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                    border: BoxBorder.all(color: Colors.black45),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SelectableText(widget.errorMessage),
+                ),
+              ],
+            ),
           ),
         ),
       ),

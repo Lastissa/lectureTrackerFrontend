@@ -208,145 +208,125 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
         ),
         backgroundColor: Colors.blueAccent,
       ),
-      bottomNavigationBar: Container(
-        height: 48,
-        width: 100,
-        padding: EdgeInsets.symmetric(vertical: 2),
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: ref.watch(lightMode)
-              ? Colors.blueAccent
-              : Color.fromARGB(255, 4, 24, 59),
-          borderRadius: BorderRadius.all(Radius.circular(2)),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(1, 1),
-              color: Colors.black54,
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        // child: Expanded(child: SizedBox(width: 10)),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Icon(Icons.info_outline_rounded, color: Colors.white),
-            ),
-            Expanded(
-              flex: 7,
-              child: CarouselSlider(
-                items: [
-                  // Icon(Icons.history, color: Colors.white, size: 40),
-                  // Icon(Icons.home_rounded, color: Colors.white, size: 40),
-                  bottomNavChildren(
-                    value: [
-                      Text('Swipe ', style: customButtomTextStyle),
-                      Icon(Icons.switch_right_sharp, color: Colors.white),
-                      Text(
-                        ' to view other lectures',
-                        style: customButtomTextStyle,
-                      ),
-                    ],
-                    onTap: () {},
-                    color: Colors.transparent,
-                  ),
-                  bottomNavChildren(
-                    value: [
-                      Text('Click ', style: customButtomTextStyle),
-                      Icon(Icons.settings, color: Colors.white),
-                      Text(
-                        ' to enter app setting',
-                        style: customButtomTextStyle,
-                      ),
-                    ],
-                    onTap: () {},
-                    color: Colors.red,
-                  ),
-                  bottomNavChildren(
-                    value: [
-                      Text('Click ', style: customButtomTextStyle),
-                      Icon(
-                        ref.watch(lightMode)
-                            ? Icons.sunny
-                            : Icons.nightlight_round_sharp,
-                        color: Colors.white,
-                      ),
-                      Text(
-                        ' to enter ${ref.watch(lightMode) ? 'dark' : 'light'} mode',
-                        style: customButtomTextStyle,
-                      ),
-                    ],
-                    onTap: () {},
-                    color: Colors.orange,
-                  ),
-                  bottomNavChildren(
-                    value: [
-                      Icon(
-                        ref.watch(lectureAttendedIcon),
-                        color: ref.watch(lightMode)
-                            ? Colors.greenAccent
-                            : Colors.green,
-                      ),
-                      Text(' -', style: customButtomTextStyle),
-                      Text(
-                        ' mean you attended class.',
-                        style: customButtomTextStyle,
-                      ),
-                    ],
-                    onTap: () {},
-                    color: Colors.white,
-                  ),
-                  bottomNavChildren(
-                    value: [
-                      Icon(
-                        ref.watch(lectureMissedIcon),
-                        color: ref.watch(lightMode)
-                            ? Colors.redAccent
-                            : Colors.red,
-                      ),
-                      Text(' -', style: customButtomTextStyle),
-                      Text(
-                        ' mean you missed class.',
-                        style: customButtomTextStyle,
-                      ),
-                    ],
-                    onTap: () {},
-                    color: Colors.white,
-                  ),
-                  bottomNavChildren(
-                    value: [
-                      Icon(
-                        ref.watch(lectureCancelledIcon),
-                        color: ref.watch(lightMode)
-                            ? Colors.black
-                            : Colors.white70,
-                      ),
-                      Text(' -', style: customButtomTextStyle),
-                      Text(
-                        ' mean lecture did not hold.',
-                        style: customButtomTextStyle,
-                      ),
-                    ],
-                    onTap: () {},
-                    color: Colors.white,
-                  ),
-                ],
-                options: CarouselOptions(
-                  // clipBehavior: Clip.none,
-                  viewportFraction: 1,
-                  pauseAutoPlayOnManualNavigate: true,
-                  enableInfiniteScroll: true,
-                  autoPlayInterval: Duration(seconds: 4),
-                  autoPlay: true,
-                ),
+      bottomNavigationBar: customBottomSlider(
+        ref: ref,
+        children: [
+          bottomNavChildren(
+            value: [
+              Text('Swipe ', style: customButtomTextStyle),
+              Icon(Icons.switch_right_sharp, color: Colors.white),
+              Text(' to view other lectures', style: customButtomTextStyle),
+            ],
+            // onTap: () {},
+          ),
+          bottomNavChildren(
+            value: [
+              Text('Click ', style: customButtomTextStyle),
+              Icon(Icons.settings, color: Colors.white),
+              Text(' to enter app setting', style: customButtomTextStyle),
+            ],
+            // onTap: () {},
+          ),
+          bottomNavChildren(
+            value: [
+              Text('Click ', style: customButtomTextStyle),
+              Icon(
+                ref.watch(lightMode)
+                    ? Icons.sunny
+                    : Icons.nightlight_round_sharp,
+                color: Colors.white,
               ),
-            ),
-          ],
-        ),
+              Text(
+                ' to enter ${ref.watch(lightMode) ? 'dark' : 'light'} mode',
+                style: customButtomTextStyle,
+              ),
+            ],
+            // onTap: () {},
+          ),
+          bottomNavChildren(
+            value: [
+              Icon(
+                ref.watch(lectureAttendedIcon),
+                color: ref.watch(lightMode) ? Colors.greenAccent : Colors.green,
+              ),
+              Text(' -', style: customButtomTextStyle),
+              Text(' mean you attended class.', style: customButtomTextStyle),
+            ],
+            // onTap: () {},
+          ),
+          bottomNavChildren(
+            value: [
+              Icon(
+                ref.watch(lectureMissedIcon),
+                color: ref.watch(lightMode) ? Colors.redAccent : Colors.red,
+              ),
+              Text(' -', style: customButtomTextStyle),
+              Text(' mean you missed class.', style: customButtomTextStyle),
+            ],
+            // onTap: () {},
+          ),
+          bottomNavChildren(
+            value: [
+              Icon(
+                ref.watch(lectureCancelledIcon),
+                color: ref.watch(lightMode) ? Colors.black : Colors.white70,
+              ),
+              Text(' -', style: customButtomTextStyle),
+              Text(' mean lecture did not hold.', style: customButtomTextStyle),
+            ],
+            // onTap: () {},
+          ),
+        ],
       ),
     );
   }
+}
+
+Widget customBottomSlider({
+  required WidgetRef ref,
+  required List<Widget> children,
+  Axis? direction,
+  double? height,
+}) {
+  return Container(
+    height: height ?? 48,
+    width: 100,
+    padding: EdgeInsets.symmetric(vertical: 2),
+    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    decoration: BoxDecoration(
+      color: ref.watch(lightMode)
+          ? Colors.blueAccent
+          : Color.fromARGB(255, 4, 24, 59),
+      borderRadius: BorderRadius.all(Radius.circular(2)),
+      boxShadow: [
+        BoxShadow(offset: Offset(1, 1), color: Colors.black54, blurRadius: 4),
+      ],
+    ),
+    // child: Expanded(child: SizedBox(width: 10)),
+    child: Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Icon(Icons.info_outline_rounded, color: Colors.white),
+        ),
+        Expanded(
+          flex: 7,
+          child: CarouselSlider(
+            items: children,
+            options: CarouselOptions(
+              scrollDirection: direction ?? Axis.horizontal,
+              // clipBehavior: Clip.none,
+              viewportFraction: 1,
+              pauseAutoPlayOnManualNavigate: true,
+              enableInfiniteScroll: true,
+              autoPlayInterval: Duration(seconds: 4),
+              autoPlay: true,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 final lectureCardActive = StateProvider<bool>((ref) {
@@ -376,14 +356,12 @@ final todayLectureCount = StateProvider((ref) {
   return 0;
 });
 
-Widget bottomNavChildren({
-  required List<Widget> value,
-  required VoidCallback onTap,
-  required Color color,
-}) {
+Widget bottomNavChildren({required List<Widget> value, Axis? direction}) {
   return Container(
-    // width: double.infinity,
-    child: Row(children: value),
+    child: SingleChildScrollView(
+      scrollDirection: direction ?? Axis.vertical,
+      child: Row(children: value),
+    ),
   );
 }
 

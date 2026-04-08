@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
+import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -40,7 +41,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         List<Map> fourDaysFromNowData = [];
         List<Map> fiveDaysAwayFromNowData = [];
         List<Map> sixDaysAwayFromNowData = [];
-        // print(userTimeTable);
+        print(userTimeTable);
         String tommorowDate =
             ref.read(wordWeekdayToInt)[DateTime.now().weekday %
                 7]; //this is to get wether the day is Monday, Tuesdat,etc
@@ -148,10 +149,15 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               tableName: 'todayLectures',
               limit: 1000,
             );
+            print(todayLecture);
             print('today lecture sql is passed');
             ref.read(decoyDB.notifier).state =
                 todayLecture; //pass the data to the provider
-            // print(ref.read(decoyDB));
+            //for passing the lenght of the classes we have left for today
+            ref.read(todayLectureCount.notifier).state = await ref
+                .read(decoyDB)
+                .length;
+            router.go('/dashboard');
             await Future.delayed(
               Duration(milliseconds: 500),
             ); //this is just a gimmick, to stop the transitioning from beign too fast
@@ -188,6 +194,11 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           }
           print('main time table sql is passed');
           ref.read(decoyDB.notifier).state = userTimeTable;
+          //for passing the lenght of the classes we have left for today
+          ref.read(todayLectureCount.notifier).state = await ref
+              .read(decoyDB)
+              .length;
+          router.go('/dashboard');
           // print(ref.read(decoyDB));
           await lookForSettingBox().put('isDataPassedForToday', true);
         }

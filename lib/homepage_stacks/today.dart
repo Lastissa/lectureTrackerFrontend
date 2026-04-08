@@ -139,7 +139,7 @@ class _TodayState extends ConsumerState<Today> {
                       ref.read(currentStartTime.notifier).state =
                           "${int.parse(start_hour ?? '0')}${start_hour!.isEmpty ? '' : ':'}$start_minutes";
                       ref.read(currentEndTime.notifier).state =
-                          '${int.parse(end_hour ?? '')}${end_hour!.isEmpty ? '' : ':'} $end_minutes';
+                          '${int.parse(end_hour ?? '')}${end_hour!.isEmpty ? '' : ':'}$end_minutes';
 
                       ref.read(currentDayOfTheWeek.notifier).state =
                           dataToUse[index]['dayOfTheWeek'];

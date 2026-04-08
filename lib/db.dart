@@ -23,7 +23,7 @@ class CustomDbClass {
         await db.execute(
           """CREATE TABLE userAllTimetable(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, start_time TEXT, end_time TEXT, dayOfTheWeek TEXT, color TEXT)""",
         );
-        //For current day lecturesa
+        //For current day lectures
         await db.execute(
           """CREATE TABLE todayLectures(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, start_time TEXT, end_time TEXT, dayOfTheWeek TEXT, color TEXT)""",
         );

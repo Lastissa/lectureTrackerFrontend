@@ -56,7 +56,6 @@ class _SignupState extends ConsumerState<Signup> {
   String lastToFirstMeridien =
       'AM'; //This is for turning the last entry of the end time of the former course to the start time of the next course, so the user dont have to stress about it
   int secondIndex = 0; // for switching am the and pm
-  Color defaultColour = Colors.blueAccent;
 
   @override
   Widget build(BuildContext context) {
