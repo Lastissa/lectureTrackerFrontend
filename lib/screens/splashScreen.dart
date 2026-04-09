@@ -62,7 +62,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         )[(DateTime.now().weekday + 5) % 7];
 
         for (Map i in userTimeTable) {
-          //checking if tommorrow is seem
+          //checking if tommorrow is seen
           if (i.containsKey('dayOfTheWeek') &&
               i['dayOfTheWeek'] == tommorowDate) {
             tommorrowData.add(i);
@@ -149,19 +149,18 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               tableName: 'todayLectures',
               limit: 1000,
             );
-            print(todayLecture);
-            print('today lecture sql is passed');
+            // print(todayLecture);
             ref.read(decoyDB.notifier).state =
                 todayLecture; //pass the data to the provider
-            //for passing the lenght of the classes we have left for today
-            ref.read(todayLectureCount.notifier).state = await ref
-                .read(decoyDB)
-                .length;
+            //number of lecture for display on dashboard
+            ref.watch(todayLectureCount.notifier).state = todayLecture.length;
+            print('today lecture sql is passed');
+            print('lenght of today lecture is: ${ref.read(todayLectureCount)}');
+
             router.go('/dashboard');
             await Future.delayed(
               Duration(milliseconds: 500),
             ); //this is just a gimmick, to stop the transitioning from beign too fast
-
             router.go('/dashboard');
             return; //stop all below from running
             //this mean, the user is still in the current day they open the app last.
@@ -192,12 +191,16 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               );
             }
           }
+          List<Map> newFetchForToday = await fetchAll(
+            dbLocator: sqlDbLocator,
+            tableName: 'todayLectures',
+            limit: 1000,
+          );
+          ref.read(decoyDB.notifier).state = newFetchForToday;
+          ref.read(todayLectureCount.notifier).state = newFetchForToday.length;
           print('main time table sql is passed');
-          ref.read(decoyDB.notifier).state = userTimeTable;
-          //for passing the lenght of the classes we have left for today
-          ref.read(todayLectureCount.notifier).state = await ref
-              .read(decoyDB)
-              .length;
+          print('lenght of today lecture is: ${ref.read(todayLectureCount)}');
+
           router.go('/dashboard');
           // print(ref.read(decoyDB));
           await lookForSettingBox().put('isDataPassedForToday', true);

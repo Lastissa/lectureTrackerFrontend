@@ -39,22 +39,23 @@ void oneTimeRun({required WidgetRef ref}) async {
     "SELECT * FROM userAllTimetable",
   );
 
-  if (ref.read(allIsClicked).isEmpty) {
+  if (ref.read(_allIsClicked).isEmpty) {
     List<bool> allLectureClicking = await List.generate(
       userRegisteredData.length,
       (index) => true,
     );
-    ref.read(allIsClicked.notifier).state = allLectureClicking;
+    ref.read(_allIsClicked.notifier).state = allLectureClicking;
     List<String> allDaysPickedBefore = await List.generate(
       userRegisteredData.length,
       (index) => userRegisteredData[index]['dayOfTheWeek'],
     );
-    ref.read(allDayOfTheWeekData.notifier).state = allDaysPickedBefore;
+    ref.read(_allDayOfTheWeekDataLikeMondayETC.notifier).state =
+        allDaysPickedBefore;
   }
 
-  if (ref.read(allUserData).isEmpty) {
-    ref.read(allUserData.notifier).state = userRegisteredData;
-    ref.read(registeredCourseCount.notifier).state = userRegisteredData.length;
+  if (ref.read(_allUserData).isEmpty) {
+    ref.read(_allUserData.notifier).state = userRegisteredData;
+    ref.read(_registeredCourseCount.notifier).state = userRegisteredData.length;
   }
 
   // return userRegisteredData;
@@ -63,10 +64,10 @@ void oneTimeRun({required WidgetRef ref}) async {
 class EditcourseState extends ConsumerState<Editcourse> {
   @override
   Widget build(BuildContext context) {
-    if (ref.read(allUserData).isEmpty) {
+    if (ref.read(_allUserData).isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         oneTimeRun(ref: ref);
-        await Future.delayed(Duration(seconds: 1));
+        await Future.delayed(Duration(milliseconds: 500));
         if (!listVieweController.hasClients) return;
         listVieweController.animateTo(
           listVieweController.position.maxScrollExtent,
@@ -85,13 +86,13 @@ class EditcourseState extends ConsumerState<Editcourse> {
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didpop, result) {
-          ref.invalidate(allIsClicked);
-          ref.invalidate(allUserData);
-          ref.invalidate(dayChoosenForBackUp);
-          ref.invalidate(allDayOfTheWeekData);
-          ref.invalidate(registeredCourseCount);
-          router.go('settings');
-          return;
+          if (didpop) return;
+          ref.invalidate(_allIsClicked);
+          ref.invalidate(_allUserData);
+          ref.invalidate(_dayChoosenForBackUp);
+          ref.invalidate(_allDayOfTheWeekDataLikeMondayETC);
+          ref.invalidate(_registeredCourseCount);
+          router.pop();
         },
         child: Column(
           children: [
@@ -99,12 +100,12 @@ class EditcourseState extends ConsumerState<Editcourse> {
               children: [
                 InkWell(
                   onTap: () {
-                    ref.invalidate(allIsClicked);
-                    ref.invalidate(allUserData);
-                    ref.invalidate(dayChoosenForBackUp);
-                    ref.invalidate(allDayOfTheWeekData);
-                    ref.invalidate(registeredCourseCount);
-                    router.go('/settings');
+                    ref.invalidate(_allIsClicked);
+                    ref.invalidate(_allUserData);
+                    ref.invalidate(_dayChoosenForBackUp);
+                    ref.invalidate(_allDayOfTheWeekDataLikeMondayETC);
+                    ref.invalidate(_registeredCourseCount);
+                    router.pop();
                   },
                   child: Icon(
                     Icons.exit_to_app,
@@ -115,7 +116,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
             ),
             Center(
               child: Text(
-                "${ref.watch(registeredCourseCount)} Course Registered",
+                "${ref.watch(_registeredCourseCount)} Course Registered",
                 style: TextStyle(
                   fontSize: 28.sp.clamp(0, 24),
                   fontWeight: FontWeight.w900,
@@ -142,7 +143,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                 ),
                 child: ListView.builder(
                   controller: listVieweController,
-                  itemCount: ref.watch(allUserData).length,
+                  itemCount: ref.watch(_allUserData).length,
                   itemBuilder: (itemBuilder, index) {
                     // print(
                     //   snapshot.data?.length,
@@ -165,7 +166,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                           ),
                           child: TextFormField(
                             initialValue: ref.watch(
-                              allUserData,
+                              _allUserData,
                             )[index]['title'],
                             style: TextStyle(
                               color: ref.watch(lightMode)
@@ -178,7 +179,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                 color: ref.watch(foreGroundColor),
                               ),
 
-                              hintText: ref.watch(allUserData)[index]['title'],
+                              hintText: ref.watch(_allUserData)[index]['title'],
                               hintStyle: TextStyle(
                                 color: ref.watch(lightMode)
                                     ? Colors.grey[400]
@@ -262,29 +263,33 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                             // List allLecture =
                                             //     await List.generate(
                                             //       ref.read(
-                                            //         registeredCourseCount,
+                                            //         _registeredCourseCount,
                                             //       ),
                                             //       (index) => false,
                                             //     );
                                             //pass it on to the allClicks provider to it can reset itself
                                             // ref
-                                            //         .read(allIsClicked.notifier)
+                                            //         .read(_allIsClicked.notifier)
                                             //         .state =
                                             //     allLecture;
                                             List<bool> currentClicks = ref.read(
-                                              allIsClicked,
+                                              _allIsClicked,
                                             );
                                             currentClicks.removeAt(index);
                                             currentClicks.insert(index, true);
                                             ref
-                                                    .read(allIsClicked.notifier)
+                                                    .read(
+                                                      _allIsClicked.notifier,
+                                                    )
                                                     .state =
                                                 currentClicks;
 
                                             setState(() {});
-                                            print(ref.read(allIsClicked));
+                                            print(ref.read(_allIsClicked));
                                             print(
-                                              ref.read(allDayOfTheWeekData),
+                                              ref.read(
+                                                _allDayOfTheWeekDataLikeMondayETC,
+                                              ),
                                             );
                                           },
                                           child: Text(
@@ -319,7 +324,9 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                   ),
                                   onPressed: () {},
                                   child: Text(
-                                    ref.watch(allDayOfTheWeekData)[index],
+                                    ref.watch(
+                                      _allDayOfTheWeekDataLikeMondayETC,
+                                    )[index],
                                   ),
                                 ),
                                 ElevatedButton(
@@ -331,7 +338,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                   ),
                                   onPressed: () async {
                                     // List allLecture = await List.generate(
-                                    //   ref.read(registeredCourseCount),
+                                    //   ref.read(_registeredCourseCount),
                                     //   (index) => false,
                                     // );
                                   },
@@ -341,7 +348,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                             ),
                             duration: Duration(milliseconds: 400),
                             sizeCurve: Curves.easeIn,
-                            crossFadeState: ref.watch(allIsClicked)[index]
+                            crossFadeState: ref.watch(_allIsClicked)[index]
                                 ? CrossFadeState.showSecond
                                 : CrossFadeState.showFirst,
                           ),
@@ -567,7 +574,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                           ],
                         ),
                         SizedBox(height: 10),
-                        // index == ref.read(allIsClicked).length - 1
+                        // index == ref.read(_allIsClicked).length - 1
                         //     ? Row(
                         //         children: [
                         //           Expanded(
@@ -589,7 +596,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                   },
                 ),
               ),
-              crossFadeState: ref.watch(allUserData).isEmpty
+              crossFadeState: ref.watch(_allUserData).isEmpty
                   ? CrossFadeState.showFirst
                   : CrossFadeState.showSecond,
               duration: Duration(milliseconds: 350),
@@ -712,24 +719,24 @@ Widget _timeWidget({
 }
 
 //for knowing which lecture have been clicked
-final allIsClicked = StateProvider<List<bool>>((ref) {
+final _allIsClicked = StateProvider<List<bool>>((ref) {
   return [];
 });
 //for storing user data
-final allUserData = StateProvider<List<Map>>((ref) {
+final _allUserData = StateProvider<List<Map>>((ref) {
   return [];
 });
 //
 //knowing day choosen when about to back up
-final dayChoosenForBackUp = StateProvider<String>((ref) {
+final _dayChoosenForBackUp = StateProvider<String>((ref) {
   return '';
 });
 //lecture lenght
-final registeredCourseCount = StateProvider((ref) {
+final _registeredCourseCount = StateProvider((ref) {
   return 0;
 });
 
 //for each day of the week column, so i can know the data tha will be there by default
-final allDayOfTheWeekData = StateProvider<List<String>>((ref) {
+final _allDayOfTheWeekDataLikeMondayETC = StateProvider<List<String>>((ref) {
   return [];
 });

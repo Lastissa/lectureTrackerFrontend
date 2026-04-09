@@ -232,12 +232,6 @@ class _SettingsState extends ConsumerState<Settings> {
                           //edit registered courses
                           InkWell(
                             onTap: () {
-                              //invalidate this so we will not enter with old data
-                              ref.invalidate(registeredCourseCount);
-                              ref.invalidate(allIsClicked);
-                              ref.invalidate(allUserData);
-                              ref.invalidate(dayChoosenForBackUp);
-                              ref.invalidate(allDayOfTheWeekData);
                               router.push('/Editcourse');
                             },
                             child: Container(
@@ -443,9 +437,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                       ? Colors.white
                                       : Colors.black,
                                 ),
-                                onPressed: () {
-                                  print(ref.read(allIsClicked));
-                                },
+                                onPressed: () {},
                                 child: Text(
                                   "Restore Data",
                                   textAlign: TextAlign.center,
