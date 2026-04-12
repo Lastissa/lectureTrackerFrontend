@@ -203,3 +203,62 @@ final lectureAttendedIcon = StateProvider<IconData>((ref) {
 final lectureCancelledIcon = StateProvider<IconData>((ref) {
   return Icons.multiple_stop_sharp;
 });
+
+//for faster re-usage
+Widget customTextFeild({
+  required WidgetRef ref,
+  required TextEditingController controller,
+  required bool isPassword,
+  required Widget suffix,
+  required Widget? prefix,
+  required String? hint,
+  required FormFieldValidator validator,
+}) {
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: ref.watch(lightMode)
+              ? const Color.fromARGB(40, 0, 0, 0)
+              : const Color.fromARGB(61, 0, 0, 0),
+          blurRadius: 12,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    ),
+    child: TextFormField(
+      controller: controller,
+      obscureText: isPassword,
+      style: TextStyle(color: ref.watch(foreGroundColor)),
+      decoration: InputDecoration(
+        suffixIcon: suffix,
+        prefixIcon:
+            prefix ?? Icon(Icons.people, color: ref.watch(foreGroundColor)),
+        hintText: hint ?? 'empty',
+        hintStyle: TextStyle(
+          color: ref.watch(lightMode) ? Colors.grey[400] : Colors.grey[600],
+        ),
+        filled: true,
+        fillColor: ref.watch(lightMode)
+            ? Colors.white
+            : const Color(0xFF1E1E1E),
+
+        // Your OutlineInputBorder preferences
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: Colors.transparent),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            color: ref.watch(lightMode) ? Colors.blueAccent : Colors.tealAccent,
+            width: 2,
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 20),
+      ),
+      validator: validator,
+    ),
+  );
+}

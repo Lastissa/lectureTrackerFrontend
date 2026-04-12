@@ -40,10 +40,7 @@ class _HomeFileState extends ConsumerState<HomeFile> {
     return ScreenUtilInit(
       designSize: Size(ref.read(deviceSizeX), ref.read(deviceSizeY)),
       child: MaterialApp.router(
-        themeMode: ThemeMode.dark,
         theme: ThemeData(
-          canvasColor: Colors.red,
-
           scaffoldBackgroundColor: ref.read(lightMode)
               ? Colors.grey[100]
               : Colors.black,

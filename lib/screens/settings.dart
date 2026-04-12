@@ -9,6 +9,7 @@ import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
+
 import 'package:lecture_tracker/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
@@ -91,6 +92,9 @@ class _SettingsState extends ConsumerState<Settings> {
                               onTap: () {
                                 setState(() {
                                   isChangeUsernameActive = true;
+                                  changeNameController.text = ref
+                                      .read(username)
+                                      .toUpperCase();
                                 });
                               },
                               child: Container(
@@ -124,43 +128,43 @@ class _SettingsState extends ConsumerState<Settings> {
                             secondChild: Row(
                               children: [
                                 Expanded(
-                                  child: TextFormField(
+                                  child: customTextFeild(
+                                    ref: ref,
                                     controller: changeNameController,
-                                    style: TextStyle(
-                                      color: ref.watch(lightMode)
-                                          ? Colors.black
-                                          : Colors.white,
+                                    isPassword: false,
+                                    suffix: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          isChangeUsernameActive = false;
+                                        });
+                                      },
+                                      child: Icon(
+                                        color: Colors.red,
+                                        Icons.cancel_rounded,
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () async {
-                                    await lookForSettingBox().put(
-                                      'username',
-                                      changeNameController.text
-                                          .trim()
-                                          .toUpperCase(),
-                                    );
-                                    ref.read(username.notifier).state =
-                                        changeNameController.text;
-                                    setState(() {
-                                      isChangeUsernameActive = false;
-                                    });
-                                  },
-                                  child: Icon(
-                                    Icons.cloud_done_rounded,
-                                    color: ref.watch(foreGroundColor),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      isChangeUsernameActive = false;
-                                    });
-                                  },
-                                  child: Icon(
-                                    color: Colors.red,
-                                    Icons.cancel_rounded,
+
+                                    prefix: InkWell(
+                                      onTap: () async {
+                                        await lookForSettingBox().put(
+                                          'username',
+                                          changeNameController.text
+                                              .trim()
+                                              .toUpperCase(),
+                                        );
+                                        ref.read(username.notifier).state =
+                                            changeNameController.text;
+                                        setState(() {
+                                          isChangeUsernameActive = false;
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.cloud_done_rounded,
+                                        color: ref.watch(foreGroundColor),
+                                      ),
+                                    ),
+                                    hint: 'Username',
+                                    validator: (v) {},
                                   ),
                                 ),
                               ],
@@ -232,6 +236,8 @@ class _SettingsState extends ConsumerState<Settings> {
                           //edit registered courses
                           InkWell(
                             onTap: () {
+                              ref.invalidate(isClosePressed);
+
                               router.push('/Editcourse');
                             },
                             child: Container(
@@ -673,9 +679,11 @@ class _SettingsState extends ConsumerState<Settings> {
                             SizedBox(width: 15),
                             InkWell(
                               onTap: () async {
-                                final link = await Uri.parse(
-                                  'https://drive.google.com/file/d/1trVp2fO8xvzWlHdNPpuxm3VM4TR6JVJZ/view?usp=drivesdk',
-                                );
+                                // final link = await Uri.parse(
+                                //   'Download lecture tracker app at https://drive.google.com/file/d/1S_eQOjoUtXnpJz20ivWUjlfn-aFU0r8S/view?usp=drivesdk',
+                                // );
+                                final link =
+                                    "Download lecture tracker app at https://drive.google.com/file/d/1S_eQOjoUtXnpJz20ivWUjlfn-aFU0r8S/view?usp=drivesdk";
                                 if (Platform.isWindows || Platform.isAndroid) {
                                   Clipboard.setData(
                                     ClipboardData(
@@ -686,11 +694,11 @@ class _SettingsState extends ConsumerState<Settings> {
                                   await ScaffoldMessenger.of(
                                     context,
                                   ).clearSnackBars;
-                                  notifier(
-                                    message: 'App Link Copied!',
-                                    bg: ref.watch(foreGroundColor),
-                                    context: context,
-                                  );
+                                  // notifier(
+                                  //   message: 'App Link Copied!',
+                                  //   bg: ref.watch(foreGroundColor),
+                                  //   context: context,
+                                  // );
                                 }
                                 // bring up the share app - i do not know the package i will use for now
 

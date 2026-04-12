@@ -61,13 +61,14 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
             ),
           ),
 
-          _backUpTextFeild(
+          customTextFeild(
             ref: ref,
             controller: _usernameController,
             isPassword: false,
             suffix: SizedBox(),
             hint: 'Username',
             validator: (v) {},
+            prefix: null,
           ),
           // Password Input with Shadow
           Container(
@@ -83,7 +84,9 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
               ],
             ),
             child: AnimatedCrossFade(
-              firstChild: _backUpTextFeild(
+              firstChild: customTextFeild(
+                prefix: Icon(Icons.lock, color: ref.watch(foreGroundColor)),
+
                 suffix: InkWell(
                   onTap: () {
                     _passwordConfirmController.text = '';
@@ -114,7 +117,9 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                 },
                 ref: ref,
               ),
-              secondChild: _backUpTextFeild(
+              secondChild: customTextFeild(
+                prefix: Icon(Icons.lock, color: ref.watch(foreGroundColor)),
+
                 controller: _passwordConfirmController,
                 hint: "Confirm Password",
                 suffix: InkWell(
@@ -168,63 +173,6 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
 final isBackupClicked = StateProvider<bool>((ref) {
   return false;
 });
-
-//for faster re-usage
-Widget _backUpTextFeild({
-  required WidgetRef ref,
-  required TextEditingController controller,
-  required bool isPassword,
-  required Widget suffix,
-  required String? hint,
-  required FormFieldValidator validator,
-}) {
-  return Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(15),
-      boxShadow: [
-        BoxShadow(
-          color: ref.watch(lightMode)
-              ? const Color.fromARGB(40, 0, 0, 0)
-              : const Color.fromARGB(61, 0, 0, 0),
-          blurRadius: 12,
-          offset: const Offset(0, 6),
-        ),
-      ],
-    ),
-    child: TextFormField(
-      controller: controller,
-      obscureText: isPassword,
-      style: TextStyle(color: ref.watch(foreGroundColor)),
-      decoration: InputDecoration(
-        suffixIcon: suffix,
-        prefixIcon: Icon(Icons.people, color: ref.watch(foreGroundColor)),
-        hintText: hint ?? 'empty',
-        hintStyle: TextStyle(
-          color: ref.watch(lightMode) ? Colors.grey[400] : Colors.grey[600],
-        ),
-        filled: true,
-        fillColor: ref.watch(lightMode)
-            ? Colors.white
-            : const Color(0xFF1E1E1E),
-
-        // Your OutlineInputBorder preferences
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.transparent),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(
-            color: ref.watch(lightMode) ? Colors.blueAccent : Colors.tealAccent,
-            width: 2,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 20),
-      ),
-      validator: validator,
-    ),
-  );
-}
 
 final _comfirmpasswordOpen = StateProvider((ref) {
   return false;
