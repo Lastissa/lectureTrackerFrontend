@@ -48,124 +48,153 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
       height: ref.watch(deviceSizeY) * 0.7.h,
       width: ref.watch(deviceSizeX) * 0.9.w,
       padding: EdgeInsets.all(10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Text(
-            "Create Account",
-            style: TextStyle(
-              color: ref.watch(foreGroundColor),
-              fontSize: 20.sp,
-              letterSpacing: -1,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+      child: 1 == 1
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  'Coming soon...',
+                  style: TextStyle(
+                    color: ref.watch(foreGroundColor),
+                    fontSize: 20.sp,
+                    letterSpacing: -1,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    ref.invalidate(isBackupClicked);
+                  },
+                  icon: Icon(Icons.close, color: Colors.red),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
 
-          customTextFeild(
-            ref: ref,
-            controller: _usernameController,
-            isPassword: false,
-            suffix: SizedBox(),
-            hint: 'Username',
-            validator: (v) {},
-            prefix: null,
-          ),
-          // Password Input with Shadow
-          Container(
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  offset: Offset(1, 0),
-                  blurRadius: 3,
+              children: [
+                Text(
+                  "Create Account",
+                  style: TextStyle(
+                    color: ref.watch(foreGroundColor),
+                    fontSize: 20.sp,
+                    letterSpacing: -1,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                customTextFeild(
+                  ref: ref,
+                  controller: _usernameController,
+                  isPassword: false,
+                  suffix: SizedBox(),
+                  hint: 'Username',
+                  validator: (v) {},
+                  prefix: null,
+                ),
+                // Password Input with Shadow
+                Container(
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        offset: Offset(1, 0),
+                        blurRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: AnimatedCrossFade(
+                    firstChild: customTextFeild(
+                      prefix: Icon(
+                        Icons.lock,
+                        color: ref.watch(foreGroundColor),
+                      ),
+
+                      suffix: InkWell(
+                        onTap: () {
+                          _passwordConfirmController.text = '';
+                          ref.read(_comfirmpasswordOpen.notifier).state = true;
+                        },
+                        child: Icon(
+                          Icons.chevron_right,
+                          color: ref.watch(lightMode)
+                              ? Colors.blueAccent
+                              : Colors.teal,
+                        ),
+                      ),
+                      controller: _passwordController,
+                      hint: "Password",
+                      isPassword: true,
+                      validator: (value) {
+                        if (_passwordController.text.trim().isEmpty) {
+                          ElegantNotification(
+                            background: Colors.red,
+                            description: Text(
+                              style: TextStyle(color: Colors.white),
+                              'password cannot be null',
+                            ),
+                          ).show(context);
+                          return;
+                        }
+                        return;
+                      },
+                      ref: ref,
+                    ),
+                    secondChild: customTextFeild(
+                      prefix: Icon(
+                        Icons.lock,
+                        color: ref.watch(foreGroundColor),
+                      ),
+
+                      controller: _passwordConfirmController,
+                      hint: "Confirm Password",
+                      suffix: InkWell(
+                        onTap: () {
+                          ref.invalidate(_comfirmpasswordOpen);
+                          _passwordConfirmController.text = '';
+                        },
+                        child: Icon(
+                          Icons.chevron_left,
+                          color: ref.watch(foreGroundColor),
+                        ),
+                      ),
+                      isPassword: true,
+                      validator: (value) {
+                        if (!ref.read(_comfirmpasswordOpen)) {
+                          return null;
+                        }
+
+                        return null;
+                      },
+                      ref: ref,
+                    ),
+                    crossFadeState: ref.watch(_comfirmpasswordOpen)
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: Duration(milliseconds: 600),
+                    sizeCurve: Curves.bounceIn,
+                  ),
+                ),
+                ElevatedButton(onPressed: () {}, child: Text("Create Account")),
+                InkWell(
+                  onTap: () => ref.invalidate(isBackupClicked),
+                  child: Icon(Icons.close, color: ref.watch(foreGroundColor)),
+                ),
+                Center(
+                  child: Text(
+                    "Note: Account creation is only for backup and restore purposes. It does not sync data across devices.",
+                    style: TextStyle(
+                      color: ref.watch(foreGroundColor),
+                      fontSize: 12.sp,
+                      letterSpacing: -1,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 ),
               ],
             ),
-            child: AnimatedCrossFade(
-              firstChild: customTextFeild(
-                prefix: Icon(Icons.lock, color: ref.watch(foreGroundColor)),
-
-                suffix: InkWell(
-                  onTap: () {
-                    _passwordConfirmController.text = '';
-                    ref.read(_comfirmpasswordOpen.notifier).state = true;
-                  },
-                  child: Icon(
-                    Icons.chevron_right,
-                    color: ref.watch(lightMode)
-                        ? Colors.blueAccent
-                        : Colors.teal,
-                  ),
-                ),
-                controller: _passwordController,
-                hint: "Password",
-                isPassword: true,
-                validator: (value) {
-                  if (_passwordController.text.trim().isEmpty) {
-                    ElegantNotification(
-                      background: Colors.red,
-                      description: Text(
-                        style: TextStyle(color: Colors.white),
-                        'password cannot be null',
-                      ),
-                    ).show(context);
-                    return;
-                  }
-                  return;
-                },
-                ref: ref,
-              ),
-              secondChild: customTextFeild(
-                prefix: Icon(Icons.lock, color: ref.watch(foreGroundColor)),
-
-                controller: _passwordConfirmController,
-                hint: "Confirm Password",
-                suffix: InkWell(
-                  onTap: () {
-                    ref.invalidate(_comfirmpasswordOpen);
-                    _passwordConfirmController.text = '';
-                  },
-                  child: Icon(
-                    Icons.chevron_left,
-                    color: ref.watch(foreGroundColor),
-                  ),
-                ),
-                isPassword: true,
-
-                validator: (value) {
-                  if (!ref.read(_comfirmpasswordOpen)) {
-                    return null;
-                  }
-                  //else if (_passwordController.text !=
-                  //     _passwordController.text) {
-                  //   notifier(
-                  //     bg: Colors.red,
-
-                  //     context: context,
-                  //     message: 'Password Does Not Match ',
-                  //   );
-                  // }
-
-                  return null;
-                },
-                ref: ref,
-              ),
-              crossFadeState: ref.watch(_comfirmpasswordOpen)
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: Duration(milliseconds: 600),
-              sizeCurve: Curves.bounceIn,
-            ),
-          ),
-          ElevatedButton(onPressed: () {}, child: Text("Create Account")),
-          InkWell(
-            onTap: () => ref.invalidate(isBackupClicked),
-            child: Icon(Icons.close, color: ref.watch(foreGroundColor)),
-          ),
-        ],
-      ),
     );
   }
 }

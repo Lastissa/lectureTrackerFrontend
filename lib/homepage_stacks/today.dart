@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
@@ -69,7 +71,7 @@ class _TodayState extends ConsumerState<Today> {
                       'start_time': ':',
                       'end_time': ':',
                       'dayOfTheWeek': '',
-                      'color': colors[0],
+                      'color': prefixColors[Random(index).nextInt(13)],
                     },
                   ];
                   if (_todayLectureCard().isNotEmpty) {

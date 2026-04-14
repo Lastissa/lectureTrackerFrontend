@@ -809,7 +809,7 @@ class _SignupState extends ConsumerState<Signup> {
                                         i['start_time'],
                                         i['end_time'],
                                         i['dayOfTheWeek'],
-                                        colors[index],
+                                        prefixColors[index],
                                       ],
                                     );
                                     //to update the today lecture card
@@ -824,11 +824,11 @@ class _SignupState extends ConsumerState<Signup> {
                                         start_time: i['start_time'],
                                         end_time: i['end_time'],
                                         dayOfTheWeek: i['dayOfTheWeek'],
-                                        color: colors[index],
+                                        color: prefixColors[index],
                                       );
                                     }
                                     //incase index get to twelve which is the maximum colour available, reset index to 0 -remove in the future if i have a way to add more colour
-                                    if ((colors.length - 1) == index) {
+                                    if ((prefixColors.length - 1) == index) {
                                       index = 0;
                                     } else {
                                       index++;

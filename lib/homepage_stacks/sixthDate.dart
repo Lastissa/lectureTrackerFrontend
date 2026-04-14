@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lecture_tracker/utils.dart';
@@ -46,7 +48,7 @@ class _SixthdateState extends ConsumerState<Sixthdate> {
                   'start_time': ':',
                   'end_time': ':',
                   'dayOfTheWeek': '',
-                  'color': colors[0],
+                  'color': prefixColors[Random(index).nextInt(13)],
                 },
               ];
               if (ref.read(fiveDaysLaterLectureSQLprovider).isNotEmpty) {

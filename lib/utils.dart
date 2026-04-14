@@ -81,8 +81,8 @@ final wordWeekdayToInt = StateProvider<List<String>>((ref) {
     'Sunday',
   ];
 });
-//in the signup, i have set the maximum allowed colors to be twelve by resetting 'index' to zero when it get to 12, edit tha if i wanna add more colour
-List<String> colors = [
+//in the signup, i have set the maximum allowed colors to be twelve by resetting 'index' to zero when it get to 12, edit that if i wanna add more colour
+List<String> prefixColors = [
   'deepOrange',
   'indigo',
   'teal',
@@ -96,7 +96,6 @@ List<String> colors = [
   'lightGreen',
   'indigoAccent',
   'redAccent',
-  'selfDef1',
 ];
 //the color coming from the db only carries this
 final ColorMapper = {

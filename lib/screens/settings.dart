@@ -154,6 +154,10 @@ class _SettingsState extends ConsumerState<Settings> {
                                         );
                                         ref.read(username.notifier).state =
                                             changeNameController.text;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).clearSnackBars;
+
                                         setState(() {
                                           isChangeUsernameActive = false;
                                         });
@@ -235,10 +239,15 @@ class _SettingsState extends ConsumerState<Settings> {
                           ),
                           //edit registered courses
                           InkWell(
-                            onTap: () {
+                            onTap: () async {
                               ref.invalidate(isClosePressed);
-
-                              router.push('/Editcourse');
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                try {
+                                  router.push('/Editcourse');
+                                } catch (e) {
+                                  router.go('/error', extra: e.toString());
+                                }
+                              });
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -373,34 +382,97 @@ class _SettingsState extends ConsumerState<Settings> {
                                       foregroundColor: Colors.white,
                                     ),
                                     onPressed: () async {
-                                      final locator =
-                                          await CustomDbClass.instance.getter;
-                                      await locator.rawDelete(
-                                        "DELETE FROM todayLectures",
-                                      );
-                                      await locator.rawDelete(
-                                        "DELETE FROM userAllTimetable",
-                                      );
-                                      await locator.rawDelete(
-                                        "DELETE FROM lectureTrackers",
-                                      );
-                                      await lookForSettingBox().delete(
-                                        'lightMode',
-                                      );
-                                      await lookForSettingBox().delete(
-                                        'username',
-                                      );
-                                      await lookForSettingBox().delete(
-                                        'todayDate',
-                                      );
-                                      await lookForSettingBox().delete(
-                                        'isDataPassedForToday',
-                                      );
-                                      await lookForSettingBox().delete(
-                                        'userHaveCreatedCourses',
-                                      );
+                                      showDialog<void>(
+                                        context: context,
+                                        barrierDismissible:
+                                            false, // User must tap a button to close
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                              'Confirm Account Delete',
+                                            ),
+                                            content: const SingleChildScrollView(
+                                              child: ListBody(
+                                                children: <Widget>[
+                                                  Text(
+                                                    'Are you sure you want to delete your account?',
+                                                  ),
+                                                  Text(
+                                                    'NOTE: This action can lead to loss of data if account is not backed up.!!!',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Hint: if you back up your data before delete, you can always retreive it later ',
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: const Text('Cancel'),
+                                                onPressed: () {
+                                                  Navigator.of(
+                                                    context,
+                                                  ).pop(); // Just close the popup
+                                                },
+                                              ),
 
-                                      router.go('/splashScreen');
+                                              TextButton(
+                                                onPressed: () {},
+                                                child: Text(
+                                                  'Backup',
+                                                  style: TextStyle(),
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                                child: const Text(
+                                                  'Delete',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                onPressed: () async {
+                                                  final locator =
+                                                      await CustomDbClass
+                                                          .instance
+                                                          .getter;
+                                                  await locator.rawDelete(
+                                                    "DELETE FROM todayLectures",
+                                                  );
+                                                  await locator.rawDelete(
+                                                    "DELETE FROM userAllTimetable",
+                                                  );
+                                                  await locator.rawDelete(
+                                                    "DELETE FROM lectureTrackers",
+                                                  );
+                                                  await lookForSettingBox()
+                                                      .delete('lightMode');
+                                                  await lookForSettingBox()
+                                                      .delete('username');
+                                                  await lookForSettingBox()
+                                                      .delete('todayDate');
+                                                  await lookForSettingBox()
+                                                      .delete(
+                                                        'isDataPassedForToday',
+                                                      );
+                                                  await lookForSettingBox()
+                                                      .delete(
+                                                        'userHaveCreatedCourses',
+                                                      );
+
+                                                  router.go('/splashScreen');
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
                                     },
                                     child: Text('Yes, Delete Account'),
                                   ),
@@ -683,7 +755,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                 //   'Download lecture tracker app at https://drive.google.com/file/d/1S_eQOjoUtXnpJz20ivWUjlfn-aFU0r8S/view?usp=drivesdk',
                                 // );
                                 final link =
-                                    "Download lecture tracker app at https://drive.google.com/file/d/1S_eQOjoUtXnpJz20ivWUjlfn-aFU0r8S/view?usp=drivesdk";
+                                    "Download lecture tracker app at https://drive.google.com/drive/folders/1R4wXaL5J3ZaRIbGs0oRgzwU3slnhkEyK";
                                 if (Platform.isWindows || Platform.isAndroid) {
                                   Clipboard.setData(
                                     ClipboardData(
