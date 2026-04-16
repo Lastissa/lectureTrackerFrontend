@@ -441,7 +441,28 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                                           )
                                                           .state =
                                                       currentClicks;
-
+                                                  //for updating the day of the week text to show
+                                                  final List<String>
+                                                  _tempHolder = [];
+                                                  for (String i in ref.read(
+                                                    _dayOfTheWeek,
+                                                  )) {
+                                                    _tempHolder.add(i);
+                                                  }
+                                                  _tempHolder.removeAt(index);
+                                                  _tempHolder.insert(
+                                                    index,
+                                                    ref.read(
+                                                      wordWeekdayToInt,
+                                                    )[listGenerateIndex],
+                                                  );
+                                                  ref
+                                                          .read(
+                                                            _dayOfTheWeek
+                                                                .notifier,
+                                                          )
+                                                          .state =
+                                                      _tempHolder;
                                                   setState(() {});
                                                 },
                                                 child: Text(
@@ -1129,10 +1150,15 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                           );
                                         },
                                         onTap: () async {
-                                          // check if the textfeild is empty
+                                          print(
+                                            ref.read(_allUserData)[index],
+                                          ); //del soon brb
+
+                                          // check if the textfeild is empty or day of the week have not been choosen
                                           if ((_textControllersList[index])
-                                              .text
-                                              .isEmpty) {
+                                                  .text
+                                                  .isEmpty ||
+                                              !ref.read(_allIsClicked)[index]) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).clearSnackBars();
@@ -1231,17 +1257,32 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                             );
                                           }
                                           //if data does not exist in the db before and the controller is not empty, proceed to update the db
+                                          // update the main _userAllData to have the now updated data so i can overwrite istead of creating new data if user want to update
                                           //first Deleting the old data from the db
                                           await _locator.rawDelete(
                                             "DELETE FROM userAllTimetable WHERE title = ? AND start_time = ? AND end_time = ? AND dayOfTheWeek = ? AND color = ?",
                                             [
-                                              ref.read(_allTitles)[index],
-                                              ref.read(_start_time)[index],
-                                              ref.read(_end_time)[index],
-                                              ref.read(_dayOfTheWeek)[index],
-                                              ref.read(_color)[index],
+                                              ref.read(
+                                                _allUserData,
+                                              )[index]['title'],
+                                              ref.read(
+                                                _allUserData,
+                                              )[index]['start_time'],
+                                              ref.read(
+                                                _allUserData,
+                                              )[index]['end_time'],
+                                              ref.read(
+                                                _allUserData,
+                                              )[index]['dayOfTheWeek'],
+                                              ref.read(
+                                                _allUserData,
+                                              )[index]['color'],
                                             ],
                                           );
+
+                                          print(
+                                            ref.read(_allUserData)[index],
+                                          ); //brb
                                           //inserting the new data into the db, and generating a new id
                                           await _locator.rawInsert(
                                             "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
@@ -1254,6 +1295,35 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                               ref.read(_color)[index],
                                             ],
                                           );
+
+                                          //updating the _alluserdata stuff
+                                          final List<Map> _tempHolder1 = [];
+                                          for (Map i in ref.read(
+                                            _allUserData,
+                                          )) {
+                                            _tempHolder1.add(i);
+                                          }
+                                          _tempHolder1.removeAt(index);
+                                          _tempHolder1.insert(index, {
+                                            'title': _textControllersList[index]
+                                                .text
+                                                .toUpperCase()
+                                                .trim(),
+                                            'start_time': ref.read(
+                                              _start_time,
+                                            )[index],
+                                            'end_time': ref.read(
+                                              _end_time,
+                                            )[index],
+                                            'dayOfTheWeek': ref.read(
+                                              _dayOfTheWeek,
+                                            )[index],
+                                            'color': ref.read(_color)[index],
+                                          });
+                                          ref
+                                                  .read(_allUserData.notifier)
+                                                  .state =
+                                              _tempHolder1;
                                           ScaffoldMessenger.of(
                                             context,
                                           ).clearSnackBars();
@@ -1263,8 +1333,8 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                             bg: ref.watch(foreGroundColor),
                                             fg: ref.watch(backgroundColor),
                                           );
-                                          //update the hint text of the controller.
 
+                                          //update the hint text of the controller.
                                           final List<String> _tempHolder = [];
                                           for (String i in ref.read(
                                             _allTitles,
