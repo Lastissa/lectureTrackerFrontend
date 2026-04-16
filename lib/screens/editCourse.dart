@@ -1128,6 +1128,164 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                             fg: ref.watch(backgroundColor),
                                           );
                                         },
+                                        onTap: () async {
+                                          // check if the textfeild is empty
+                                          if ((_textControllersList[index])
+                                              .text
+                                              .isEmpty) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).clearSnackBars();
+                                            notifier(
+                                              context: context,
+                                              message:
+                                                  'Feild cannot be empty!!!',
+                                              bg: Colors.red,
+                                              fg: ref.watch(backgroundColor),
+                                            );
+                                            return;
+                                          }
+                                          //if the textfeild is not empty, check if there are duplicate in the db already, block duplicate
+                                          final _locator = await CustomDbClass
+                                              .instance
+                                              .getter;
+                                          //get all value from the db
+                                          final _allValue = await fetchAll(
+                                            dbLocator: _locator,
+                                            tableName: 'userAllTimetable',
+                                            limit: 1000,
+                                          );
+                                          for (Map i in _allValue) {
+                                            if (i['title'] ==
+                                                    _textControllersList[index]
+                                                        .text
+                                                        .trim()
+                                                        .toUpperCase() &&
+                                                i['start_time'] ==
+                                                    ref
+                                                        .read(
+                                                          _start_time,
+                                                        )[index]
+                                                        .toUpperCase() &&
+                                                i['end_time'] ==
+                                                    ref
+                                                        .read(_end_time)[index]
+                                                        .toUpperCase() &&
+                                                i['dayOfTheWeek'] ==
+                                                    ref.read(
+                                                      _dayOfTheWeek,
+                                                    )[index] &&
+                                                i['color'] ==
+                                                    ref.read(_color)[index]) {
+                                              showDialog(
+                                                context: context,
+                                                builder: (builder) {
+                                                  return AlertDialog(
+                                                    backgroundColor: ref.watch(
+                                                      foreGroundColor,
+                                                    ),
+                                                    title: Center(
+                                                      child: Text(
+                                                        'Data Already Exist',
+                                                        style: customButtomTextStyle
+                                                            .copyWith(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    content: SingleChildScrollView(
+                                                      child: Text(
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        'The about to save data already exist in the database hence update will not proceed.\nTap anywhere outside this dialog to close',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: ref.watch(
+                                                            backgroundColor,
+                                                          ),
+                                                          wordSpacing: -0.1,
+                                                          letterSpacing: -0.5,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                              return;
+                                            }
+                                          }
+                                          //check if day of the week have been choosen
+                                          if (!ref.read(_allIsClicked)[index]) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).clearSnackBars();
+                                            notifier(
+                                              context: context,
+                                              message:
+                                                  'day of the week CANNOT be empty!',
+                                              bg: ref.watch(foreGroundColor),
+                                              fg: ref.watch(backgroundColor),
+                                            );
+                                          }
+                                          //if data does not exist in the db before and the controller is not empty, proceed to update the db
+                                          //first Deleting the old data from the db
+                                          await _locator.rawDelete(
+                                            "DELETE FROM userAllTimetable WHERE title = ? AND start_time = ? AND end_time = ? AND dayOfTheWeek = ? AND color = ?",
+                                            [
+                                              ref.read(_allTitles)[index],
+                                              ref.read(_start_time)[index],
+                                              ref.read(_end_time)[index],
+                                              ref.read(_dayOfTheWeek)[index],
+                                              ref.read(_color)[index],
+                                            ],
+                                          );
+                                          //inserting the new data into the db, and generating a new id
+                                          await _locator.rawInsert(
+                                            "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
+                                            [
+                                              _textControllersList[index].text
+                                                  .toUpperCase(),
+                                              ref.read(_start_time)[index],
+                                              ref.read(_end_time)[index],
+                                              ref.read(_dayOfTheWeek)[index],
+                                              ref.read(_color)[index],
+                                            ],
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).clearSnackBars();
+                                          notifier(
+                                            context: context,
+                                            message: 'saved',
+                                            bg: ref.watch(foreGroundColor),
+                                            fg: ref.watch(backgroundColor),
+                                          );
+                                          //update the hint text of the controller.
+
+                                          final List<String> _tempHolder = [];
+                                          for (String i in ref.read(
+                                            _allTitles,
+                                          )) {
+                                            _tempHolder.add(i);
+                                          }
+                                          _tempHolder.removeAt(
+                                            index,
+                                          ); //removing the old data in the titles
+                                          _tempHolder.insert(
+                                            index,
+                                            _textControllersList[index].text
+                                                .trim()
+                                                .toUpperCase(),
+                                          ); //updating it
+                                          //passing the edited list back to the controller
+                                          ref.read(_allTitles.notifier).state =
+                                              _tempHolder;
+                                          //clear the controller to let user know it have been saved
+                                          _textControllersList[index].text = '';
+                                        },
 
                                         child: CircleAvatar(
                                           backgroundColor: ref.watch(
@@ -1135,7 +1293,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                           ),
                                           child: Icon(
                                             Icons.save,
-                                            color: Colors.white,
+                                            color: ref.read(backgroundColor),
                                           ),
                                         ),
                                       ),
