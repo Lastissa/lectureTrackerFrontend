@@ -1200,9 +1200,11 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                                 i['dayOfTheWeek'] ==
                                                     ref.read(
                                                       _dayOfTheWeek,
-                                                    )[index] &&
-                                                i['color'] ==
-                                                    ref.read(_color)[index]) {
+                                                    )[index]
+                                            //  &&
+                                            // i['color'] ==
+                                            //     ref.read(_color)[index]
+                                            ) {
                                               showDialog(
                                                 context: context,
                                                 builder: (builder) {

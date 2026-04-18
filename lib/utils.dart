@@ -129,18 +129,40 @@ ScaffoldFeatureController? notifier({
         duration: Duration(milliseconds: 1100),
         content: Center(
           child: Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: bg,
-
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Text(
-              message,
-              style: TextStyle(
-                fontSize: 14,
-                color: fg,
-                fontWeight: FontWeight.bold,
+            decoration: BoxDecoration(),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 71, vertical: 10),
+              clipBehavior: Clip.hardEdge,
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(),
+                    clipBehavior: Clip.hardEdge,
+                    child: CircleAvatar(
+                      radius: 10,
+                      child: Image.asset(
+                        fit: BoxFit.fill,
+                        'assets/staticImages/appicon2.png',
+                        colorBlendMode: BlendMode.overlay,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    message,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: fg,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
