@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
@@ -51,6 +52,12 @@ class _TodayState extends ConsumerState<Today> {
                           ? Colors.black87
                           : Colors.white70,
                     ),
+                  ).animate().slideX(
+                    curve: Curves.decelerate,
+                    begin: -2,
+                    end: 0,
+                    duration: Duration(milliseconds: 500),
+                    delay: Duration(milliseconds: 300),
                   ),
                 ],
               ),
@@ -251,6 +258,12 @@ class _TodayState extends ConsumerState<Today> {
                         splashColor: Colors.transparent,
                       ),
                     ),
+                  ).animate().slideX(
+                    curve: Curves.decelerate,
+                    begin: -2,
+                    end: 0,
+                    duration: Duration(milliseconds: 500),
+                    delay: Duration(milliseconds: index * 100),
                   );
                 },
               ),

@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -189,25 +190,31 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
         ),
       ),
       // The update button
-      floatingActionButton: FloatingActionButton(
-        onPressed: ref.watch(lectureCardActive)
-            ? null
-            : () async {
-                bool? userHaveRegisteredCourses = await lookForSettingBox().get(
-                  'userHaveCreatedCourses',
-                );
-                if (userHaveRegisteredCourses != null) {
-                  router.go('/settings');
-                } else {
-                  router.go("/signup");
-                }
-              },
-        child: Icon(
-          Icons.settings,
-          color: ref.read(lightMode) ? Colors.white : Colors.white,
-        ),
-        backgroundColor: Colors.blueAccent,
-      ),
+      floatingActionButton:
+          FloatingActionButton(
+            onPressed: ref.watch(lectureCardActive)
+                ? null
+                : () async {
+                    bool? userHaveRegisteredCourses = await lookForSettingBox()
+                        .get('userHaveCreatedCourses');
+                    if (userHaveRegisteredCourses != null) {
+                      router.go('/settings');
+                    } else {
+                      router.go("/signup");
+                    }
+                  },
+            child: Icon(
+              Icons.settings,
+              color: ref.read(lightMode) ? Colors.white : Colors.white,
+            ),
+            backgroundColor: Colors.blueAccent,
+          ).animate().slideY(
+            curve: Curves.decelerate,
+            begin: 5,
+            end: 0,
+            duration: Duration(milliseconds: 500),
+            delay: Duration(milliseconds: 250),
+          ),
       bottomNavigationBar: customBottomSlider(
         ref: ref,
         children: [
@@ -291,7 +298,7 @@ Widget customBottomSlider({
   return Container(
     height: height ?? 48,
     width: 100,
-    padding: EdgeInsets.symmetric(vertical: 2),
+    padding: EdgeInsets.symmetric(vertical: 8),
     margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     decoration: BoxDecoration(
       color: ref.watch(lightMode)
@@ -326,6 +333,12 @@ Widget customBottomSlider({
         ),
       ],
     ),
+  ).animate().slideY(
+    curve: Curves.decelerate,
+    begin: 2,
+    end: 0,
+    duration: Duration(milliseconds: 500),
+    delay: Duration(milliseconds: 300),
   );
 }
 

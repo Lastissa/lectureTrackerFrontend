@@ -98,7 +98,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
         listVieweController.animateTo(
           listVieweController.position.maxScrollExtent,
           duration: Duration(seconds: 2),
-          curve: Curves.linear,
+          curve: Curves.decelerate,
         );
         setState(() {
           firstTimeEnteringPage = false;
@@ -807,14 +807,29 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                         onTap: () {
                                           showDialog(
                                             context: context,
+
                                             builder: (builder) {
                                               return AlertDialog(
-                                                title: Text('Confirm Delete'),
+                                                backgroundColor: ref.watch(
+                                                  foreGroundColor,
+                                                ),
+                                                title: Text(
+                                                  'Confirm Delete',
+                                                  style: customButtomTextStyle
+                                                      .copyWith(
+                                                        color: ref.watch(
+                                                          backgroundColor,
+                                                        ),
+                                                      ),
+                                                ),
                                                 content: SingleChildScrollView(
                                                   child: ListBody(
                                                     children: [
                                                       Text(
                                                         'Are you sure you want to delete this permanently?',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                        ),
                                                       ),
                                                       Text(
                                                         'This action cannot be undone.!!!',

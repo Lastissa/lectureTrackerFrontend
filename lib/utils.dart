@@ -119,19 +119,26 @@ ScaffoldFeatureController? notifier({
   String? message,
   Color? bg,
   Color? fg,
+  bool? atTop,
+  Duration? duration,
 }) {
   bg = bg ?? Colors.grey[40];
   fg = fg ?? Colors.white;
   if (ScaffoldMessenger.of(context).mounted) {
     message = message ?? "page refreshed";
+    ScaffoldMessenger.of(context).clearSnackBars();
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        duration: Duration(milliseconds: 1100),
+        duration: duration ?? Duration(milliseconds: 1100),
         content: Center(
           child: Container(
             decoration: BoxDecoration(),
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 71, vertical: 10),
+              margin: EdgeInsets.only(
+                bottom: atTop == true
+                    ? MediaQuery.of(context).size.height * 0.7
+                    : 10,
+              ),
               clipBehavior: Clip.hardEdge,
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(

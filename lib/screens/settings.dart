@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
+import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 
 import 'package:lecture_tracker/utils.dart';
@@ -177,6 +179,11 @@ class _SettingsState extends ConsumerState<Settings> {
                                 ? CrossFadeState.showSecond
                                 : CrossFadeState.showFirst,
                             duration: Duration(milliseconds: 350),
+                          ).animate().slideX(
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0,
+                            duration: Duration(milliseconds: 600),
                           ),
                           //the change theme
                           Row(
@@ -236,6 +243,12 @@ class _SettingsState extends ConsumerState<Settings> {
                                 },
                               ),
                             ],
+                          ).animate().slideX(
+                            curve: Curves.decelerate,
+                            begin: -2,
+                            end: 0,
+                            duration: Duration(milliseconds: 500),
+                            delay: Duration(milliseconds: 300),
                           ),
                           //edit registered courses
                           InkWell(
@@ -274,6 +287,12 @@ class _SettingsState extends ConsumerState<Settings> {
                                 ],
                               ),
                             ),
+                          ).animate().slideX(
+                            curve: Curves.decelerate,
+                            begin: -2,
+                            end: 0,
+                            duration: Duration(milliseconds: 500),
+                            delay: Duration(milliseconds: 500),
                           ),
                           //analysis widget
                           InkWell(
@@ -303,6 +322,12 @@ class _SettingsState extends ConsumerState<Settings> {
                                 ],
                               ),
                             ),
+                          ).animate().slideX(
+                            curve: Curves.decelerate,
+                            begin: -2,
+                            end: 0,
+                            duration: Duration(milliseconds: 700),
+                            delay: Duration(milliseconds: 300),
                           ),
                           //delete account confirmation
                           AnimatedCrossFade(
@@ -386,33 +411,84 @@ class _SettingsState extends ConsumerState<Settings> {
                                         context: context,
                                         barrierDismissible:
                                             false, // User must tap a button to close
+
                                         builder: (BuildContext context) {
                                           return AlertDialog(
-                                            title: const Text(
-                                              'Confirm Account Delete',
+                                            backgroundColor: ref.watch(
+                                              foreGroundColor,
                                             ),
-                                            content: const SingleChildScrollView(
+                                            title: Text(
+                                              'Confirm Account Delete',
+                                              style: customButtomTextStyle
+                                                  .copyWith(
+                                                    color: ref.watch(
+                                                      backgroundColor,
+                                                    ),
+                                                  ),
+                                            ),
+                                            content: SingleChildScrollView(
                                               child: ListBody(
                                                 children: <Widget>[
                                                   Text(
                                                     'Are you sure you want to delete your account?',
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: ref.watch(
+                                                        backgroundColor,
+                                                      ),
+                                                      wordSpacing: -0.1,
+                                                      letterSpacing: -0.5,
+                                                    ),
                                                   ),
                                                   Text(
                                                     'NOTE: This action can lead to loss of data if account is not backed up.!!!',
+
                                                     style: TextStyle(
-                                                      color: Colors.red,
+                                                      color:
+                                                          ref.read(lightMode) ==
+                                                              true
+                                                          ? const Color.fromARGB(
+                                                              255,
+                                                              104,
+                                                              18,
+                                                              12,
+                                                            )
+                                                          : Colors.red,
+
                                                       fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+
+                                                      wordSpacing: -0.1,
+                                                      letterSpacing: -0.5,
                                                     ),
                                                   ),
                                                   Text(
                                                     'Hint: if you back up your data before delete, you can always retreive it later ',
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: ref.watch(
+                                                        backgroundColor,
+                                                      ),
+                                                      wordSpacing: -0.1,
+                                                      letterSpacing: -0.5,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
                                             ),
                                             actions: <Widget>[
                                               TextButton(
-                                                child: const Text('Cancel'),
+                                                child: Text(
+                                                  'Cancel',
+                                                  style: TextStyle(
+                                                    color: ref.watch(
+                                                      backgroundColor,
+                                                    ),
+                                                  ),
+                                                ),
                                                 onPressed: () {
                                                   Navigator.of(
                                                     context,
@@ -424,7 +500,11 @@ class _SettingsState extends ConsumerState<Settings> {
                                                 onPressed: () {},
                                                 child: Text(
                                                   'Backup',
-                                                  style: TextStyle(),
+                                                  style: TextStyle(
+                                                    color: ref.watch(
+                                                      backgroundColor,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                               ElevatedButton(
@@ -483,6 +563,12 @@ class _SettingsState extends ConsumerState<Settings> {
                                 ? CrossFadeState.showSecond
                                 : CrossFadeState.showFirst,
                             duration: Duration(milliseconds: 200),
+                          ).animate().slideX(
+                            curve: Curves.decelerate,
+                            begin: -2,
+                            end: 0,
+                            duration: Duration(milliseconds: 700),
+                            delay: Duration(milliseconds: 300),
                           ),
                         ],
                       ),
@@ -558,6 +644,11 @@ class _SettingsState extends ConsumerState<Settings> {
                         SizedBox(width: ref.read(deviceSizeX) * 0.06.w),
                       ],
                     ),
+                  ).animate().slideX(
+                    curve: Curves.decelerate,
+                    begin: 2,
+                    end: 0,
+                    duration: Duration(milliseconds: 500),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(
@@ -588,6 +679,11 @@ class _SettingsState extends ConsumerState<Settings> {
                         ),
                       ],
                     ),
+                  ).animate().slideX(
+                    curve: Curves.decelerate,
+                    begin: -2,
+                    end: 0,
+                    duration: Duration(milliseconds: 500),
                   ),
                   // Back to Login
                   TextButton(
@@ -604,6 +700,11 @@ class _SettingsState extends ConsumerState<Settings> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                  ).animate().slideX(
+                    curve: Curves.decelerate,
+                    begin: -2,
+                    end: 0,
+                    duration: Duration(milliseconds: 500),
                   ),
                   SizedBox(
                     height: ref.watch(deviceSizeY) * 0.04.h.clamp(0, 15),
@@ -794,6 +895,12 @@ class _SettingsState extends ConsumerState<Settings> {
                             ),
                           ],
                         ),
+                      ).animate().slideY(
+                        curve: Curves.decelerate,
+                        begin: 2,
+                        end: 0,
+                        duration: Duration(milliseconds: 500),
+                        delay: Duration(milliseconds: 300),
                       ),
                     ],
                   ),

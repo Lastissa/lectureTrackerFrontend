@@ -57,6 +57,10 @@ Box lookForSettingBox() {
   return Hive.box('settingDb');
 } //this is so as not to be repeating hive.box all the time
 
-// Box lookForPastLecture() {
-//   return Hive.box('pastLectures');
-// }
+//all keys in the hive box
+/*
+
+backupusername
+backupPassword
+
+*/
