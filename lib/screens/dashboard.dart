@@ -200,7 +200,8 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                     if (userHaveRegisteredCourses != null) {
                       router.go('/settings');
                     } else {
-                      router.go("/signup");
+                      router.go("/Welcomesignup");
+                      // router.go('/signup');
                     }
                   },
             child: Icon(

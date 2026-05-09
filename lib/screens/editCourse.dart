@@ -545,7 +545,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     //first Hour
-                                    _timeWidget(
+                                    timeWidget(
                                       ontap: () {
                                         final List<String> oldData = ref.read(
                                           _start_time,
@@ -588,7 +588,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                       ),
                                     ),
                                     //First Minutes
-                                    _timeWidget(
+                                    timeWidget(
                                       ontap: () {
                                         final List<String> oldData = ref.read(
                                           _start_time,
@@ -625,7 +625,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                       ref: ref,
                                     ),
                                     //First meridien - AM or PM
-                                    _timeWidget(
+                                    timeWidget(
                                       ontap: () {
                                         final List _formerData = ref.read(
                                           _start_time,
@@ -664,7 +664,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                       ),
                                     ),
                                     //second hour
-                                    _timeWidget(
+                                    timeWidget(
                                       ontap: () {
                                         final List<String> oldData = ref.read(
                                           _end_time,
@@ -706,7 +706,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                       ),
                                     ),
                                     //second minute
-                                    _timeWidget(
+                                    timeWidget(
                                       ontap: () {
                                         final List<String> oldData = ref.read(
                                           _end_time,
@@ -743,7 +743,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                       ref: ref,
                                     ),
                                     //second meridien - AM or PM
-                                    _timeWidget(
+                                    timeWidget(
                                       ontap: () {
                                         final List _formerData = ref.read(
                                           _end_time,
@@ -1497,7 +1497,7 @@ class EditcourseState extends ConsumerState<Editcourse> {
   }
 }
 
-Widget _timeWidget({
+Widget timeWidget({
   required Function ontap,
   required text,
   required WidgetRef ref,

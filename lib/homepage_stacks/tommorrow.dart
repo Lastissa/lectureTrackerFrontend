@@ -180,10 +180,10 @@ class _TommorrowState extends ConsumerState<Tommorrow> {
                   ),
                   trailing: Icon(
                     dataToUse[index]['accomplised'] == 1
-                        ? Icons.thumb_up_alt
+                        ? ref.read(lectureAttendedIcon)
                         : (dataToUse[index]['accomplised'] == 0
-                              ? Icons.thumb_down_alt
-                              : Icons.multiple_stop_sharp),
+                              ? ref.read(lectureMissedIcon)
+                              : ref.read(lectureCancelledIcon)),
                     color: dataToUse[index]['accomplised'] == 1
                         ? Colors.green
                         : (dataToUse[index]['accomplised'] == 0

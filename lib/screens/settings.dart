@@ -9,10 +9,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
+import 'package:lecture_tracker/screens/change_theme.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 
 import 'package:lecture_tracker/utils.dart';
+import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -46,6 +48,7 @@ class _SettingsState extends ConsumerState<Settings> {
   bool confirmdeleteAccountPopup = false;
   bool isChangeUsernameActive = false;
   final changeNameController = TextEditingController();
+  bool nothingShouldWork = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,7 +148,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                         Icons.cancel_rounded,
                                       ),
                                     ),
-
+                                    //update the username name with the kast buttom
                                     prefix: InkWell(
                                       onTap: () async {
                                         await lookForSettingBox().put(
@@ -165,7 +168,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                         });
                                       },
                                       child: Icon(
-                                        Icons.cloud_done_rounded,
+                                        Icons.save,
                                         color: ref.watch(foreGroundColor),
                                       ),
                                     ),
@@ -190,7 +193,11 @@ class _SettingsState extends ConsumerState<Settings> {
                             children: [
                               Expanded(
                                 child: InkWell(
-                                  onTap: () {},
+                                  onTap: () async {
+                                    ref.invalidate(changeThemeSuccess);
+                                    ref.invalidate(autoThemeChange);
+                                    router.push('/change_theme');
+                                  },
                                   child: Container(
                                     padding: EdgeInsets.symmetric(
                                       vertical: ref.watch(deviceSizeY) * 0.02.h,
@@ -497,7 +504,67 @@ class _SettingsState extends ConsumerState<Settings> {
                                               ),
 
                                               TextButton(
-                                                onPressed: () {},
+                                                onPressed: () async {
+                                                  final dbLocator =
+                                                      await CustomDbClass
+                                                          .instance
+                                                          .getter;
+                                                  final allRegisteredCourse =
+                                                      await fetchAll(
+                                                        dbLocator: dbLocator,
+                                                        tableName:
+                                                            'userAllTimetable',
+                                                        limit: 1000,
+                                                      );
+                                                  //just before the sending
+                                                  setState(() {
+                                                    nothingShouldWork = true;
+                                                  });
+
+                                                  ref.invalidate(backup);
+                                                  final toShow = await ref
+                                                      .read(
+                                                        backup({
+                                                          "history": ref.read(
+                                                            pastLectureSQLprovider,
+                                                          ),
+                                                          "currentData":
+                                                              allRegisteredCourse,
+                                                        }).future,
+                                                      )
+                                                      .timeout(
+                                                        Duration(seconds: 10),
+                                                        onTimeout: () {
+                                                          // print("timeout");
+                                                          return [
+                                                            "timeout",
+                                                            404,
+                                                          ];
+                                                        },
+                                                      );
+                                                  notifier(
+                                                    bg: ref.watch(
+                                                      foreGroundColor,
+                                                    ),
+                                                    fg: ref.watch(
+                                                      backgroundColor,
+                                                    ),
+                                                    context: context,
+                                                    message:
+                                                        "${toShow[0]}, ${toShow[1]["message"]}",
+                                                    duration: Duration(
+                                                      seconds: 3,
+                                                    ),
+                                                  );
+                                                  print(
+                                                    "${toShow[0]}, ${toShow[1]["message"]}",
+                                                  );
+                                                  //after the sending
+                                                  setState(() {
+                                                    nothingShouldWork = false;
+                                                  });
+                                                  print("End of backup...");
+                                                },
                                                 child: Text(
                                                   'Backup',
                                                   style: TextStyle(
@@ -531,21 +598,15 @@ class _SettingsState extends ConsumerState<Settings> {
                                                   await locator.rawDelete(
                                                     "DELETE FROM lectureTrackers",
                                                   );
-                                                  await lookForSettingBox()
-                                                      .delete('lightMode');
-                                                  await lookForSettingBox()
-                                                      .delete('username');
-                                                  await lookForSettingBox()
-                                                      .delete('todayDate');
-                                                  await lookForSettingBox()
-                                                      .delete(
-                                                        'isDataPassedForToday',
-                                                      );
-                                                  await lookForSettingBox()
-                                                      .delete(
-                                                        'userHaveCreatedCourses',
-                                                      );
 
+                                                  //Deleting each keys in the hive box
+                                                  for (String i
+                                                      in lookForSettingBox()
+                                                          .keys) {
+                                                    lookForSettingBox().delete(
+                                                      i,
+                                                    );
+                                                  }
                                                   router.go('/splashScreen');
                                                 },
                                               ),
@@ -601,7 +662,12 @@ class _SettingsState extends ConsumerState<Settings> {
                                       ? Colors.white
                                       : Colors.black,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  ref
+                                          .read(isRestoreDataClicked.notifier)
+                                          .state =
+                                      true;
+                                },
                                 child: Text(
                                   "Restore Data",
                                   textAlign: TextAlign.center,
@@ -715,21 +781,25 @@ class _SettingsState extends ConsumerState<Settings> {
                       //for my own previous works
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: InkWell(
+                          //bring the box that accept password and after that navigate to a page where i can change the backend url
+                          onLongPress: () {},
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
 
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.grey[700]),
-                            Text(
-                              '\tDevOpe built it.Want to Connect?👇',
-                              style: TextStyle(
-                                color: ref.watch(lightMode)
-                                    ? Colors.grey[700]
-                                    : Colors.white70,
-                                fontStyle: FontStyle.italic,
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.grey[700]),
+                              Text(
+                                '\tDevOpe built it.Want to Connect?👇',
+                                style: TextStyle(
+                                  color: ref.watch(lightMode)
+                                      ? Colors.grey[700]
+                                      : Colors.white70,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Container(
@@ -911,16 +981,83 @@ class _SettingsState extends ConsumerState<Settings> {
                 child: AnimatedCrossFade(
                   firstChild: Builder(
                     builder: (context) {
-                      return BackupAndReset();
+                      //Check if its backup that is active or recover data that is active
+                      if (ref.read(isBackupClicked)) {
+                        return BackupAndReset(uniqueKey: UniqueKey());
+                      } else if (ref.read(isRestoreDataClicked)) {
+                        return RestoreAndReset(uniqueKey: UniqueKey());
+                      } else {
+                        return SizedBox();
+                      }
                     },
                   ),
                   secondChild: Center(child: SizedBox()),
-                  crossFadeState: ref.watch(isBackupClicked)
+                  crossFadeState:
+                      ref.watch(isBackupClicked) ||
+                          ref.watch(isRestoreDataClicked)
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
                   duration: Duration(milliseconds: 150),
                 ),
               ),
+              ref.watch(successProvider)
+                  ? Positioned(
+                      child: Center(
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 90),
+                          child: LottieBuilder.asset(
+                            onLoaded: (v) async {
+                              // print(v);
+                              await Future.delayed(Duration(seconds: 2));
+                              ref.invalidate(successProvider);
+                            },
+                            width: ref.watch(deviceSizeX) * 0.3.w,
+                            // height: ,
+                            repeat: false,
+                            'assets/lottie/success.json',
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
+              nothingShouldWork
+                  ? Positioned(
+                      child: Container(
+                        clipBehavior: Clip.hardEdge,
+                        height: ref.watch(deviceSizeY).h,
+                        width: ref.watch(deviceSizeX).w,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: ref.watch(foreGroundColor),
+                            width: 1,
+                          ),
+                          color: ref.watch(lightMode)
+                              ? Colors.white54
+                              : Colors.black54,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            topLeft: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+
+                          boxShadow: [],
+                        ),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 5,
+                              width: double.infinity,
+                              child: LinearProgressIndicator(
+                                color: ref.watch(foreGroundColor),
+                                backgroundColor: ref.watch(backgroundColor),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
             ],
           ),
         ),

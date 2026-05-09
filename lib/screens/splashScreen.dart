@@ -22,11 +22,22 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
     toRun();
   }
 
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> toRun() async {
     //i am using widgetsbinding to avoid the issue of router.go during build
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        // await lookForSettingBox().delete('userHaveCreatedCourses');
+        // //to make sure i have an open box in case i delete it my mistake in main.dart
+        // try {
+        //   await lookForSettingBox().get("new");
+        // } finally {
+        //   await Hive.openBox("settingDb");
+        //   await Hive.box('settingDb');
+        // }
+
         Database sqlDbLocator = await CustomDbClass.instance.getter;
 
         List<Map> userTimeTable = await fetchAll(
@@ -100,14 +111,64 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
 
         //end of data putting into each provider
         print('starting starting starting...');
-        // lookForSettingBox().put('todayDate', DateTime.now().day);
         print('today date: ${lookForSettingBox().get('todayDate')}');
         ref.invalidate(decoyDB);
         //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
         if (lookForSettingBox().get('lightMode') == null) {
           await Hive.box('settingDb').put('lightMode', true);
         }
-        //setting the dark mode or light mode down
+        //configuring the lightmode hive db to change just before the lightmode riverpod get data from it
+
+        final autoDarkModeSetting = lookForSettingBox().get(
+          "autoDarkModeInterval",
+        );
+        if (autoDarkModeSetting != null) {
+          String startTime = autoDarkModeSetting[0];
+          int startTimeStartHour = int.parse(startTime.split(':')[0]);
+          int startTimeStartMinutes = int.parse(startTime.split(':')[1]);
+          String endTime = autoDarkModeSetting[1];
+          int endTimeStartHour = int.parse(endTime.split(':')[0]);
+          int endTimeStartMinutes = int.parse(endTime.split(':')[1]);
+
+          int currentTimeHour = int.parse(
+            TimeOfDay.now().format(context).toString().split(":")[0],
+          );
+          int currentTimeMinutes = int.parse(
+            TimeOfDay.now().format(context).toString().split(":")[1],
+          );
+          if (startTimeStartHour <= currentTimeHour &&
+              currentTimeHour < endTimeStartHour) //1 , 2, 3 or 1,1, 3
+          {
+            print("enable dark mode");
+            await Hive.box('settingDb').put('lightMode', false);
+          } else if (startTimeStartHour == currentTimeHour &&
+              currentTimeHour == endTimeStartHour) //1, 1, 1
+          {
+            if (startTimeStartMinutes <= currentTimeMinutes &&
+                currentTimeMinutes <= endTimeStartMinutes) {
+              print("enable dark mode");
+              await Hive.box('settingDb').put('lightMode', false);
+            } else {
+              //damn, the current time min is greater than the end time min even though both hour are the same
+              await Hive.box('settingDb').put('lightMode', true);
+            }
+          } else if (startTimeStartHour < currentTimeHour &&
+              currentTimeHour <= endTimeStartHour) //1, 2, 2
+          {
+            if (currentTimeMinutes < endTimeStartMinutes) {
+              print("enable dark mode");
+              await Hive.box('settingDb').put('lightMode', false);
+            } else {
+              await Hive.box('settingDb').put('lightMode', true);
+            }
+          } else {
+            //, the current hour min is greater than the end time hour or too low than the start time hour so dark mode cannot be auto apply
+            await Hive.box('settingDb').put('lightMode', true);
+          }
+          print([startTime, TimeOfDay.now().format(context), endTime]);
+        }
+
+        //setting the dark mode or light mode down only if
         ref.read(lightMode.notifier).state = await lookForSettingBox().get(
           'lightMode',
         );
@@ -204,12 +265,10 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           router.go('/dashboard');
           // print(ref.read(decoyDB));
           await lookForSettingBox().put('isDataPassedForToday', true);
-        }
+        } //this print is to knoe wether data was updated today, it is meant to let us know if at least one of the table passed data
         await Future.delayed(
           Duration(milliseconds: 500),
         ); //this is just a gimmick, to stop the transitioning from beign too fast
-        //this print is to knoe wether data was updated today, it is meant to let us know if at least one of the table passed data
-
         router.go('/dashboard');
       } catch (e) {
         await Future.delayed(

@@ -58,6 +58,21 @@ Future<void> insertIntoPastLectureTrackers({
   );
 }
 
+//This is for inserting directly into the MAINNNNN!!!! table
+Future<void> insertIntoMainLectures({
+  required Database dbLocator,
+  required String title,
+  required String start_time,
+  required String end_time,
+  required String dayOfTheWeek,
+  required String color,
+}) async {
+  await dbLocator.rawInsert(
+    "INSERT INTO userAllTimetable(title, start_time, end_time, dayOfTheWeek, color) VALUES (?, ?, ?, ?, ?)",
+    [title, start_time, end_time, dayOfTheWeek, color],
+  );
+}
+
 //This is for inserting specifically into the todayLectures
 Future<void> insertIntoTodayLectures({
   required Database dbLocator,

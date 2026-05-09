@@ -3,11 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lecture_tracker/errorpage.dart';
+import 'package:lecture_tracker/screens/change_theme.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 import 'package:lecture_tracker/screens/settings.dart';
 import 'package:lecture_tracker/screens/signup.dart';
 import 'package:lecture_tracker/screens/splashScreen.dart';
+import 'package:lecture_tracker/signupStacks/welcomeSignUp.dart';
+import 'package:lecture_tracker/signupStacks/welcomeSignUp2.dart';
 
 GoRouter router = GoRouter(
   initialLocation: "/splashScreen",
@@ -15,6 +18,10 @@ GoRouter router = GoRouter(
     GoRoute(path: "/dashboard", builder: (context, state) => Dashboard()),
     GoRoute(path: "/settings", builder: (context, state) => Settings()),
     GoRoute(path: '/splashScreen', builder: (context, state) => Splashscreen()),
+    GoRoute(
+      path: '/Welcomesignup2',
+      builder: (context, state) => Welcomesignup2(),
+    ),
     GoRoute(
       path: '/error',
       builder: (context, state) {
@@ -26,7 +33,12 @@ GoRouter router = GoRouter(
     ),
 
     GoRoute(path: '/signup', builder: (context, state) => Signup()),
+    GoRoute(
+      path: '/Welcomesignup',
+      builder: (context, state) => Welcomesignup(),
+    ),
     GoRoute(path: '/Editcourse', builder: (context, state) => Editcourse()),
+    GoRoute(path: '/change_theme', builder: (context, state) => ChangeTheme()),
   ],
 );
 
@@ -39,7 +51,7 @@ final deviceSizeX = Provider<double>((ref) {
 final deviceSizeY = Provider<double>((ref) {
   return 766;
 });
-
+//username to be displayed
 final username = StateProvider<String>((ref) {
   return "User";
 });
@@ -49,10 +61,8 @@ final lightMode = StateProvider<bool>((ref) {
   return false;
 });
 
-final lecturesCard = StateProvider<List<Map>>((ref) {
-  return [];
-});
-//The carrier of all the cards before the final push to the database ; did this incase the user close app while still regsitering
+//The carrier of all the cards before the final push to the local database ; did this incase the user close app while still regsitering
+//also the carrier of today lecture card
 final decoyDB = StateProvider<List<Map>>((ref) {
   return [];
 });
@@ -223,10 +233,10 @@ final backgroundColor = StateProvider<Color>((ref) {
   return toReturn;
 });
 final lectureMissedIcon = StateProvider<IconData>((ref) {
-  return Icons.thumb_down_alt;
+  return Icons.thumb_down_alt_sharp;
 });
 final lectureAttendedIcon = StateProvider<IconData>((ref) {
-  return Icons.thumb_up_alt;
+  return Icons.thumb_up_alt_sharp;
 });
 final lectureCancelledIcon = StateProvider<IconData>((ref) {
   return Icons.multiple_stop_sharp;

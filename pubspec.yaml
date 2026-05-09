@@ -48,15 +48,18 @@ dependencies:
   flutter_svg: ^2.2.4 #for svg images and strings
   animated_text_kit: ^4.3.0
   lottie: ^3.3.3 #for the animations
-  flutter_animate: ^4.0.0 #for the widgets animations
+  flutter_animate: ^4.0.0 #for the widgets  animations
+
+  fl_chart: ^0.66.0 #For chart and the likes
+  share_plus: ^12.0.2 # For sharing the app link
+  url_launcher: ^6.3.2 #for opening links in the browser about me or stuff
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4 # For the app icon
   flutter_native_splash: ^2.3.0 # For the splash screen just before my own splashscreen opens
-  share_plus: ^12.0.2 # For sharing the app link
-  url_launcher: ^6.3.2 #for opening links in the browser about me or stuff
+
 
 flutter_launcher_icons:
   android: true
@@ -91,6 +94,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/staticImages/
+    - assets/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
