@@ -872,7 +872,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                                 },
                                                 textAlign: TextAlign.center,
                                                 keyboardType:
-                                                    TextInputType.number,
+                                                    TextInputType.text,
                                                 maxLines: 1,
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,

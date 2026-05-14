@@ -81,33 +81,40 @@ Widget pieContainer({
   required Color color,
   required String text,
 }) {
-  return Container(
-    margin: EdgeInsets.all(10.r),
-    width: 100.w,
-    height: 100.w,
-    decoration: BoxDecoration(
-      color: color,
-      boxShadow: ref.watch(lightMode)
-          ?
-            //light mode shadow
-            [
-              BoxShadow(
-                offset: Offset(0, 2),
-                blurRadius: 4,
-                color: Colors.black26,
-              ),
-            ]
-          :
-            //dark mode shadow
-            [
-              BoxShadow(
-                offset: Offset(2, 3),
-                blurRadius: 6,
-                color: Colors.white54,
-              ),
-            ],
+  return PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (didPop, result) {
+      if (didPop) return;
+      router.go("/settings");
+    },
+    child: Container(
+      margin: EdgeInsets.all(10.r),
+      width: 100.w,
+      height: 100.w,
+      decoration: BoxDecoration(
+        color: color,
+        boxShadow: ref.watch(lightMode)
+            ?
+              //light mode shadow
+              [
+                BoxShadow(
+                  offset: Offset(0, 2),
+                  blurRadius: 4,
+                  color: Colors.black26,
+                ),
+              ]
+            :
+              //dark mode shadow
+              [
+                BoxShadow(
+                  offset: Offset(2, 3),
+                  blurRadius: 6,
+                  color: Colors.white54,
+                ),
+              ],
 
-      borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10.r),
+      ),
     ),
   );
 }

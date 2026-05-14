@@ -128,7 +128,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           int currentTimeMinutes = TimeOfDay.now().minute;
 
           //if the endtime is greater than the start time, meaning the user is setting the dark mode to occur to the next day
-          if (endTimeStartHour > startTimeStartHour) {
+          if (endTimeStartHour < startTimeStartHour) {
             endTimeStartHour =
                 endTimeStartHour +
                 24; //i inreased the endtime hour value by 24 so it can catch up with the time diff
