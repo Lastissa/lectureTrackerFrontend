@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,125 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
+                                int confirmCode1 = Random().nextInt(9);
+                                int confirmCode2 = Random().nextInt(9);
+                                int confirmCode3 = Random().nextInt(9);
+                                int confirmCode4 = Random().nextInt(9);
+                                int confirmCode5 = Random().nextInt(9);
+                                String confirmCode =
+                                    "$confirmCode1$confirmCode2$confirmCode3$confirmCode4$confirmCode5";
+                                await showDialog(
+                                  barrierColor: ref.watch(backgroundColor),
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (builder) => AlertDialog(
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    content: Container(
+                                      height: ref.watch(deviceSizeY) * 0.3.h,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                                size: 30,
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                confirmCode = "nothing";
+                                              },
+                                            ).animate().shake(
+                                              duration: Duration(seconds: 1),
+                                              hz: 4,
+                                            ),
+
+                                            SizedBox(height: 15),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TextFormField(
+                                                    onChanged: (value) {
+                                                      if (value.length == 5 &&
+                                                          value ==
+                                                              confirmCode) {
+                                                        //pop the showdialog and allow backup to go on
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                      }
+                                                    },
+                                                    textAlign: TextAlign.center,
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: ref.watch(
+                                                        backgroundColor,
+                                                      ),
+                                                    ),
+                                                    decoration: InputDecoration(
+                                                      focusedBorder:
+                                                          UnderlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                          ),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.all(
+                                                                  Radius.circular(
+                                                                    10,
+                                                                  ),
+                                                                ),
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 15),
+
+                                            Text(
+                                              "Type '${confirmCode}' to confirm backup with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword')}\n${ref.read(username).toUpperCase()}",
+                                              style: TextStyle(
+                                                color: ref.watch(
+                                                  backgroundColor,
+                                                ),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Text(
+                                              "NB: This action will overwrite any previously backed up data and cannot be undone.",
+                                              style: TextStyle(
+                                                color: ref.watch(
+                                                  backgroundColor,
+                                                ),
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                                if (confirmCode == "nothing") return;
                                 final dbLocator =
                                     await CustomDbClass.instance.getter;
                                 final allRegisteredCourse = await fetchAll(
@@ -89,7 +209,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                       }).future,
                                     )
                                     .timeout(
-                                      Duration(seconds: 10),
+                                      Duration(seconds: 20),
                                       onTimeout: () {
                                         // print("timeout");
                                         return [
@@ -545,7 +665,7 @@ final successProvider = StateProvider<bool>((ref) {
 
 // two provider for performing backup(one for get and one for post)
 final backup = FutureProvider.family((ref, Map dataToSend) async {
-  final url = Uri.parse("${domain}/backupData/json/");
+  final url = Uri.parse("${domain}backupData/json/");
   String email = await lookForSettingBox().get("backupEmail");
   String username = await lookForSettingBox().get("username") == null
       ? "user"
@@ -629,6 +749,127 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
+                                int confirmCode1 = Random().nextInt(9);
+                                int confirmCode2 = Random().nextInt(9);
+                                int confirmCode3 = Random().nextInt(9);
+                                int confirmCode4 = Random().nextInt(9);
+                                int confirmCode5 = Random().nextInt(9);
+                                String confirmCode =
+                                    "$confirmCode1$confirmCode2$confirmCode3$confirmCode4$confirmCode5";
+
+                                await showDialog(
+                                  barrierColor: ref.watch(backgroundColor),
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (builder) => AlertDialog(
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    content: Container(
+                                      height: ref.watch(deviceSizeY) * 0.3.h,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                                size: 30,
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                confirmCode = "nothing";
+                                              },
+                                            ).animate().shake(
+                                              duration: Duration(seconds: 1),
+                                              hz: 4,
+                                            ),
+
+                                            SizedBox(height: 15),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TextFormField(
+                                                    onChanged: (value) {
+                                                      if (value.length == 5 &&
+                                                          value ==
+                                                              confirmCode) {
+                                                        //pop the showdialog and allow backup to go on
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                      }
+                                                    },
+                                                    textAlign: TextAlign.center,
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: ref.watch(
+                                                        backgroundColor,
+                                                      ),
+                                                    ),
+                                                    decoration: InputDecoration(
+                                                      focusedBorder:
+                                                          UnderlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                          ),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.all(
+                                                                  Radius.circular(
+                                                                    10,
+                                                                  ),
+                                                                ),
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 15),
+
+                                            Text(
+                                              "Type '${confirmCode}' to confirm retreival with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword')}",
+                                              style: TextStyle(
+                                                color: ref.watch(
+                                                  backgroundColor,
+                                                ),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            Text(
+                                              "NB: This action will overwrite your current data with the retreived data",
+                                              style: TextStyle(
+                                                color: ref.watch(
+                                                  backgroundColor,
+                                                ),
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                                if (confirmCode == "nothing") return;
+
                                 //Retrive data from backend
                                 setState(() {
                                   nothingShouldWork = true;
@@ -639,7 +880,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                 final dataToShow = await ref
                                     .read(retrieveDataFromBackend.future)
                                     .timeout(
-                                      Duration(seconds: 10),
+                                      Duration(seconds: 20),
                                       onTimeout: () => [
                                         404,
                                         {"message": "request not sent"},
@@ -647,9 +888,22 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                     );
 
                                 print("...end...");
+                                print(dataToShow);
+                                if (dataToShow[0] == 404 ||
+                                    dataToShow[1]['message'] ==
+                                        "user not found") {
+                                  //incase the returned value is empty
+                                  notifier(
+                                    bg: ref.watch(foreGroundColor),
+                                    fg: ref.watch(backgroundColor),
+                                    context: context,
+                                    message:
+                                        "${dataToShow[0]} ${dataToShow[1]['message']}",
+                                    duration: Duration(seconds: 3),
+                                  );
+                                } else if (dataToShow[1]?["message"] != null) {
+                                  print(dataToShow[1]["history"]["data"]);
 
-                                print(dataToShow[1]["history"]["data"]);
-                                if (dataToShow[1]?["message"] != null) {
                                   //if message key is == success, perform update to the local db
                                   if (dataToShow[1]["message"] == "success") {
                                     //since message is success, first clear the db so we can update it

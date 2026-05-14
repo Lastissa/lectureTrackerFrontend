@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +50,7 @@ class _SettingsState extends ConsumerState<Settings> {
   bool isChangeUsernameActive = false;
   final changeNameController = TextEditingController();
   bool nothingShouldWork = false;
+  TextEditingController adminTextEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +80,11 @@ class _SettingsState extends ConsumerState<Settings> {
       ),
       body: PopScope(
         canPop: false,
-        onPopInvokedWithResult: (didPop, result) => router.go('/splashScreen'),
+        onPopInvokedWithResult: (didPop, result) {
+          ref.invalidate(isBackupClicked);
+          ref.invalidate(isRestoreDataClicked);
+          router.go('/splashScreen');
+        },
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: ref.watch(deviceSizeX) * 0.09.w,
@@ -150,6 +156,16 @@ class _SettingsState extends ConsumerState<Settings> {
                                     ),
                                     //update the username name with the kast buttom
                                     prefix: InkWell(
+                                      onLongPress: () {
+                                        notifier(
+                                          context: context,
+                                          message: 'Save Icon',
+                                          bg: ref
+                                              .watch(backgroundColor)
+                                              .withOpacity(0.8),
+                                          fg: ref.watch(foreGroundColor),
+                                        );
+                                      },
                                       onTap: () async {
                                         await lookForSettingBox().put(
                                           'username',
@@ -168,7 +184,7 @@ class _SettingsState extends ConsumerState<Settings> {
                                         });
                                       },
                                       child: Icon(
-                                        Icons.save,
+                                        Icons.save_as_outlined,
                                         color: ref.watch(foreGroundColor),
                                       ),
                                     ),
@@ -303,7 +319,9 @@ class _SettingsState extends ConsumerState<Settings> {
                           ),
                           //analysis widget
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              router.go("/analysis");
+                            },
                             child: Container(
                               padding: EdgeInsets.symmetric(
                                 vertical: ref.watch(deviceSizeY) * 0.02.h,
@@ -716,6 +734,32 @@ class _SettingsState extends ConsumerState<Settings> {
                     end: 0,
                     duration: Duration(milliseconds: 500),
                   ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: InkWell(
+                      onTap: () {
+                        final url = Uri.parse('${domain}login/');
+                        launchUrl(url, mode: LaunchMode.externalApplication);
+                      },
+                      child:
+                          Text(
+                            maxLines: 1,
+                            "visit ${domain}login/ for more features and support",
+                            style: TextStyle(
+                              color: ref.watch(lightMode)
+                                  ? Colors.grey[700]
+                                  : Colors.grey[400],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ).animate().slideX(
+                            curve: Curves.decelerate,
+                            begin: 2,
+                            end: 0,
+                            duration: Duration(milliseconds: 500),
+                            delay: Duration(milliseconds: 300),
+                          ),
+                    ),
+                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: ref.read(deviceSizeX) * 0.06.w,
@@ -773,7 +817,7 @@ class _SettingsState extends ConsumerState<Settings> {
                     duration: Duration(milliseconds: 500),
                   ),
                   SizedBox(
-                    height: ref.watch(deviceSizeY) * 0.04.h.clamp(0, 15),
+                    height: ref.watch(deviceSizeY) * 0.02.h.clamp(0, 14),
                   ),
 
                   Column(
@@ -783,14 +827,116 @@ class _SettingsState extends ConsumerState<Settings> {
                         padding: const EdgeInsets.all(8.0),
                         child: InkWell(
                           //bring the box that accept password and after that navigate to a page where i can change the backend url
-                          onLongPress: () {},
+                          onLongPress: () async {
+                            String confirmCode = "Allahu123";
+                            await showDialog(
+                              barrierColor: ref.watch(backgroundColor),
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (builder) => AlertDialog(
+                                backgroundColor: ref.watch(foreGroundColor),
+                                content: Container(
+                                  height: ref.watch(deviceSizeY) * 0.3.h,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.cancel,
+                                            color: Colors.red,
+                                            size: 30,
+                                          ),
+                                          onPressed: () {
+                                            adminTextEditingController.clear();
+                                            Navigator.of(context).pop();
+                                          },
+                                        ).animate().shake(
+                                          duration: Duration(seconds: 1),
+                                          hz: 4,
+                                        ),
+
+                                        SizedBox(height: 15),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextFormField(
+                                                controller:
+                                                    adminTextEditingController,
+                                                onChanged: (value) {
+                                                  if (value == confirmCode) {
+                                                    //pop the showdialog and allow backup to go on
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                },
+                                                textAlign: TextAlign.center,
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: ref.watch(
+                                                    backgroundColor,
+                                                  ),
+                                                ),
+                                                decoration: InputDecoration(
+                                                  focusedBorder:
+                                                      UnderlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                          color: ref.watch(
+                                                            backgroundColor,
+                                                          ),
+                                                          width: 1.5,
+                                                        ),
+                                                      ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                          color: ref.watch(
+                                                            backgroundColor,
+                                                          ),
+                                                          width: 1.5,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                              Radius.circular(
+                                                                10,
+                                                              ),
+                                                            ),
+                                                      ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 15),
+
+                                        // Text(
+                                        //   "Type '${confirmCode}",
+                                        //   style: TextStyle(
+                                        //     color: ref.watch(backgroundColor),
+                                        //     fontWeight: FontWeight.w500,
+                                        //   ),
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                            if (adminTextEditingController.text != "Allahu123")
+                              return;
+
+                            //open the secret admin page where i can change the backend url and also see some of my previous works and also have the ability to log out all users by changing the backend url to a non existing one for a moment
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
 
                             children: [
                               Icon(Icons.info_outline, color: Colors.grey[700]),
                               Text(
-                                '\tDevOpe built it.Want to Connect?👇',
+                                '\tDevOpe built it.Want to Connect?',
                                 style: TextStyle(
                                   color: ref.watch(lightMode)
                                       ? Colors.grey[700]

@@ -12,9 +12,7 @@ class Welcomesignup2 extends ConsumerStatefulWidget {
 }
 
 class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
-  bool isDark = true;
-
-  double attendance = 78; // example %
+  double attendance = 95; // example %
 
   final List<double> weeklyData = [3, 5, 2, 6, 4, 1, 0]; // Mon-Sun
 
@@ -25,7 +23,9 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
         toolbarHeight: 0,
         backgroundColor: ref.watch(backgroundColor),
       ),
-      backgroundColor: isDark ? const Color(0xFF0B0F1A) : Colors.grey[100],
+      backgroundColor: ref.watch(lightMode)
+          ? const Color(0xFF0B0F1A)
+          : Colors.grey[100],
       body: Stack(
         children: [
           Container(
@@ -36,29 +36,50 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
               children: [
                 /// Header
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.chevron_left,
+                        color: ref.watch(lightMode)
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                      onPressed: () {
+                        router.go("/Welcomesignup");
+                      },
+                    ),
                     Text(
                       "Analytics",
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 22.sp.clamp(10, 25),
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: ref.watch(lightMode)
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                     IconButton(
                       icon: Icon(
-                        isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: isDark ? Colors.white : Colors.black,
+                        ref.watch(lightMode)
+                            ? Icons.light_mode
+                            : Icons.dark_mode,
+                        color: ref.watch(lightMode)
+                            ? Colors.white
+                            : Colors.black,
                       ),
                       onPressed: () {
-                        setState(() => isDark = !isDark);
+                        if (ref.read(lightMode)) {
+                          ref.read(lightMode.notifier).state = false;
+                        } else {
+                          ref.read(lightMode.notifier).state = true;
+                        }
                       },
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 15.sp.clamp(10, 20)),
 
                 Expanded(
                   child: SingleChildScrollView(
@@ -73,15 +94,15 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text("Attendance Rate", style: _titleStyle()),
-                              const SizedBox(height: 15),
+                              SizedBox(height: 15.sp.clamp(10, 20)),
 
                               Center(
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
                                     SizedBox(
-                                      width: 120,
-                                      height: 120,
+                                      width: 120.sp.clamp(10, 120),
+                                      height: 120.sp.clamp(10, 120),
                                       child: CircularProgressIndicator(
                                         value: attendance / 100,
                                         strokeWidth: 10,
@@ -93,9 +114,9 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                                     Text(
                                       "${attendance.toInt()}%",
                                       style: TextStyle(
-                                        fontSize: 22,
+                                        fontSize: 22.sp.clamp(10, 25),
                                         fontWeight: FontWeight.bold,
-                                        color: isDark
+                                        color: ref.watch(lightMode)
                                             ? Colors.white
                                             : Colors.black,
                                       ),
@@ -104,7 +125,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                                 ),
                               ),
 
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10.sp.clamp(10, 20)),
                               Text(
                                 "Your attendance performance is being continuously analyzed to help you stay consistent.",
                                 style: _descStyle(),
@@ -113,7 +134,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                           ),
                         ),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.sp.clamp(10, 20)),
 
                         /// Weekly Bar Chart
                         Container(
@@ -126,13 +147,13 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                                 "Weekly Lecture Distribution",
                                 style: _titleStyle(),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20.sp),
 
                               SizedBox(
                                 height: 180,
                                 child: BarChart(
                                   BarChartData(
-                                    gridData: FlGridData(show: false),
+                                    gridData: FlGridData(show: true),
                                     borderData: FlBorderData(show: false),
                                     titlesData: FlTitlesData(
                                       leftTitles: AxisTitles(
@@ -166,10 +187,10 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                                             return Text(
                                               days[value.toInt()],
                                               style: TextStyle(
-                                                color: isDark
+                                                color: ref.watch(lightMode)
                                                     ? Colors.white70
                                                     : Colors.black54,
-                                                fontSize: 12,
+                                                fontSize: 12.sp.clamp(10, 12),
                                               ),
                                             );
                                           },
@@ -196,7 +217,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                                 ),
                               ),
 
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10.h.clamp(10, 20)),
                               Text(
                                 "Visual breakdown of lectures attended per day to identify your most active periods.",
                                 style: _descStyle(),
@@ -205,7 +226,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                           ),
                         ),
 
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h.clamp(10, 20)),
 
                         /// Insight Card
                         Container(
@@ -214,7 +235,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                           child: Row(
                             children: [
                               Icon(Icons.insights, color: Colors.blueAccent),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10.h.clamp(10, 20)),
                               Expanded(
                                 child: Text(
                                   "Lecture Tracker analyzes your patterns to help you improve consistency and academic performance.",
@@ -263,7 +284,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
   /// Styles
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: isDark ? const Color(0xFF141A2A) : Colors.white,
+      color: ref.watch(lightMode) ? const Color(0xFF141A2A) : Colors.white,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
@@ -277,16 +298,16 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
 
   TextStyle _titleStyle() {
     return TextStyle(
-      fontSize: 16,
+      fontSize: 16.sp.clamp(12, 18),
       fontWeight: FontWeight.bold,
-      color: isDark ? Colors.white : Colors.black,
+      color: ref.watch(lightMode) ? Colors.white : Colors.black,
     );
   }
 
   TextStyle _descStyle() {
     return TextStyle(
-      fontSize: 13,
-      color: isDark ? Colors.white70 : Colors.black54,
+      fontSize: 13.sp.clamp(10, 13),
+      color: ref.watch(lightMode) ? Colors.white70 : Colors.black54,
     );
   }
 }

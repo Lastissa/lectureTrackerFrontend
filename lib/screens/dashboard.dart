@@ -195,13 +195,16 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
             onPressed: ref.watch(lectureCardActive)
                 ? null
                 : () async {
+                    router.go('/settings');
+                    //i comment out the below code cos i want the splashscreen to handle where to go for the new users istead of the dashnoard handling it.
+
                     bool? userHaveRegisteredCourses = await lookForSettingBox()
                         .get('userHaveCreatedCourses');
+
                     if (userHaveRegisteredCourses != null) {
                       router.go('/settings');
                     } else {
                       router.go("/Welcomesignup");
-                      // router.go('/signup');
                     }
                   },
             child: Icon(

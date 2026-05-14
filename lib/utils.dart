@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lecture_tracker/errorpage.dart';
+import 'package:lecture_tracker/screens/analysis.dart';
 import 'package:lecture_tracker/screens/change_theme.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
@@ -15,6 +16,7 @@ import 'package:lecture_tracker/signupStacks/welcomeSignUp2.dart';
 GoRouter router = GoRouter(
   initialLocation: "/splashScreen",
   routes: [
+    GoRoute(path: "/", builder: (context, state) => Splashscreen()),
     GoRoute(path: "/dashboard", builder: (context, state) => Dashboard()),
     GoRoute(path: "/settings", builder: (context, state) => Settings()),
     GoRoute(path: '/splashScreen', builder: (context, state) => Splashscreen()),
@@ -37,6 +39,7 @@ GoRouter router = GoRouter(
       path: '/Welcomesignup',
       builder: (context, state) => Welcomesignup(),
     ),
+    GoRoute(path: "/analysis", builder: (context, state) => Analysis()),
     GoRoute(path: '/Editcourse', builder: (context, state) => Editcourse()),
     GoRoute(path: '/change_theme', builder: (context, state) => ChangeTheme()),
   ],

@@ -530,12 +530,16 @@ void autoDarkModeUpdate({
     int endTimeStartHour = int.parse(endTime.split(':')[0]);
     int endTimeStartMinutes = int.parse(endTime.split(':')[1]);
 
-    int currentTimeHour = int.parse(
-      TimeOfDay.now().format(context).toString().split(":")[0],
-    );
-    int currentTimeMinutes = int.parse(
-      TimeOfDay.now().format(context).toString().split(":")[1],
-    );
+    int currentTimeHour = TimeOfDay.now().hour;
+    int currentTimeMinutes = TimeOfDay.now().minute;
+
+    //if the endtime is greater than the start time, meaning the user is setting the dark mode to occur to the next day
+    if (endTimeStartHour > startTimeStartHour) {
+      endTimeStartHour =
+          endTimeStartHour +
+          24; //i inreased the endtime hour value by 24 so it can catch up with the time diff
+    }
+
     if (startTimeStartHour <= currentTimeHour &&
         currentTimeHour < endTimeStartHour) //1 , 2, 3 or 1,1, 3
     {

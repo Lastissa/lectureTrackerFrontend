@@ -848,7 +848,6 @@ class _SignupState extends ConsumerState<Signup> {
                                     );
                                   }
                                   // invalidate all now useless providers
-                                  ref.invalidate(_comfirmpasswordOpen);
                                   ref.invalidate(_courseCreatedCount);
                                   ref.invalidate(_dayOfTheWeekChoosen);
                                   ref.invalidate(_dayOfTheWeekChoosenText);
@@ -931,7 +930,7 @@ class _SignupState extends ConsumerState<Signup> {
                         // Back to dashboard
                         TextButton(
                           onPressed: () {
-                            router.go('/splashScreen');
+                            router.go('/Welcomesignup2');
                             ref.invalidate(_comfirmpasswordOpen);
                             ref.invalidate(_courseCreatedCount);
                             ref.invalidate(_dayOfTheWeekChoosen);

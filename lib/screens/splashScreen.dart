@@ -8,6 +8,8 @@ import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:sqflite/sqlite_api.dart';
 
+//the timeofday should use .hour istead of .context.format
+//brb
 class Splashscreen extends ConsumerStatefulWidget {
   const Splashscreen({super.key});
 
@@ -30,14 +32,6 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
     //i am using widgetsbinding to avoid the issue of router.go during build
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        // //to make sure i have an open box in case i delete it my mistake in main.dart
-        // try {
-        //   await lookForSettingBox().get("new");
-        // } finally {
-        //   await Hive.openBox("settingDb");
-        //   await Hive.box('settingDb');
-        // }
-
         Database sqlDbLocator = await CustomDbClass.instance.getter;
 
         List<Map> userTimeTable = await fetchAll(
@@ -78,7 +72,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
               i['dayOfTheWeek'] == tommorowDate) {
             tommorrowData.add(i);
           }
-          //Checking if next tommorrow is seem
+          //Checking if next tommorrow is seen
           else if (i.containsKey('dayOfTheWeek') &&
               i['dayOfTheWeek'] == twoDaysFromDate) {
             twoDaysFromNowData.add(i);
@@ -130,12 +124,15 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           int endTimeStartHour = int.parse(endTime.split(':')[0]);
           int endTimeStartMinutes = int.parse(endTime.split(':')[1]);
 
-          int currentTimeHour = int.parse(
-            TimeOfDay.now().format(context).toString().split(":")[0],
-          );
-          int currentTimeMinutes = int.parse(
-            TimeOfDay.now().format(context).toString().split(":")[1],
-          );
+          int currentTimeHour = TimeOfDay.now().hour;
+          int currentTimeMinutes = TimeOfDay.now().minute;
+
+          //if the endtime is greater than the start time, meaning the user is setting the dark mode to occur to the next day
+          if (endTimeStartHour > startTimeStartHour) {
+            endTimeStartHour =
+                endTimeStartHour +
+                24; //i inreased the endtime hour value by 24 so it can catch up with the time diff
+          }
           if (startTimeStartHour <= currentTimeHour &&
               currentTimeHour < endTimeStartHour) //1 , 2, 3 or 1,1, 3
           {
@@ -165,6 +162,15 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
             //, the current hour min is greater than the end time hour or too low than the start time hour so dark mode cannot be auto apply
             await Hive.box('settingDb').put('lightMode', true);
           }
+          // else {
+          //   notifier(
+          //     context: context,
+          //     message:
+          //         "An error occur while trying to apply your auto dark mode setting, Please, reach out to development team",
+          //     bg: ref.watch(foreGroundColor),
+          //     fg: ref.watch(backgroundColor),
+          //   );
+          // }
           print([startTime, TimeOfDay.now().format(context), endTime]);
         }
 
@@ -218,11 +224,26 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
             print('today lecture sql is passed');
             print('lenght of today lecture is: ${ref.read(todayLectureCount)}');
 
-            router.go('/dashboard');
+            //check if user is new, if yes, carry them go to the welcome page, if no, carry them to the dashbaord page
+            bool? userHaveRegisteredCourses = await lookForSettingBox().get(
+              'userHaveCreatedCourses',
+            );
+
+            if (userHaveRegisteredCourses != null) {
+              router.go('/dashboard');
+            } else {
+              router.go("/Welcomesignup");
+            }
             await Future.delayed(
               Duration(milliseconds: 500),
             ); //this is just a gimmick, to stop the transitioning from beign too fast
-            router.go('/dashboard');
+            //check if user is new, if yes, carry them go to the welcome page, if no, carry them to the dashbaord page
+
+            if (userHaveRegisteredCourses != null) {
+              router.go('/dashboard');
+            } else {
+              router.go("/Welcomesignup");
+            }
             return; //stop all below from running
             //this mean, the user is still in the current day they open the app last.
           } else {
@@ -262,14 +283,32 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           print('main time table sql is passed');
           print('lenght of today lecture is: ${ref.read(todayLectureCount)}');
 
-          router.go('/dashboard');
+          //check if user is new, if yes, carry them go to the welcome page, if no, carry them to the dashbaord page
+          bool? userHaveRegisteredCourses = await lookForSettingBox().get(
+            'userHaveCreatedCourses',
+          );
+
+          if (userHaveRegisteredCourses != null) {
+            router.go('/dashboard');
+          } else {
+            router.go("/Welcomesignup");
+          }
           // print(ref.read(decoyDB));
           await lookForSettingBox().put('isDataPassedForToday', true);
         } //this print is to knoe wether data was updated today, it is meant to let us know if at least one of the table passed data
         await Future.delayed(
           Duration(milliseconds: 500),
         ); //this is just a gimmick, to stop the transitioning from beign too fast
-        router.go('/dashboard');
+        //check if user is new, if yes, carry them go to the welcome page, if no, carry them to the dashbaord page
+        bool? userHaveRegisteredCourses = await lookForSettingBox().get(
+          'userHaveCreatedCourses',
+        );
+
+        if (userHaveRegisteredCourses != null) {
+          router.go('/dashboard');
+        } else {
+          router.go("/Welcomesignup");
+        }
       } catch (e) {
         await Future.delayed(
           Duration(seconds: 2),
