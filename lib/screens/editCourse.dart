@@ -229,7 +229,13 @@ class EditcourseState extends ConsumerState<Editcourse> {
                             //this is to increase the new course count stuff num
                             ref.read(_newCourseCount.notifier).state =
                                 ref.read(_newCourseCount) + 1;
-
+                            //notify the user that if they did not press save, it wont save
+                            notifier(
+                              context: context,
+                              message: "Save row to add to db",
+                              fg: ref.read(backgroundColor),
+                              bg: ref.read(foreGroundColor),
+                            );
                             //this is to add the text editing controller for the new course added
                             _textControllersList.add(TextEditingController());
                             setState(() {});

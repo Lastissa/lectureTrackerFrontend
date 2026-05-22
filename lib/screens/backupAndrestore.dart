@@ -7,12 +7,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
+import 'package:lecture_tracker/homepage_stacks/today.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
-
-String domain = "https://lecture-tracker-omega.vercel.app/";
 
 class BackupAndReset extends ConsumerStatefulWidget {
   final uniqueKey;
@@ -28,6 +28,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
   final _emailController = TextEditingController();
   bool plainPassword = false;
   bool nothingShouldWork = false;
+  TextEditingController backUpConfirmCodeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,13 +60,34 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                   children: [
                     AnimatedCrossFade(
                       firstChild: Container(
-                        // color: Colors.red,
                         width: double.infinity,
                         height: ref.watch(deviceSizeY) * 0.5.h,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            Column(
+                              key: UniqueKey(),
+                              children: [
+                                Text(
+                                  "LastBackupDate",
+                                  style: TextStyle(
+                                    color: ref.watch(foreGroundColor),
+                                  ),
+                                ),
+                                Text(
+                                  lookForSettingBox()
+                                      .get("LastBackupDate")
+                                      .toString(),
+                                  style: TextStyle(
+                                    color: ref.watch(foreGroundColor),
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
                             ElevatedButton(
+                              //perform backup pressed
                               onPressed: () async {
                                 int confirmCode1 = Random().nextInt(9);
                                 int confirmCode2 = Random().nextInt(9);
@@ -78,114 +100,125 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                   barrierColor: ref.watch(backgroundColor),
                                   barrierDismissible: false,
                                   context: context,
-                                  builder: (builder) => AlertDialog(
-                                    backgroundColor: ref.watch(foreGroundColor),
-                                    content: Container(
-                                      height: ref.watch(deviceSizeY) * 0.3.h,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.cancel,
-                                                color: Colors.red,
-                                                size: 30,
+                                  builder: (builder) => PopScope(
+                                    canPop: false,
+                                    child: AlertDialog(
+                                      backgroundColor: ref.watch(
+                                        foreGroundColor,
+                                      ),
+                                      content: Container(
+                                        height: ref.watch(deviceSizeY) * 0.3.h,
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.cancel,
+                                                  color: Colors.red,
+                                                  size: 30,
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  confirmCode = "nothing";
+                                                },
+                                              ).animate().shake(
+                                                duration: Duration(seconds: 1),
+                                                hz: 4,
                                               ),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                                confirmCode = "nothing";
-                                              },
-                                            ).animate().shake(
-                                              duration: Duration(seconds: 1),
-                                              hz: 4,
-                                            ),
 
-                                            SizedBox(height: 15),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: TextFormField(
-                                                    onChanged: (value) {
-                                                      if (value.length == 5 &&
-                                                          value ==
-                                                              confirmCode) {
-                                                        //pop the showdialog and allow backup to go on
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop();
-                                                      }
-                                                    },
-                                                    textAlign: TextAlign.center,
-                                                    keyboardType:
-                                                        TextInputType.number,
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: ref.watch(
-                                                        backgroundColor,
+                                              SizedBox(height: 15),
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller:
+                                                          backUpConfirmCodeController,
+                                                      onChanged: (value) {
+                                                        if (value.length == 5 &&
+                                                            value ==
+                                                                confirmCode) {
+                                                          //pop the showdialog and allow backup to go on
+                                                          Navigator.of(
+                                                            context,
+                                                          ).pop();
+                                                        }
+                                                      },
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      maxLines: 1,
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: ref.watch(
+                                                          backgroundColor,
+                                                        ),
+                                                      ),
+                                                      decoration: InputDecoration(
+                                                        focusedBorder:
+                                                            UnderlineInputBorder(
+                                                              borderSide: BorderSide(
+                                                                color: ref.watch(
+                                                                  backgroundColor,
+                                                                ),
+                                                                width: 1.5,
+                                                              ),
+                                                            ),
+                                                        enabledBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                            color: ref.watch(
+                                                              backgroundColor,
+                                                            ),
+                                                            width: 1.5,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                Radius.circular(
+                                                                  10,
+                                                                ),
+                                                              ),
+                                                        ),
                                                       ),
                                                     ),
-                                                    decoration: InputDecoration(
-                                                      focusedBorder:
-                                                          UnderlineInputBorder(
-                                                            borderSide: BorderSide(
-                                                              color: ref.watch(
-                                                                backgroundColor,
-                                                              ),
-                                                              width: 1.5,
-                                                            ),
-                                                          ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                            borderSide: BorderSide(
-                                                              color: ref.watch(
-                                                                backgroundColor,
-                                                              ),
-                                                              width: 1.5,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                  Radius.circular(
-                                                                    10,
-                                                                  ),
-                                                                ),
-                                                          ),
-                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 15),
+                                                ],
+                                              ),
+                                              SizedBox(height: 15),
 
-                                            Text(
-                                              "Type '${confirmCode}' to confirm backup with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword')}\n${ref.read(username).toUpperCase()}",
-                                              style: TextStyle(
-                                                color: ref.watch(
-                                                  backgroundColor,
+                                              Text(
+                                                "Type '${confirmCode}' to confirm backup with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword').toString().substring(0, 3)}${"*" * (lookForSettingBox().get("backupPassword").toString().length - 5)}${lookForSettingBox().get("backupPassword").toString().substring(lookForSettingBox().get("backupPassword").toString().length - 2, lookForSettingBox().get("backupPassword").toString().length)}\n${ref.read(username).toUpperCase()}",
+                                                style: TextStyle(
+                                                  color: ref.watch(
+                                                    backgroundColor,
+                                                  ),
+                                                  fontWeight: FontWeight.w500,
                                                 ),
-                                                fontWeight: FontWeight.w500,
                                               ),
-                                            ),
-                                            Text(
-                                              "NB: This action will overwrite any previously backed up data and cannot be undone.",
-                                              style: TextStyle(
-                                                color: ref.watch(
-                                                  backgroundColor,
+                                              Text(
+                                                "NB: This action will overwrite any previously backed up data and cannot be undone.",
+                                                style: TextStyle(
+                                                  color: ref.watch(
+                                                    backgroundColor,
+                                                  ),
+                                                  fontWeight: FontWeight.bold,
+                                                  fontStyle: FontStyle.italic,
                                                 ),
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle: FontStyle.italic,
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 );
-                                if (confirmCode == "nothing") return;
+
+                                if (confirmCode !=
+                                    backUpConfirmCodeController.text)
+                                  return;
+                                //the backup about to begin
                                 final dbLocator =
                                     await CustomDbClass.instance.getter;
                                 final allRegisteredCourse = await fetchAll(
@@ -228,9 +261,16 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                 );
                                 print("${toShow[0]}, ${toShow[1]["message"]}");
                                 //after the sending
+                                if (toShow[0] == 200) {
+                                  lookForSettingBox().put(
+                                    "LastBackupDate",
+                                    "${DateFormat.yMMMEd().format(DateTime.now())}, ${TimeOfDay.now().hour} : ${TimeOfDay.now().minute < 10 ? "0${TimeOfDay.now().minute}" : TimeOfDay.now().minute}",
+                                  );
+                                }
                                 setState(() {
                                   nothingShouldWork = false;
                                 });
+
                                 print("End of backup...");
                               },
                               style: ElevatedButton.styleFrom(
@@ -298,7 +338,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                               ),
                                             ),
                                             SelectableText(
-                                              "${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword')}",
+                                              "${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword').toString().substring(0, 3)}${"*" * (lookForSettingBox().get("backupPassword").toString().length - 5)}${lookForSettingBox().get("backupPassword").toString().substring(lookForSettingBox().get("backupPassword").toString().length - 2, lookForSettingBox().get("backupPassword").toString().length)}",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w700,
                                                 color: ref.watch(
@@ -478,73 +518,71 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                           ],
                         ),
                         //for the password input, i want to have a suffix icon that when clicked, it changes the state of the password from plain text to hidden and vice versa
-                        child:
-                            customTextFeild(
-                              prefix: Icon(
-                                Icons.lock,
-                                color: ref.watch(foreGroundColor),
-                              ),
+                        child: customTextFeild(
+                          prefix: Icon(
+                            Icons.lock,
+                            color: ref.watch(foreGroundColor),
+                          ),
 
-                              suffix: InkWell(
-                                onTap: () {
-                                  //i comment it out cos it changes to confirm password
-                                  // _passwordConfirmController.text = '';
-                                  // ref.read(_comfirmpasswordOpen.notifier).state =
-                                  //     true;
-                                  setState(() {
-                                    if (plainPassword) {
-                                      plainPassword = false;
-                                    } else {
-                                      plainPassword = true;
-                                    }
-                                  });
-                                },
-                                child: Icon(
-                                  plainPassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.teal,
-                                ),
-                              ),
-                              controller: _passwordController,
-                              hint: "Password",
-                              isPassword: plainPassword,
-                              validator: (value) {
-                                if (_passwordController.text.trim().isEmpty) {
-                                  ElegantNotification(
-                                    toastDuration: Duration(seconds: 2),
-                                    background: Colors.red,
-                                    description: Text(
-                                      style: TextStyle(color: Colors.white),
-                                      'Password cannot be Empty',
-                                    ),
-                                  ).show(context);
-                                  _passwordController.text = '';
-                                  return;
-                                } else if (_passwordController.text
-                                        .trim()
-                                        .length <
-                                    6) {
-                                  notifier(
-                                    context: context,
-                                    message: 'Password too short',
-                                    bg: Colors.red,
-                                    atTop: true,
-                                  );
-                                  return;
+                          suffix: InkWell(
+                            onTap: () {
+                              //i comment it out cos it changes to confirm password
+                              // _passwordConfirmController.text = '';
+                              // ref.read(_comfirmpasswordOpen.notifier).state =
+                              //     true;
+                              setState(() {
+                                if (plainPassword) {
+                                  plainPassword = false;
+                                } else {
+                                  plainPassword = true;
                                 }
-                                return;
-                              },
-                              ref: ref,
-                            ).animate().slideX(
-                              curve: Curves.decelerate,
-                              begin: 2,
-                              end: 0,
-                              duration: Duration(milliseconds: 500),
-                              delay: Duration(milliseconds: 200),
+                              });
+                            },
+                            child: Icon(
+                              plainPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: ref.watch(lightMode)
+                                  ? Colors.blueAccent
+                                  : Colors.teal,
                             ),
+                          ),
+                          controller: _passwordController,
+                          hint: "Password",
+                          isPassword: plainPassword,
+                          validator: (value) {
+                            if (_passwordController.text.trim().isEmpty) {
+                              ElegantNotification(
+                                toastDuration: Duration(seconds: 2),
+                                background: Colors.red,
+                                description: Text(
+                                  style: TextStyle(color: Colors.white),
+                                  'Password cannot be Empty',
+                                ),
+                              ).show(context);
+                              _passwordController.text = '';
+                              return;
+                            } else if (_passwordController.text.trim().length <
+                                6) {
+                              notifier(
+                                context: context,
+                                message: 'Password too short',
+                                bg: Colors.red,
+                                atTop: true,
+                              );
+                              return;
+                            }
+                            return;
+                          },
+                          ref: ref,
+                        ),
+                        // .animate().slideX(
+                        //   curve: Curves.decelerate,
+                        //   begin: 2,
+                        //   end: 0,
+                        //   duration: Duration(milliseconds: 500),
+                        //   delay: Duration(milliseconds: 200),
+                        // ),
                       ),
                       ElevatedButton(
                         onPressed: () async {
@@ -665,7 +703,7 @@ final successProvider = StateProvider<bool>((ref) {
 
 // two provider for performing backup(one for get and one for post)
 final backup = FutureProvider.family((ref, Map dataToSend) async {
-  final url = Uri.parse("${domain}backupData/json/");
+  final url = Uri.parse("${ref.read(domain)}backupData/json/");
   String email = await lookForSettingBox().get("backupEmail");
   String username = await lookForSettingBox().get("username") == null
       ? "user"
@@ -710,6 +748,8 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
   final _emailController = TextEditingController();
   bool plainPassword = false;
   bool nothingShouldWork = false;
+  TextEditingController retreiveConfirmCodeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -739,6 +779,25 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    Column(
+                      key: UniqueKey(),
+                      children: [
+                        Text(
+                          "Last Retreieve Date",
+                          style: TextStyle(color: ref.watch(foreGroundColor)),
+                        ),
+                        Text(
+                          lookForSettingBox()
+                              .get("LastRetreiveData")
+                              .toString(),
+                          style: TextStyle(
+                            color: ref.watch(foreGroundColor),
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
                     AnimatedCrossFade(
                       firstChild: Container(
                         // color: Colors.red,
@@ -749,6 +808,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
+                                //retreive data onpressed
                                 int confirmCode1 = Random().nextInt(9);
                                 int confirmCode2 = Random().nextInt(9);
                                 int confirmCode3 = Random().nextInt(9);
@@ -790,6 +850,8 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                               children: [
                                                 Expanded(
                                                   child: TextFormField(
+                                                    controller:
+                                                        retreiveConfirmCodeController,
                                                     onChanged: (value) {
                                                       if (value.length == 5 &&
                                                           value ==
@@ -844,7 +906,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                             SizedBox(height: 15),
 
                                             Text(
-                                              "Type '${confirmCode}' to confirm retreival with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword')}",
+                                              "Type '${confirmCode}' to confirm retreival with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword').toString().substring(0, 3)}${"*" * (lookForSettingBox().get("backupPassword").toString().length - 5)}${lookForSettingBox().get("backupPassword").toString().substring(lookForSettingBox().get("backupPassword").toString().length - 2, lookForSettingBox().get("backupPassword").toString().length)}",
                                               style: TextStyle(
                                                 color: ref.watch(
                                                   backgroundColor,
@@ -868,7 +930,13 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                     ),
                                   ),
                                 );
-                                if (confirmCode == "nothing") return;
+                                print([
+                                  confirmCode,
+                                  retreiveConfirmCodeController.text,
+                                ]);
+                                if (confirmCode !=
+                                    retreiveConfirmCodeController.text)
+                                  return;
 
                                 //Retrive data from backend
                                 setState(() {
@@ -902,11 +970,49 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                     duration: Duration(seconds: 3),
                                   );
                                 } else if (dataToShow[1]?["message"] != null) {
-                                  print(dataToShow[1]["history"]["data"]);
-
                                   //if message key is == success, perform update to the local db
                                   if (dataToShow[1]["message"] == "success") {
+                                    if ((dataToShow[1]["currentData"] as List)
+                                            .length <
+                                        1) {
+                                      notifier(
+                                        context: context,
+                                        message: "No registered course found",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                      );
+
+                                      //end the retreive since we are done
+                                      setState(() {
+                                        nothingShouldWork = false;
+                                      });
+
+                                      return;
+                                    }
+                                    //sometimes the history might not have the "data" key cos its empty, if so, just return a message saying no prior backup found
+                                    try {
+                                      dataToShow[1]["history"]["data"];
+                                    } catch (error) {
+                                      ElegantNotification(
+                                        background: ref.read(foreGroundColor),
+                                        description: Text(
+                                          "Error; No Prior history found.\nTip: at least have one history backed up",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: ref.read(backgroundColor),
+                                          ),
+                                        ),
+                                      ).show(context);
+
+                                      //end the retreive since we are done
+                                      setState(() {
+                                        nothingShouldWork = false;
+                                      });
+
+                                      return;
+                                    }
                                     //since message is success, first clear the db so we can update it
+                                    print(dataToShow[1]["history"]["data"]);
                                     final locator =
                                         await CustomDbClass.instance.getter;
 
@@ -954,6 +1060,12 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       bg: ref.watch(foreGroundColor),
                                       fg: ref.watch(backgroundColor),
                                     );
+                                    if (dataToShow[0] == 200) {
+                                      lookForSettingBox().put(
+                                        "LastRetreiveData",
+                                        "${DateFormat.yMMMEd().format(DateTime.now())}, ${TimeOfDay.now().hour} : ${TimeOfDay.now().minute < 10 ? "0${TimeOfDay.now().minute}" : TimeOfDay.now().minute}",
+                                      );
+                                    }
                                   } else {
                                     //just return the message without updating the local db cos the messgae is not 'success'
                                     notifier(
@@ -1041,7 +1153,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                               ),
                                             ),
                                             SelectableText(
-                                              "${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword')}",
+                                              "${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword').toString().substring(0, 3)}${"*" * (lookForSettingBox().get("backupPassword").toString().length - 5)}${lookForSettingBox().get("backupPassword").toString().substring(lookForSettingBox().get("backupPassword").toString().length - 2, lookForSettingBox().get("backupPassword").toString().length)}",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w700,
                                                 color: ref.watch(
@@ -1221,73 +1333,71 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                           ],
                         ),
                         //for the password input, i want to have a suffix icon that when clicked, it changes the state of the password from plain text to hidden and vice versa
-                        child:
-                            customTextFeild(
-                              prefix: Icon(
-                                Icons.lock,
-                                color: ref.watch(foreGroundColor),
-                              ),
+                        child: customTextFeild(
+                          prefix: Icon(
+                            Icons.lock,
+                            color: ref.watch(foreGroundColor),
+                          ),
 
-                              suffix: InkWell(
-                                onTap: () {
-                                  //i comment it out cos it changes to confirm password
-                                  // _passwordConfirmController.text = '';
-                                  // ref.read(_comfirmpasswordOpen.notifier).state =
-                                  //     true;
-                                  setState(() {
-                                    if (plainPassword) {
-                                      plainPassword = false;
-                                    } else {
-                                      plainPassword = true;
-                                    }
-                                  });
-                                },
-                                child: Icon(
-                                  plainPassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.teal,
-                                ),
-                              ),
-                              controller: _passwordController,
-                              hint: "Password",
-                              isPassword: plainPassword,
-                              validator: (value) {
-                                if (_passwordController.text.trim().isEmpty) {
-                                  ElegantNotification(
-                                    toastDuration: Duration(seconds: 2),
-                                    background: Colors.red,
-                                    description: Text(
-                                      style: TextStyle(color: Colors.white),
-                                      'Password cannot be Empty',
-                                    ),
-                                  ).show(context);
-                                  _passwordController.text = '';
-                                  return;
-                                } else if (_passwordController.text
-                                        .trim()
-                                        .length <
-                                    6) {
-                                  notifier(
-                                    context: context,
-                                    message: 'Password too short',
-                                    bg: Colors.red,
-                                    atTop: true,
-                                  );
-                                  return;
+                          suffix: InkWell(
+                            onTap: () {
+                              //i comment it out cos it changes to confirm password
+                              // _passwordConfirmController.text = '';
+                              // ref.read(_comfirmpasswordOpen.notifier).state =
+                              //     true;
+                              setState(() {
+                                if (plainPassword) {
+                                  plainPassword = false;
+                                } else {
+                                  plainPassword = true;
                                 }
-                                return;
-                              },
-                              ref: ref,
-                            ).animate().slideX(
-                              curve: Curves.decelerate,
-                              begin: 2,
-                              end: 0,
-                              duration: Duration(milliseconds: 500),
-                              delay: Duration(milliseconds: 200),
+                              });
+                            },
+                            child: Icon(
+                              plainPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: ref.watch(lightMode)
+                                  ? Colors.blueAccent
+                                  : Colors.teal,
                             ),
+                          ),
+                          controller: _passwordController,
+                          hint: "Password",
+                          isPassword: plainPassword,
+                          validator: (value) {
+                            if (_passwordController.text.trim().isEmpty) {
+                              ElegantNotification(
+                                toastDuration: Duration(seconds: 2),
+                                background: Colors.red,
+                                description: Text(
+                                  style: TextStyle(color: Colors.white),
+                                  'Password cannot be Empty',
+                                ),
+                              ).show(context);
+                              _passwordController.text = '';
+                              return;
+                            } else if (_passwordController.text.trim().length <
+                                6) {
+                              notifier(
+                                context: context,
+                                message: 'Password too short',
+                                bg: Colors.red,
+                                atTop: true,
+                              );
+                              return;
+                            }
+                            return;
+                          },
+                          ref: ref,
+                        ),
+                        // .animate().slideX(
+                        //   curve: Curves.decelerate,
+                        //   begin: 2,
+                        //   end: 0,
+                        //   duration: Duration(milliseconds: 500),
+                        //   delay: Duration(milliseconds: 200),
+                        // ),
                       ),
                       ElevatedButton(
                         onPressed: () async {
@@ -1403,9 +1513,13 @@ final retrieveDataFromBackend = FutureProvider((ref) async {
   String email = await lookForSettingBox().get("backupEmail");
   String password = await lookForSettingBox().get("backupPassword");
   final url = Uri.parse(
-    '${domain}viewData/json/?email=${email}&password=${password}',
+    '${ref.read(domain)}viewData/json/?email=${email}&password=${password}',
   );
   final sendRequest = await http.get(url);
   final responseDecoded = await jsonDecode(sendRequest.body);
   return [sendRequest.statusCode, responseDecoded];
+});
+
+final domain = StateProvider((ref) {
+  return "https://lecture-tracker-omega.vercel.app/";
 });

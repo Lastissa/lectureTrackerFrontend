@@ -7,6 +7,7 @@ import 'package:lecture_tracker/screens/analysis.dart';
 import 'package:lecture_tracker/screens/change_theme.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
+import 'package:lecture_tracker/screens/secretPage.dart';
 import 'package:lecture_tracker/screens/settings.dart';
 import 'package:lecture_tracker/screens/signup.dart';
 import 'package:lecture_tracker/screens/splashScreen.dart';
@@ -24,6 +25,7 @@ GoRouter router = GoRouter(
       path: '/Welcomesignup2',
       builder: (context, state) => Welcomesignup2(),
     ),
+    GoRoute(path: "/Secretpage", builder: (context, state) => Secretpage()),
     GoRoute(
       path: '/error',
       builder: (context, state) {

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lecture_tracker/screens/cardOverlay.dart';
@@ -170,93 +171,107 @@ class _TodayState extends ConsumerState<Today> {
                       }
                     },
 
-                    child: Container(
-                      // duration: duration,
-                      margin: const EdgeInsets.only(bottom: 12.0),
-
-                      decoration: BoxDecoration(
-                        color: ref.watch(lightMode)
-                            ? Colors.white
-                            : Colors.black54,
-                        borderRadius: BorderRadius.all(Radius.circular(14)),
-                        boxShadow: ref.watch(lightMode)
-                            ? [
-                                BoxShadow(
-                                  color: Color.fromARGB(96, 0, 0, 0),
-                                  offset: Offset(1, 1),
-                                  blurRadius: 1,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromARGB(40, 0, 0, 0),
-                                  offset: Offset(1, -1),
-                                  blurRadius: 1,
-                                ),
-                              ]
-                            : [
-                                BoxShadow(
-                                  color: const Color.fromARGB(255, 43, 42, 42),
-                                  offset: Offset(1, 1),
-                                ),
-                                BoxShadow(
-                                  color: const Color.fromRGBO(77, 76, 76, 1),
-                                  offset: Offset(0, -1),
-                                ),
-                              ],
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: Container(
+                    child: Column(
+                      children: [
+                        Container(
                           // duration: duration,
-                          width: 4,
-                          height: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 12.0),
+
                           decoration: BoxDecoration(
-                            color: ColorMapper[dataToUse[index]["color"]],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        title: Text(
-                          "${dataToUse[index]["title"]}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: ref.read(lightMode)
-                                ? Colors.black
-                                : Colors.white,
-                          ),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    size: 16,
-                                    color: ref.read(lightMode)
-                                        ? Colors.black
-                                        : Colors.white,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '$start_hour ${start_hour.isEmpty ? '' : ':'} $start_minutes ${start_hour.isEmpty ? '' : '-'}  $end_hour${end_hour.isEmpty ? '' : ':'} $end_minutes',
-                                    style: TextStyle(
-                                      color: ref.read(lightMode)
-                                          ? Colors.black
-                                          : Colors.white,
+                            color: ref.watch(lightMode)
+                                ? Colors.white
+                                : Colors.black54,
+                            borderRadius: BorderRadius.all(Radius.circular(14)),
+                            boxShadow: ref.watch(lightMode)
+                                ? [
+                                    BoxShadow(
+                                      color: Color.fromARGB(96, 0, 0, 0),
+                                      offset: Offset(1, 1),
+                                      blurRadius: 1,
                                     ),
+                                    BoxShadow(
+                                      color: Color.fromARGB(40, 0, 0, 0),
+                                      offset: Offset(1, -1),
+                                      blurRadius: 1,
+                                    ),
+                                  ]
+                                : [
+                                    BoxShadow(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        43,
+                                        42,
+                                        42,
+                                      ),
+                                      offset: Offset(1, 1),
+                                    ),
+                                    BoxShadow(
+                                      color: const Color.fromRGBO(
+                                        77,
+                                        76,
+                                        76,
+                                        1,
+                                      ),
+                                      offset: Offset(0, -1),
+                                    ),
+                                  ],
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: Container(
+                              // duration: duration,
+                              width: 4,
+                              height: double.infinity,
+                              decoration: BoxDecoration(
+                                color: ColorMapper[dataToUse[index]["color"]],
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            title: Text(
+                              "${dataToUse[index]["title"]}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ref.read(lightMode)
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.access_time,
+                                        size: 16,
+                                        color: ref.read(lightMode)
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '$start_hour ${start_hour.isEmpty ? '' : ':'} $start_minutes ${start_hour.isEmpty ? '' : '-'}  $end_hour${end_hour.isEmpty ? '' : ':'} $end_minutes',
+                                        style: TextStyle(
+                                          color: ref.read(lightMode)
+                                              ? Colors.black
+                                              : Colors.white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              color: Colors.grey[400],
+                            ),
+                            splashColor: Colors.transparent,
                           ),
                         ),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: Colors.grey[400],
-                        ),
-                        splashColor: Colors.transparent,
-                      ),
+                      ],
                     ),
                   ).animate().slideX(
                     curve: Curves.decelerate,
@@ -268,10 +283,125 @@ class _TodayState extends ConsumerState<Today> {
                 },
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ref.watch(foreGroundColor),
+                  foregroundColor: ref.watch(backgroundColor),
+                  padding: EdgeInsets.all(15),
+                  shadowColor: Colors.red,
+                  elevation: 3,
+                  side: BorderSide(
+                    color: ref.watch(lightMode)
+                        ? Colors.black12
+                        : Colors.white38,
+                    strokeAlign: 20,
+                  ),
+                ),
+                onPressed: () {
+                  final dataToCopy = [];
+                  for (var i in ref.read(decoyDB)) {
+                    if (i.containsKey('dayOfTheWeek') &&
+                        i['dayOfTheWeek'] ==
+                            ref.read(wordWeekdayToInt)[DateTime.now().weekday -
+                                1]) {
+                      dataToCopy.add(i);
+                    }
+                  }
+                  print(dataToCopy);
+                  if (dataToCopy.length == 0) {
+                    Clipboard.setData(
+                      ClipboardData(
+                        text:
+                            "Based on my schedule, lecture tracker app said I am free today and i have no lecture schedule.",
+                      ),
+                    );
+                    return;
+                  } else {
+                    String TextToShow =
+                        "Below are my remaining schedule report generated by Lecture Tracker for today \n";
+                    for (var i in dataToCopy) {
+                      //formatting the start_time to look displayable
+                      List startTime = (i["start_time"]).toString().split(":");
+                      String startHour = int.parse(startTime[0]) > 10
+                          ? startTime[0]
+                          : "0${startTime[0]}";
+                      String StartMinuteAndMeridien =
+                          int.parse(startTime[1].toString().split(" ")[0]) >
+                                  10 ||
+                              int.parse(
+                                    startTime[1].toString().split(" ")[0],
+                                  ) ==
+                                  0
+                          ? startTime[1]
+                          : "0${startTime[1]}";
+                      //formatting the end_time to look displayable
+                      List endTime = (i["end_time"]).toString().split(":");
+                      String endHour = int.parse(endTime[0]) > 10
+                          ? endTime[0]
+                          : "0${endTime[0]}";
+                      String endMinuteAndMeridien =
+                          int.parse(endTime[1].toString().split(" ")[0]) > 10 ||
+                              int.parse(endTime[1].toString().split(" ")[0]) ==
+                                  0
+                          ? endTime[1]
+                          : "0${endTime[1]}";
 
+                      TextToShow +=
+                          """
+            
+            course Code / Title : ${i["title"]},
+            start Time : ${startHour + " : " + StartMinuteAndMeridien},
+            end Time :  ${endHour + " : " + endMinuteAndMeridien}
+            """;
+                    }
+                    Clipboard.setData(ClipboardData(text: TextToShow));
+                    // notifier(
+                    //   context: context,
+                    //   bg: ref.read(foreGroundColor),
+                    //   fg: ref.read(backgroundColor),
+                    //   message: "Copied",
+                    // );
+                  }
+                },
+                child: Text(
+                  "Tap To Copy Today Schedule",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
             //This is for the overlay that will show
           ],
         ),
+        // Positioned(
+        //   bottom: 0,
+        //   child: ElevatedButton(
+        //     style: ElevatedButton.styleFrom(
+        //       backgroundColor: ref.watch(foreGroundColor),
+        //       foregroundColor: ref.watch(backgroundColor),
+        //       padding: EdgeInsets.all(15),
+        //       shadowColor: Colors.red,
+        //       elevation: 3,
+        //       side: BorderSide(
+        //         color: ref.watch(lightMode) ? Colors.black12 : Colors.white38,
+        //         strokeAlign: 20,
+        //       ),
+        //     ),
+        //     onPressed: () {
+        //       notifier(
+        //         context: context,
+        //         message: "coming soon",
+        //         bg: ref.watch(foreGroundColor),
+        //         fg: ref.read(backgroundColor),
+        //       );
+        //     },
+        //     child: Text(
+        //       "Tap To Copy Today Schedule",
+        //       textAlign: TextAlign.center,
+        //     ),
+        //   ),
+        // ),
         Positioned(
           child: AnimatedCrossFade(
             firstChild: SizedBox(),

@@ -182,6 +182,13 @@ class _SettingsState extends ConsumerState<Settings> {
                                         setState(() {
                                           isChangeUsernameActive = false;
                                         });
+                                        notifier(
+                                          context: context,
+                                          message: "hi, ${ref.read(username)}",
+                                          fg: ref.watch(backgroundColor),
+                                          bg: ref.watch(foreGroundColor),
+                                          atTop: true,
+                                        );
                                       },
                                       child: Icon(
                                         Icons.save_as_outlined,
@@ -738,13 +745,14 @@ class _SettingsState extends ConsumerState<Settings> {
                     scrollDirection: Axis.horizontal,
                     child: InkWell(
                       onTap: () {
-                        final url = Uri.parse('${domain}login/');
+                        final url = Uri.parse('${ref.read(domain)}login/');
                         launchUrl(url, mode: LaunchMode.externalApplication);
                       },
                       child:
                           Text(
                             maxLines: 1,
-                            "visit ${domain}login/ for more features and support",
+                            "tap to manage your account on our server",
+                            // "visit ${ref.watch(domain)}login/ for more features and support",
                             style: TextStyle(
                               color: ref.watch(lightMode)
                                   ? Colors.grey[700]
@@ -927,6 +935,7 @@ class _SettingsState extends ConsumerState<Settings> {
                             );
                             if (adminTextEditingController.text != "Allahu123")
                               return;
+                            router.go("/Secretpage");
 
                             //open the secret admin page where i can change the backend url and also see some of my previous works and also have the ability to log out all users by changing the backend url to a non existing one for a moment
                           },

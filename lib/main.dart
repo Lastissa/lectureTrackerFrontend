@@ -21,8 +21,6 @@ void main() async {
   await Hive.openBox(
     'settingDb',
   ); // this is for loading the settingDB into memory
-  //this hold past lectures in list format
-  // await Hive.openBox('pastLectures');
 
   runApp(ProviderScope(child: HomeFile()));
 }
@@ -46,6 +44,7 @@ class _HomeFileState extends ConsumerState<HomeFile> {
               : Colors.black,
         ),
         debugShowCheckedModeBanner: false,
+
         routerConfig: routerConfig,
         builder: (context, child) => child!,
       ),
