@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,8 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
+import 'package:lecture_tracker/screens/aichat.dart';
+import 'package:lecture_tracker/screens/analysis.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
-import 'package:lecture_tracker/screens/change_theme.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 
@@ -21,7 +21,6 @@ import 'package:share_plus/share_plus.dart';
 
 final note = """
 the setting page 
-  -> Change username.
   -> update theme.
   -> Edit registered courses
   -> analysis (past lecture analysis e.g ratio of lecture missed to attended, timetable analysis e.g total lecture hours per week & AVE per day, most busiest day, etc)
@@ -41,14 +40,7 @@ class Settings extends ConsumerStatefulWidget {
 }
 
 class _SettingsState extends ConsumerState<Settings> {
-  void initState() {
-    super.initState();
-    changeNameController.text = lookForSettingBox().get('username') ?? '';
-  }
-
   bool confirmdeleteAccountPopup = false;
-  bool isChangeUsernameActive = false;
-  final changeNameController = TextEditingController();
   bool nothingShouldWork = false;
   TextEditingController adminTextEditingController = TextEditingController();
   @override
@@ -57,7 +49,6 @@ class _SettingsState extends ConsumerState<Settings> {
       backgroundColor: ref.watch(backgroundColor),
       appBar: AppBar(
         toolbarHeight: ref.read(deviceSizeY) * 0.2.h,
-
         backgroundColor: ref.read(backgroundColor),
         title: Container(
           width: ref.watch(deviceSizeX).w,
@@ -81,6 +72,15 @@ class _SettingsState extends ConsumerState<Settings> {
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
+          if (ref.read(isBackupClicked)) {
+            ref.read(isBackupClicked.notifier).state = false;
+            return;
+          }
+          if (ref.read(isRestoreDataClicked)) {
+            ref.read(isRestoreDataClicked.notifier).state = false;
+            return;
+          }
+
           ref.invalidate(isBackupClicked);
           ref.invalidate(isRestoreDataClicked);
           router.go('/splashScreen');
@@ -97,114 +97,52 @@ class _SettingsState extends ConsumerState<Settings> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          //the change username
-                          AnimatedCrossFade(
-                            firstChild: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  isChangeUsernameActive = true;
-                                  changeNameController.text = ref
-                                      .read(username)
-                                      .toUpperCase();
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: ref.watch(deviceSizeY) * 0.02.h,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: Icon(
-                                        Icons.person,
-                                        color: ref.watch(foreGroundColor),
-                                      ),
+                          //backup / restore widget
+                          InkWell(
+                            onTap: () {
+                              if (lookForSettingBox().get("backupPassword") ==
+                                      null &&
+                                  lookForSettingBox().get("backupEmail") ==
+                                      null) {
+                                notifier(
+                                  duration: Duration(seconds: 4),
+                                  context: context,
+                                  message:
+                                      "Access Denied\nlogin credentials missing",
+                                  bg: Colors.red,
+                                  fg: Colors.white,
+                                );
+                                ref.read(isRestoreDataClicked.notifier).state =
+                                    true;
+                                return;
+                              }
+                              router.push("/Useraccountsetting");
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: ref.watch(deviceSizeY) * 0.02.h,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.analytics,
+                                      color: ref.watch(foreGroundColor),
                                     ),
-                                    Text(
-                                      'Change Username',
-                                      style: TextStyle(
-                                        letterSpacing: -1,
-                                        fontSize: 17.sp.clamp(0, 17),
-                                        fontWeight: FontWeight.w600,
-                                        color: ref.watch(foreGroundColor),
-                                      ),
+                                  ),
+                                  Text(
+                                    "Backup / Restore Config",
+                                    style: TextStyle(
+                                      letterSpacing: -1,
+                                      fontSize: 17.sp.clamp(0, 17),
+                                      fontWeight: FontWeight.w600,
+                                      color: ref.watch(foreGroundColor),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                            secondChild: Row(
-                              children: [
-                                Expanded(
-                                  child: customTextFeild(
-                                    ref: ref,
-                                    controller: changeNameController,
-                                    isPassword: false,
-                                    suffix: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          isChangeUsernameActive = false;
-                                        });
-                                      },
-                                      child: Icon(
-                                        color: Colors.red,
-                                        Icons.cancel_rounded,
-                                      ),
-                                    ),
-                                    //update the username name with the kast buttom
-                                    prefix: InkWell(
-                                      onLongPress: () {
-                                        notifier(
-                                          context: context,
-                                          message: 'Save Icon',
-                                          bg: ref
-                                              .watch(backgroundColor)
-                                              .withOpacity(0.8),
-                                          fg: ref.watch(foreGroundColor),
-                                        );
-                                      },
-                                      onTap: () async {
-                                        await lookForSettingBox().put(
-                                          'username',
-                                          changeNameController.text
-                                              .trim()
-                                              .toUpperCase(),
-                                        );
-                                        ref.read(username.notifier).state =
-                                            changeNameController.text;
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).clearSnackBars;
-
-                                        setState(() {
-                                          isChangeUsernameActive = false;
-                                        });
-                                        notifier(
-                                          context: context,
-                                          message: "hi, ${ref.read(username)}",
-                                          fg: ref.watch(backgroundColor),
-                                          bg: ref.watch(foreGroundColor),
-                                          atTop: true,
-                                        );
-                                      },
-                                      child: Icon(
-                                        Icons.save_as_outlined,
-                                        color: ref.watch(foreGroundColor),
-                                      ),
-                                    ),
-                                    hint: 'Username',
-                                    validator: (v) {},
-                                  ),
-                                ),
-                              ],
-                            ),
-                            crossFadeState: isChangeUsernameActive
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
-                            duration: Duration(milliseconds: 350),
                           ).animate().slideX(
                             curve: Curves.decelerate,
                             begin: -1,
@@ -215,38 +153,31 @@ class _SettingsState extends ConsumerState<Settings> {
                           Row(
                             children: [
                               Expanded(
-                                child: InkWell(
-                                  onTap: () async {
-                                    ref.invalidate(changeThemeSuccess);
-                                    ref.invalidate(autoThemeChange);
-                                    router.push('/change_theme');
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: ref.watch(deviceSizeY) * 0.02.h,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Icon(
-                                            ref.watch(lightMode)
-                                                ? Icons.sunny
-                                                : Icons.nightlight_round_sharp,
-                                            color: ref.watch(foreGroundColor),
-                                          ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: ref.watch(deviceSizeY) * 0.02.h,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Icon(
+                                          ref.watch(lightMode)
+                                              ? Icons.sunny
+                                              : Icons.nightlight_round_sharp,
+                                          color: ref.watch(foreGroundColor),
                                         ),
-                                        Text(
-                                          "Change Theme",
-                                          style: TextStyle(
-                                            letterSpacing: -1,
-                                            fontSize: 17.sp.clamp(0, 17),
-                                            fontWeight: FontWeight.w600,
-                                            color: ref.watch(foreGroundColor),
-                                          ),
+                                      ),
+                                      Text(
+                                        "Change Theme",
+                                        style: TextStyle(
+                                          letterSpacing: -1,
+                                          fontSize: 17.sp.clamp(0, 17),
+                                          fontWeight: FontWeight.w600,
+                                          color: ref.watch(foreGroundColor),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -361,6 +292,7 @@ class _SettingsState extends ConsumerState<Settings> {
                             duration: Duration(milliseconds: 700),
                             delay: Duration(milliseconds: 300),
                           ),
+
                           //delete account confirmation
                           AnimatedCrossFade(
                             firstChild: //delete account widget
@@ -530,65 +462,14 @@ class _SettingsState extends ConsumerState<Settings> {
 
                                               TextButton(
                                                 onPressed: () async {
-                                                  final dbLocator =
-                                                      await CustomDbClass
-                                                          .instance
-                                                          .getter;
-                                                  final allRegisteredCourse =
-                                                      await fetchAll(
-                                                        dbLocator: dbLocator,
-                                                        tableName:
-                                                            'userAllTimetable',
-                                                        limit: 1000,
-                                                      );
-                                                  //just before the sending
-                                                  setState(() {
-                                                    nothingShouldWork = true;
-                                                  });
-
-                                                  ref.invalidate(backup);
-                                                  final toShow = await ref
-                                                      .read(
-                                                        backup({
-                                                          "history": ref.read(
-                                                            pastLectureSQLprovider,
-                                                          ),
-                                                          "currentData":
-                                                              allRegisteredCourse,
-                                                        }).future,
-                                                      )
-                                                      .timeout(
-                                                        Duration(seconds: 10),
-                                                        onTimeout: () {
-                                                          // print("timeout");
-                                                          return [
-                                                            "timeout",
-                                                            404,
-                                                          ];
-                                                        },
-                                                      );
-                                                  notifier(
-                                                    bg: ref.watch(
-                                                      foreGroundColor,
-                                                    ),
-                                                    fg: ref.watch(
-                                                      backgroundColor,
-                                                    ),
-                                                    context: context,
-                                                    message:
-                                                        "${toShow[0]}, ${toShow[1]["message"]}",
-                                                    duration: Duration(
-                                                      seconds: 3,
-                                                    ),
-                                                  );
-                                                  print(
-                                                    "${toShow[0]}, ${toShow[1]["message"]}",
-                                                  );
-                                                  //after the sending
-                                                  setState(() {
-                                                    nothingShouldWork = false;
-                                                  });
-                                                  print("End of backup...");
+                                                  ref
+                                                          .read(
+                                                            isBackupClicked
+                                                                .notifier,
+                                                          )
+                                                          .state =
+                                                      true;
+                                                  Navigator.pop(context);
                                                 },
                                                 child: Text(
                                                   'Backup',
@@ -632,6 +513,14 @@ class _SettingsState extends ConsumerState<Settings> {
                                                       i,
                                                     );
                                                   }
+                                                  //clear all ai riverpods
+                                                  ref.invalidate(aiAnayzer);
+                                                  ref.invalidate(
+                                                    aiChatResponse,
+                                                  );
+                                                  ref.invalidate(
+                                                    aiNavBarContent,
+                                                  );
                                                   router.go('/splashScreen');
                                                 },
                                               ),
@@ -824,10 +713,8 @@ class _SettingsState extends ConsumerState<Settings> {
                     end: 0,
                     duration: Duration(milliseconds: 500),
                   ),
-                  SizedBox(
-                    height: ref.watch(deviceSizeY) * 0.02.h.clamp(0, 14),
-                  ),
 
+                  // SizedBox(height: ref.watch(deviceSizeY) * 0.02.h),
                   Column(
                     children: [
                       //for my own previous works
@@ -1162,14 +1049,16 @@ class _SettingsState extends ConsumerState<Settings> {
                           margin: EdgeInsets.only(bottom: 90),
                           child: LottieBuilder.asset(
                             onLoaded: (v) async {
-                              // print(v);
                               await Future.delayed(Duration(seconds: 2));
+                              // if (!mounted) return;
                               ref.invalidate(successProvider);
                             },
                             width: ref.watch(deviceSizeX) * 0.3.w,
                             // height: ,
                             repeat: false,
-                            'assets/lottie/success.json',
+                            ref.watch(lightMode)
+                                ? "assets/lottie/success_blue.json"
+                                : 'assets/lottie/success.json',
                           ),
                         ),
                       ),

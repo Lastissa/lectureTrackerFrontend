@@ -26,7 +26,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-  bool plainPassword = false;
+  bool hidePassword = true;
   bool nothingShouldWork = false;
   TextEditingController backUpConfirmCodeController = TextEditingController();
 
@@ -100,115 +100,110 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                   barrierColor: ref.watch(backgroundColor),
                                   barrierDismissible: false,
                                   context: context,
-                                  builder: (builder) => PopScope(
-                                    canPop: false,
-                                    child: AlertDialog(
-                                      backgroundColor: ref.watch(
-                                        foreGroundColor,
-                                      ),
-                                      content: Container(
-                                        height: ref.watch(deviceSizeY) * 0.3.h,
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.cancel,
-                                                  color: Colors.red,
-                                                  size: 30,
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  confirmCode = "nothing";
-                                                },
-                                              ).animate().shake(
-                                                duration: Duration(seconds: 1),
-                                                hz: 4,
+                                  builder: (builder) => AlertDialog(
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    content: Container(
+                                      height: ref.watch(deviceSizeY) * 0.3.h,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                                size: 30,
                                               ),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                confirmCode = "nothing";
+                                              },
+                                            ).animate().shake(
+                                              duration: Duration(seconds: 1),
+                                              hz: 4,
+                                            ),
 
-                                              SizedBox(height: 15),
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: TextFormField(
-                                                      controller:
-                                                          backUpConfirmCodeController,
-                                                      onChanged: (value) {
-                                                        if (value.length == 5 &&
-                                                            value ==
-                                                                confirmCode) {
-                                                          //pop the showdialog and allow backup to go on
-                                                          Navigator.of(
-                                                            context,
-                                                          ).pop();
-                                                        }
-                                                      },
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      maxLines: 1,
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: ref.watch(
-                                                          backgroundColor,
-                                                        ),
-                                                      ),
-                                                      decoration: InputDecoration(
-                                                        focusedBorder:
-                                                            UnderlineInputBorder(
-                                                              borderSide: BorderSide(
-                                                                color: ref.watch(
-                                                                  backgroundColor,
-                                                                ),
-                                                                width: 1.5,
-                                                              ),
-                                                            ),
-                                                        enabledBorder: OutlineInputBorder(
-                                                          borderSide: BorderSide(
-                                                            color: ref.watch(
-                                                              backgroundColor,
-                                                            ),
-                                                            width: 1.5,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                Radius.circular(
-                                                                  10,
-                                                                ),
-                                                              ),
-                                                        ),
+                                            SizedBox(height: 15),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TextFormField(
+                                                    controller:
+                                                        backUpConfirmCodeController,
+                                                    onChanged: (value) {
+                                                      if (value.length == 5 &&
+                                                          value ==
+                                                              confirmCode) {
+                                                        //pop the showdialog and allow backup to go on
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                      }
+                                                    },
+                                                    textAlign: TextAlign.center,
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: ref.watch(
+                                                        backgroundColor,
                                                       ),
                                                     ),
+                                                    decoration: InputDecoration(
+                                                      focusedBorder:
+                                                          UnderlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                          ),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                            borderSide: BorderSide(
+                                                              color: ref.watch(
+                                                                backgroundColor,
+                                                              ),
+                                                              width: 1.5,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.all(
+                                                                  Radius.circular(
+                                                                    10,
+                                                                  ),
+                                                                ),
+                                                          ),
+                                                    ),
                                                   ),
-                                                ],
-                                              ),
-                                              SizedBox(height: 15),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 15),
 
-                                              Text(
-                                                "Type '${confirmCode}' to confirm backup with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword').toString().substring(0, 3)}${"*" * (lookForSettingBox().get("backupPassword").toString().length - 5)}${lookForSettingBox().get("backupPassword").toString().substring(lookForSettingBox().get("backupPassword").toString().length - 2, lookForSettingBox().get("backupPassword").toString().length)}\n${ref.read(username).toUpperCase()}",
-                                                style: TextStyle(
-                                                  color: ref.watch(
-                                                    backgroundColor,
-                                                  ),
-                                                  fontWeight: FontWeight.w500,
+                                            Text(
+                                              "Type '${confirmCode}' to confirm backup with the following credentials\n\n${lookForSettingBox().get('backupEmail')} \n${lookForSettingBox().get('backupPassword').toString().substring(0, 3)}${"*" * (lookForSettingBox().get("backupPassword").toString().length - 5)}${lookForSettingBox().get("backupPassword").toString().substring(lookForSettingBox().get("backupPassword").toString().length - 2, lookForSettingBox().get("backupPassword").toString().length)}\n${ref.read(username).toUpperCase()}",
+                                              style: TextStyle(
+                                                color: ref.watch(
+                                                  backgroundColor,
                                                 ),
+                                                fontWeight: FontWeight.w500,
                                               ),
-                                              Text(
-                                                "NB: This action will overwrite any previously backed up data and cannot be undone.",
-                                                style: TextStyle(
-                                                  color: ref.watch(
-                                                    backgroundColor,
-                                                  ),
-                                                  fontWeight: FontWeight.bold,
-                                                  fontStyle: FontStyle.italic,
+                                            ),
+                                            Text(
+                                              "NB: This action will overwrite any previously backed up data and cannot be undone.",
+                                              style: TextStyle(
+                                                color: ref.watch(
+                                                  backgroundColor,
                                                 ),
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle: FontStyle.italic,
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -265,6 +260,44 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                   lookForSettingBox().put(
                                     "LastBackupDate",
                                     "${DateFormat.yMMMEd().format(DateTime.now())}, ${TimeOfDay.now().hour} : ${TimeOfDay.now().minute < 10 ? "0${TimeOfDay.now().minute}" : TimeOfDay.now().minute}",
+                                  );
+                                  lookForSettingBox().put(
+                                    "retreiveBackupLocalLog",
+                                    {
+                                      "backup": [
+                                        ...lookForSettingBox().get(
+                                              "retreiveBackupLocalLog",
+                                            )?["backup"] ??
+                                            [],
+                                        "${DateFormat.yMMMEd().format(DateTime.now())}, ${TimeOfDay.now().hour} : ${TimeOfDay.now().minute < 10 ? "0${TimeOfDay.now().minute}" : TimeOfDay.now().minute}",
+                                      ],
+                                      "retreive": [
+                                        ...lookForSettingBox().get(
+                                              "retreiveBackupLocalLog",
+                                            )?["retreive"] ??
+                                            [],
+                                      ],
+                                    },
+                                  );
+                                } else if (toShow[0] == 401) {
+                                  await lookForSettingBox().delete(
+                                    "backupEmail",
+                                  );
+                                  await lookForSettingBox().delete(
+                                    "backupPassword",
+                                  );
+                                  lookForSettingBox().delete("LastBackupDate");
+                                  lookForSettingBox().delete(
+                                    "LastRetreiveData",
+                                  );
+
+                                  notifier(
+                                    context: context,
+                                    message:
+                                        "dirty token dectected\nplease relogin",
+                                    bg: Colors.red,
+                                    fg: Colors.white,
+                                    atTop: true,
                                   );
                                 }
                                 setState(() {
@@ -458,7 +491,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
 
                     children: [
                       Text(
-                        "Create Account",
+                        "Welcome".toUpperCase(),
                         style: TextStyle(
                           color: ref.watch(foreGroundColor),
                           fontSize: 20.sp,
@@ -473,6 +506,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                         isPassword: false,
                         suffix: SizedBox(),
                         hint: 'Email',
+
                         validator: (v) {
                           if (_emailController.text.trim().isEmpty) {
                             notifier(
@@ -498,6 +532,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                           return;
                         },
                         prefix: null,
+                        onchanged: null,
                       ).animate().slideX(
                         curve: Curves.decelerate,
                         begin: -2,
@@ -531,15 +566,15 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                               // ref.read(_comfirmpasswordOpen.notifier).state =
                               //     true;
                               setState(() {
-                                if (plainPassword) {
-                                  plainPassword = false;
+                                if (hidePassword) {
+                                  hidePassword = false;
                                 } else {
-                                  plainPassword = true;
+                                  hidePassword = true;
                                 }
                               });
                             },
                             child: Icon(
-                              plainPassword
+                              hidePassword
                                   ? Icons.visibility_off
                                   : Icons.visibility,
                               color: ref.watch(lightMode)
@@ -549,7 +584,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                           ),
                           controller: _passwordController,
                           hint: "Password",
-                          isPassword: plainPassword,
+                          isPassword: hidePassword,
                           validator: (value) {
                             if (_passwordController.text.trim().isEmpty) {
                               ElegantNotification(
@@ -575,6 +610,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                             return;
                           },
                           ref: ref,
+                          onchanged: null,
                         ),
                         // .animate().slideX(
                         //   curve: Curves.decelerate,
@@ -584,43 +620,262 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                         //   delay: Duration(milliseconds: 200),
                         // ),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          _formKey.currentState!.validate();
-                          if (_emailController.text.toLowerCase().contains(
-                                "@gmail.com",
-                              ) &&
-                              _passwordController.text.trim().length >= 6) {
-                            //now update the backup credentials
-                            await lookForSettingBox().put(
-                              'backupEmail',
-                              _emailController.text.toUpperCase().trim(),
-                            );
-                            await lookForSettingBox().put(
-                              'backupPassword',
-                              _passwordController.text,
-                            );
-                            print(lookForSettingBox().get('backupEmail'));
-                            print(lookForSettingBox().get('backupPassword'));
-                            ref.invalidate(isBackupClicked);
-                            _emailController.text = '';
-                            _passwordController.text = '';
+                      Column(
+                        children: [
+                          Container(
+                            width: ref.watch(deviceSizeX).r * 0.5,
+                            child:
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    FocusScope.of(context).unfocus();
+                                    if (_emailController.text.contains(
+                                          "@gmail.com",
+                                        ) ==
+                                        false) {
+                                      notifier(
+                                        context: context,
+                                        message: "invalid Email",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    if (_passwordController.text.length < 6) {
+                                      notifier(
+                                        context: context,
+                                        message: "Password Too Short",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    setState(() {
+                                      nothingShouldWork = true;
+                                    });
+                                    ref.invalidate(loginForSignUp);
+                                    final List response = await ref
+                                        .read(
+                                          loginForSignUp({
+                                            "email": _emailController.text
+                                                .trim(),
+                                            "password":
+                                                _passwordController.text,
+                                            "user_type": "new",
+                                          }).future,
+                                        )
+                                        .timeout(
+                                          Duration(seconds: 6),
+                                          onTimeout: () => [
+                                            "404",
+                                            {"message": "Network Error!"},
+                                          ],
+                                        );
+                                    print(response);
+                                    try {
+                                      bool theMessageIamLookingFor =
+                                          response[1]["message"] ==
+                                          "user not found";
+                                      if (theMessageIamLookingFor) {
+                                        //now update the backup credentials
+                                        await lookForSettingBox().put(
+                                          'backupEmail',
+                                          _emailController.text
+                                              .toUpperCase()
+                                              .trim(),
+                                        );
+                                        await lookForSettingBox().put(
+                                          'backupPassword',
+                                          _passwordController.text,
+                                        );
+                                        _emailController.text = '';
+                                        _passwordController.text = '';
+                                        ref.invalidate(isBackupClicked);
+                                        ref
+                                                .read(successProvider.notifier)
+                                                .state =
+                                            true;
+                                      } else {
+                                        setState(() {
+                                          nothingShouldWork = false;
+                                        });
+                                        notifier(
+                                          atTop: true,
+                                          context: context,
+                                          message: (response[1]["message"])
+                                              .toString(),
+                                          bg: ref.read(foreGroundColor),
+                                          fg: ref.watch(backgroundColor),
+                                        );
 
-                            ref.read(successProvider.notifier).state = true;
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ref.watch(foreGroundColor),
-                          foregroundColor: ref.watch(lightMode)
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                        child: Text("Create Account"),
-                      ).animate().slideX(
-                        curve: Curves.decelerate,
-                        begin: -2,
-                        end: 0,
-                        duration: Duration(milliseconds: 500),
+                                        return;
+                                      }
+                                    } catch (error) {
+                                      router.go(
+                                        "/error",
+                                        extra: error.toString(),
+                                      );
+                                      return;
+                                    }
+                                    setState(() {
+                                      nothingShouldWork = false;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(),
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    foregroundColor: ref.watch(lightMode)
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                  child: Text("Create Account"),
+                                ).animate().slideX(
+                                  curve: Curves.decelerate,
+                                  begin: -2,
+                                  end: 0,
+                                  duration: Duration(milliseconds: 500),
+                                ),
+                          ),
+                          SizedBox(height: 5),
+                          //for logging in
+                          Container(
+                            width: ref.watch(deviceSizeX).r * 0.5,
+                            child:
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    FocusScope.of(context).unfocus();
+                                    if (_emailController.text.contains(
+                                          "@gmail.com",
+                                        ) ==
+                                        false) {
+                                      notifier(
+                                        context: context,
+                                        message: "invalid Email",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    if (_passwordController.text.length < 6) {
+                                      notifier(
+                                        context: context,
+                                        message: "Password Too Short",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    setState(() {
+                                      nothingShouldWork = true;
+                                    });
+                                    ref.invalidate(loginForSignUp);
+                                    final List response = await ref
+                                        .read(
+                                          loginForSignUp({
+                                            "email": _emailController.text
+                                                .trim(),
+                                            "password":
+                                                _passwordController.text,
+                                            "user_type": "old",
+                                          }).future,
+                                        )
+                                        .timeout(
+                                          Duration(seconds: 6),
+                                          onTimeout: () => [
+                                            "404",
+                                            {"message": "Network Error!"},
+                                          ],
+                                        );
+                                    print(response);
+                                    if (response[0] != 200) {
+                                      notifier(
+                                        context: context,
+                                        message: "${response[1]["message"]}",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                    } else {
+                                      //got a 200 response, it most likely to be something good
+                                      try {
+                                        final wordOfConfirmation =
+                                            response[1]["message"] == "success";
+                                        if (wordOfConfirmation) {
+                                          //add the auth_key to backend and keep the user active is is is still genuine
+                                          lookForSettingBox().put(
+                                            "auth_key",
+                                            response[1]["auth_key"],
+                                          );
+                                          //now update the backup credentials
+                                          await lookForSettingBox().put(
+                                            'backupEmail',
+                                            _emailController.text
+                                                .toUpperCase()
+                                                .trim(),
+                                          );
+                                          await lookForSettingBox().put(
+                                            'backupPassword',
+                                            _passwordController.text,
+                                          );
+
+                                          lookForSettingBox().put(
+                                            "username",
+                                            response[1]["username"],
+                                          );
+                                          ref.read(username.notifier).state =
+                                              response[1]["username"];
+                                          ref.invalidate(isBackupClicked);
+                                          _emailController.text = '';
+                                          _passwordController.text = '';
+
+                                          ref
+                                                  .read(
+                                                    successProvider.notifier,
+                                                  )
+                                                  .state =
+                                              true;
+                                        }
+                                      } catch (Error) {
+                                        notifier(
+                                          atTop: true,
+                                          context: context,
+                                          message: (response[1]["message"])
+                                              .toString(),
+                                          bg: ref.read(foreGroundColor),
+                                          fg: ref.watch(backgroundColor),
+                                        );
+                                      }
+                                    }
+
+                                    // print(response);
+                                    setState(() {
+                                      nothingShouldWork = false;
+                                    });
+                                  },
+
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(),
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    foregroundColor: ref.watch(lightMode)
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                  child: Text(
+                                    //backup data own
+                                    "Login",
+                                    style: TextStyle(letterSpacing: 2),
+                                  ),
+                                ).animate().slideX(
+                                  curve: Curves.decelerate,
+                                  begin: 2,
+                                  end: 0,
+                                  duration: Duration(milliseconds: 500),
+                                ),
+                          ),
+                        ],
                       ),
                       InkWell(
                         onTap: () {
@@ -672,6 +927,17 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                   ),
                   child: Column(
                     children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            nothingShouldWork = false;
+                          });
+                        },
+                        child: Text(
+                          "cancel",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
                       SizedBox(
                         height: 5,
                         width: double.infinity,
@@ -708,28 +974,31 @@ final backup = FutureProvider.family((ref, Map dataToSend) async {
   String username = await lookForSettingBox().get("username") == null
       ? "user"
       : await lookForSettingBox().get("username");
-  String password = await lookForSettingBox().get("backupPassword");
+  // String password = await lookForSettingBox().get("backupPassword"); //since i am using auth_key, there is no need for password in the query param, there is no need for password in the query param
+  String auth_key = await lookForSettingBox().get("auth_key");
   final sendRequest = await http.post(
     url,
     headers: {"Content-Type": "application/json"},
     body: jsonEncode({
       "email": email,
       "username": username,
-      "password": password,
+      // "password": password,
+      "auth_key": auth_key,
       "history": dataToSend["history"],
       "currentData": dataToSend["currentData"],
     }),
   );
   final response = await jsonDecode(sendRequest.body);
-  // print(sendRequest.statusCode);
-  // print(response);
   print(sendRequest.statusCode);
+  // print(response);
+  // print(sendRequest.statusCode);
+
   if (sendRequest.statusCode != 404) {
     return [sendRequest.statusCode, response];
   } else {
     return [
       404,
-      {"message": "unable to backup"},
+      {"message": "Network Error!"},
     ];
   }
 });
@@ -746,7 +1015,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-  bool plainPassword = false;
+  bool hidePassword = true;
   bool nothingShouldWork = false;
   TextEditingController retreiveConfirmCodeController = TextEditingController();
 
@@ -930,10 +1199,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                     ),
                                   ),
                                 );
-                                print([
-                                  confirmCode,
-                                  retreiveConfirmCodeController.text,
-                                ]);
+
                                 if (confirmCode !=
                                     retreiveConfirmCodeController.text)
                                   return;
@@ -944,7 +1210,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                 });
                                 print("...start...");
 
-                                ref.invalidate(retrieveDataFromBackend);
+                                ref.invalidate(retrieveDataFromBackend); //brb
                                 final dataToShow = await ref
                                     .read(retrieveDataFromBackend.future)
                                     .timeout(
@@ -969,6 +1235,26 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                         "${dataToShow[0]} ${dataToShow[1]['message']}",
                                     duration: Duration(seconds: 3),
                                   );
+                                } else if (dataToShow[0] == 401) {
+                                  await lookForSettingBox().delete(
+                                    "backupEmail",
+                                  );
+                                  await lookForSettingBox().delete(
+                                    "backupPassword",
+                                  );
+                                  lookForSettingBox().delete("LastBackupDate");
+                                  lookForSettingBox().delete(
+                                    "LastRetreiveData",
+                                  );
+
+                                  notifier(
+                                    context: context,
+                                    message:
+                                        "dirty token dectected\nplease relogin",
+                                    bg: Colors.red,
+                                    fg: Colors.white,
+                                    atTop: true,
+                                  );
                                 } else if (dataToShow[1]?["message"] != null) {
                                   //if message key is == success, perform update to the local db
                                   if (dataToShow[1]["message"] == "success") {
@@ -991,7 +1277,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                     }
                                     //sometimes the history might not have the "data" key cos its empty, if so, just return a message saying no prior backup found
                                     try {
-                                      dataToShow[1]["history"]["data"];
+                                      dataToShow[1]["history"];
                                     } catch (error) {
                                       ElegantNotification(
                                         background: ref.read(foreGroundColor),
@@ -1012,7 +1298,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       return;
                                     }
                                     //since message is success, first clear the db so we can update it
-                                    print(dataToShow[1]["history"]["data"]);
+                                    print(dataToShow[1]["history"]);
                                     final locator =
                                         await CustomDbClass.instance.getter;
 
@@ -1033,18 +1319,22 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                     );
                                     //Now update it
                                     //update the past lectures
-                                    for (Map i
-                                        in dataToShow[1]["history"]["data"]) {
+                                    for (Map i in dataToShow[1]["history"]) {
                                       insertIntoPastLectureTrackers(
                                         dbLocator: locator,
                                         title: i["title"],
                                         date: i["date"],
                                         accomplised: i["accomplised"],
                                       );
+                                      ref
+                                          .read(pastLectureSQLprovider.notifier)
+                                          .update((State) {
+                                            return [...State, i];
+                                          });
                                     }
+                                    print(ref.read(pastLectureSQLprovider));
                                     //update the main table
-                                    for (Map i
-                                        in dataToShow[1]["currentData"]["data"])
+                                    for (Map i in dataToShow[1]["currentData"])
                                       insertIntoMainLectures(
                                         dbLocator: locator,
                                         title: i["title"],
@@ -1064,6 +1354,25 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       lookForSettingBox().put(
                                         "LastRetreiveData",
                                         "${DateFormat.yMMMEd().format(DateTime.now())}, ${TimeOfDay.now().hour} : ${TimeOfDay.now().minute < 10 ? "0${TimeOfDay.now().minute}" : TimeOfDay.now().minute}",
+                                      );
+
+                                      lookForSettingBox().put(
+                                        "retreiveBackupLocalLog",
+                                        {
+                                          "retreive": [
+                                            ...lookForSettingBox().get(
+                                                  "retreiveBackupLocalLog",
+                                                )?["retreive"] ??
+                                                [],
+                                            "${DateFormat.yMMMEd().format(DateTime.now())}, ${TimeOfDay.now().hour} : ${TimeOfDay.now().minute < 10 ? "0${TimeOfDay.now().minute}" : TimeOfDay.now().minute}",
+                                          ],
+                                          "backup": [
+                                            ...lookForSettingBox().get(
+                                                  "retreiveBackupLocalLog",
+                                                )?["backup"] ??
+                                                [],
+                                          ],
+                                        },
                                       );
                                     }
                                   } else {
@@ -1273,7 +1582,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
 
                     children: [
                       Text(
-                        "Create Account",
+                        "WELCOME",
                         style: TextStyle(
                           color: ref.watch(foreGroundColor),
                           fontSize: 20.sp,
@@ -1313,6 +1622,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                           return;
                         },
                         prefix: null,
+                        onchanged: null,
                       ).animate().slideX(
                         curve: Curves.decelerate,
                         begin: -2,
@@ -1346,15 +1656,15 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                               // ref.read(_comfirmpasswordOpen.notifier).state =
                               //     true;
                               setState(() {
-                                if (plainPassword) {
-                                  plainPassword = false;
+                                if (hidePassword) {
+                                  hidePassword = false;
                                 } else {
-                                  plainPassword = true;
+                                  hidePassword = true;
                                 }
                               });
                             },
                             child: Icon(
-                              plainPassword
+                              hidePassword
                                   ? Icons.visibility_off
                                   : Icons.visibility,
                               color: ref.watch(lightMode)
@@ -1364,7 +1674,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                           ),
                           controller: _passwordController,
                           hint: "Password",
-                          isPassword: plainPassword,
+                          isPassword: hidePassword,
                           validator: (value) {
                             if (_passwordController.text.trim().isEmpty) {
                               ElegantNotification(
@@ -1390,6 +1700,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                             return;
                           },
                           ref: ref,
+                          onchanged: null,
                         ),
                         // .animate().slideX(
                         //   curve: Curves.decelerate,
@@ -1399,43 +1710,261 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                         //   delay: Duration(milliseconds: 200),
                         // ),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          _formKey.currentState!.validate();
-                          if (_emailController.text.toLowerCase().contains(
-                                "@gmail.com",
-                              ) &&
-                              _passwordController.text.trim().length >= 6) {
-                            //now update the backup credentials
-                            await lookForSettingBox().put(
-                              'backupEmail',
-                              _emailController.text.toUpperCase().trim(),
-                            );
-                            await lookForSettingBox().put(
-                              'backupPassword',
-                              _passwordController.text,
-                            );
-                            print(lookForSettingBox().get('backupEmail'));
-                            print(lookForSettingBox().get('backupPassword'));
-                            ref.invalidate(isBackupClicked);
-                            _emailController.text = '';
-                            _passwordController.text = '';
+                      Column(
+                        children: [
+                          Container(
+                            width: ref.watch(deviceSizeX).r * 0.5,
+                            child:
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    FocusScope.of(context).unfocus();
+                                    if (_emailController.text.contains(
+                                          "@gmail.com",
+                                        ) ==
+                                        false) {
+                                      notifier(
+                                        context: context,
+                                        message: "invalid Email",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    if (_passwordController.text.length < 6) {
+                                      notifier(
+                                        context: context,
+                                        message: "Password Too Short",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    setState(() {
+                                      nothingShouldWork = true;
+                                    });
+                                    ref.invalidate(loginForSignUp);
+                                    final List response = await ref
+                                        .read(
+                                          loginForSignUp({
+                                            "email": _emailController.text
+                                                .trim(),
+                                            "password":
+                                                _passwordController.text,
+                                            "user_type": "new",
+                                          }).future,
+                                        )
+                                        .timeout(
+                                          Duration(seconds: 6),
+                                          onTimeout: () => [
+                                            "404",
+                                            {"message": "Network Error!"},
+                                          ],
+                                        );
+                                    print(response);
+                                    try {
+                                      bool theMessageIamLookingFor =
+                                          response[1]["message"] ==
+                                          "user not found";
+                                      if (theMessageIamLookingFor) {
+                                        //now update the backup credentials
+                                        await lookForSettingBox().put(
+                                          'backupEmail',
+                                          _emailController.text
+                                              .toUpperCase()
+                                              .trim(),
+                                        );
+                                        await lookForSettingBox().put(
+                                          'backupPassword',
+                                          _passwordController.text,
+                                        );
+                                        _emailController.text = '';
+                                        _passwordController.text = '';
+                                        ref.invalidate(isRestoreDataClicked);
 
-                            ref.read(successProvider.notifier).state = true;
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ref.watch(foreGroundColor),
-                          foregroundColor: ref.watch(lightMode)
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                        child: Text("Create Account"),
-                      ).animate().slideX(
-                        curve: Curves.decelerate,
-                        begin: -2,
-                        end: 0,
-                        duration: Duration(milliseconds: 500),
+                                        ref
+                                                .read(successProvider.notifier)
+                                                .state =
+                                            true;
+                                        return;
+                                      } else {
+                                        setState(() {
+                                          nothingShouldWork = false;
+                                        });
+                                        notifier(
+                                          atTop: true,
+                                          context: context,
+                                          message: (response[1]["message"])
+                                              .toString(),
+                                          bg: ref.read(foreGroundColor),
+                                          fg: ref.watch(backgroundColor),
+                                        );
+
+                                        return;
+                                      }
+                                    } catch (error) {
+                                      router.go(
+                                        "/error",
+                                        extra: error.toString(),
+                                      );
+                                      return;
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(),
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    foregroundColor: ref.watch(lightMode)
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                  child: Text("Create Account"),
+                                ).animate().slideX(
+                                  curve: Curves.decelerate,
+                                  begin: -2,
+                                  end: 0,
+                                  duration: Duration(milliseconds: 500),
+                                ),
+                          ),
+                          SizedBox(height: 5),
+                          //for logging in
+                          Container(
+                            width: ref.watch(deviceSizeX).r * 0.5,
+                            child:
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    FocusScope.of(context).unfocus();
+                                    if (_emailController.text.contains(
+                                          "@gmail.com",
+                                        ) ==
+                                        false) {
+                                      notifier(
+                                        context: context,
+                                        message: "invalid Email",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    if (_passwordController.text.length < 6) {
+                                      notifier(
+                                        context: context,
+                                        message: "Password Too Short",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                      return;
+                                    }
+                                    setState(() {
+                                      nothingShouldWork = true;
+                                    });
+                                    ref.invalidate(loginForSignUp);
+                                    final List response = await ref
+                                        .read(
+                                          loginForSignUp({
+                                            "email": _emailController.text
+                                                .trim(),
+                                            "password":
+                                                _passwordController.text,
+                                            "user_type": "old",
+                                          }).future,
+                                        )
+                                        .timeout(
+                                          Duration(seconds: 6),
+                                          onTimeout: () => [
+                                            "404",
+                                            {"message": "Network Error!"},
+                                          ],
+                                        );
+                                    print(response);
+                                    if (response[0] != 200) {
+                                      notifier(
+                                        context: context,
+                                        message: "${response[1]["message"]}",
+                                        bg: Colors.red,
+                                        fg: Colors.white,
+                                        atTop: true,
+                                      );
+                                    } else {
+                                      //got a 200 response, it most likely to be something good
+                                      try {
+                                        final wordOfConfirmation =
+                                            response[1]["message"] == "success";
+                                        if (wordOfConfirmation) {
+                                          //add the auth_key to backend and keep the user active is is is still genuine
+                                          lookForSettingBox().put(
+                                            "auth_key",
+                                            response[1]["auth_key"],
+                                          );
+                                          //now update the backup credentials
+                                          await lookForSettingBox().put(
+                                            'backupEmail',
+                                            _emailController.text
+                                                .toUpperCase()
+                                                .trim(),
+                                          );
+                                          await lookForSettingBox().put(
+                                            'backupPassword',
+                                            _passwordController.text,
+                                          );
+
+                                          lookForSettingBox().put(
+                                            "username",
+                                            response[1]["username"],
+                                          );
+                                          ref.read(username.notifier).state =
+                                              response[1]["username"];
+                                          _emailController.text = '';
+                                          _passwordController.text = '';
+
+                                          ref.invalidate(isRestoreDataClicked);
+                                          ref
+                                                  .read(
+                                                    successProvider.notifier,
+                                                  )
+                                                  .state =
+                                              true;
+                                        }
+                                      } catch (Error) {
+                                        notifier(
+                                          atTop: true,
+                                          context: context,
+                                          message: (response[1]["message"])
+                                              .toString(),
+                                          bg: ref.read(foreGroundColor),
+                                          fg: ref.watch(backgroundColor),
+                                        );
+                                      }
+                                    }
+
+                                    // print(response);
+                                    setState(() {
+                                      nothingShouldWork = false;
+                                    });
+                                  },
+
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(),
+                                    backgroundColor: ref.watch(foreGroundColor),
+                                    foregroundColor: ref.watch(lightMode)
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                  child: Text(
+                                    //retreive data own
+                                    "Login",
+                                    style: TextStyle(letterSpacing: 2),
+                                  ),
+                                ).animate().slideX(
+                                  curve: Curves.decelerate,
+                                  begin: 2,
+                                  end: 0,
+                                  duration: Duration(milliseconds: 500),
+                                ),
+                          ),
+                        ],
                       ),
                       InkWell(
                         onTap: () {
@@ -1487,6 +2016,17 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                   ),
                   child: Column(
                     children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            nothingShouldWork = false;
+                          });
+                        },
+                        child: Text(
+                          "cancel",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
                       SizedBox(
                         height: 5,
                         width: double.infinity,
@@ -1511,15 +2051,39 @@ final isRestoreDataClicked = StateProvider<bool>((ref) {
 
 final retrieveDataFromBackend = FutureProvider((ref) async {
   String email = await lookForSettingBox().get("backupEmail");
-  String password = await lookForSettingBox().get("backupPassword");
-  final url = Uri.parse(
-    '${ref.read(domain)}viewData/json/?email=${email}&password=${password}',
+  // String password = await lookForSettingBox().get("backupPassword"); //since i am using auth_key, its useless
+  String auth_key = await lookForSettingBox().get("auth_key");
+  final url = Uri.parse('${ref.read(domain)}viewData/json/?email=${email}');
+  final sendRequest = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"auth_key": auth_key}),
   );
-  final sendRequest = await http.get(url);
+
   final responseDecoded = await jsonDecode(sendRequest.body);
+  print(responseDecoded);
+
   return [sendRequest.statusCode, responseDecoded];
 });
 
 final domain = StateProvider((ref) {
   return "https://lecture-tracker-omega.vercel.app/";
+});
+
+final loginForSignUp = FutureProvider.family((ref, Map dataToUse) async {
+  final url = Uri.parse("${ref.read(domain)}login/json/");
+  print(url);
+  final request = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: await jsonEncode({
+      "email": dataToUse["email"],
+      "password": dataToUse["password"],
+      "user_type": dataToUse["user_type"],
+      "username": ref.read(username),
+    }),
+  );
+  final responseDecode = await jsonDecode(request.body);
+
+  return [request.statusCode, responseDecode];
 });

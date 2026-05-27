@@ -231,6 +231,7 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
                         /// Insight Card
                         Container(
                           padding: const EdgeInsets.all(16),
+                          margin: EdgeInsets.only(bottom: 90),
                           decoration: _cardDecoration(),
                           child: Row(
                             children: [

@@ -5,8 +5,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lecture_tracker/main.dart';
+import 'package:lecture_tracker/screens/aichat.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:http/http.dart' as http;
@@ -19,16 +21,24 @@ class Analysis extends ConsumerStatefulWidget {
 }
 
 class AnalysisState extends ConsumerState<Analysis> {
+  late final ScrollController aiScrollController;
+
+  @override
   void initState() {
     super.initState();
+    aiScrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    aiScrollController.dispose();
+    super.dispose();
   }
 
   bool toggleButtonValue = false;
   UniqueKey refreshAiProvider = UniqueKey();
   @override
   Widget build(BuildContext context) {
-    ref.invalidate(aiAnayzer);
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
@@ -77,20 +87,7 @@ class AnalysisState extends ConsumerState<Analysis> {
                   ),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "ANALYTIS",
-                    style: TextStyle(
-                      fontSize: 28.sp.clamp(0, 24),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                      color: ref.watch(foreGroundColor),
-                    ),
-                  ),
-                ],
-              ),
+
               // everything about current lecture analysis -under maybe will i do this.
               Row(),
 
@@ -99,7 +96,6 @@ class AnalysisState extends ConsumerState<Analysis> {
                 future: Future(() async {
                   // await Future.delayed(Duration(seconds: 2)); // testing what the connectionstate will show
                   final pastLecture = ref.read(pastLectureSQLprovider);
-                  print(pastLecture);
 
                   ///this is if pastlecture is empty
                   if (pastLecture.length == 0) {
@@ -255,7 +251,6 @@ class AnalysisState extends ConsumerState<Analysis> {
                     [0, 0, 0],
                   ];
 
-                  // print(dataPerDayOfThWeek);
                   return [
                     missedLectureCounter,
                     attendlectureCounter,
@@ -267,11 +262,70 @@ class AnalysisState extends ConsumerState<Analysis> {
                   if (snapshot.hasData) {
                     return Expanded(
                       child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 14.h,
+                        ),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            //3 cards showing number of lecture missed, attended and nullfied and a pie chart right underneath it to visualize it
+                            Container(
+                              width: ref.watch(deviceSizeX).w,
+                              padding: EdgeInsets.all(18.r),
+                              decoration: BoxDecoration(
+                                color: ref.watch(lightMode)
+                                    ? Colors.white
+                                    : Colors.grey[900],
+                                borderRadius: BorderRadius.circular(18.r),
+                                border: Border.all(
+                                  color: ref
+                                      .watch(foreGroundColor)
+                                      .withAlpha(46),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 12,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      "Lecture Analysis",
+                                      style: TextStyle(
+                                        fontSize: 20.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: ref.watch(foreGroundColor),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10.h),
+                                  Text(
+                                    snapshot.data[0] > snapshot.data[1]
+                                        ? "WARNING!!! MISSED LECTURE IS GREATER THAN ATTENDED LECTURES!"
+                                        : "Summary of your attendance history with AI-driven insights and daily trends.",
+
+                                    style: TextStyle(
+                                      wordSpacing: 1.2,
+                                      fontSize: 14.sp,
+                                      color: snapshot.data[0] > snapshot.data[1]
+                                          ? Colors.red
+                                          : ref
+                                                .watch(foreGroundColor)
+                                                .withAlpha(230),
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20.h),
                             Row(
-                              key: UniqueKey(),
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 pieContainer(
@@ -279,36 +333,30 @@ class AnalysisState extends ConsumerState<Analysis> {
                                   color: Colors.red,
                                   child: Center(
                                     child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Expanded(
-                                          child: Center(
-                                            child: AnimatedTextKit(
-                                              pause: Duration(seconds: 2),
-                                              totalRepeatCount: 1,
-                                              animatedTexts: [
-                                                ScrambleAnimatedText(
-                                                  snapshot.data[0].toString(),
-                                                  textStyle: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 30.sp.clamp(
-                                                      20,
-                                                      40,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                        AnimatedTextKit(
+                                          pause: Duration(seconds: 2),
+                                          totalRepeatCount: 1,
+                                          animatedTexts: [
+                                            ScrambleAnimatedText(
+                                              snapshot.data[0].toString(),
+                                              textStyle: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 30.sp.clamp(20, 40),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        Padding(
-                                          padding: EdgeInsetsGeometry.all(5),
-                                          child: Text(
-                                            "MISSED",
-                                            style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: ref.watch(backgroundColor),
-                                            ),
+                                        SizedBox(height: 8.h),
+                                        Text(
+                                          "MISSED",
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            color: ref.watch(backgroundColor),
+                                            letterSpacing: 0.4,
                                           ),
                                         ),
                                       ],
@@ -320,36 +368,30 @@ class AnalysisState extends ConsumerState<Analysis> {
                                   color: Colors.green,
                                   child: Center(
                                     child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Expanded(
-                                          child: Center(
-                                            child: AnimatedTextKit(
-                                              pause: Duration(seconds: 2),
-                                              totalRepeatCount: 1,
-                                              animatedTexts: [
-                                                ScrambleAnimatedText(
-                                                  snapshot.data[1].toString(),
-                                                  textStyle: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 30.sp.clamp(
-                                                      20,
-                                                      40,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                        AnimatedTextKit(
+                                          pause: Duration(seconds: 2),
+                                          totalRepeatCount: 1,
+                                          animatedTexts: [
+                                            ScrambleAnimatedText(
+                                              snapshot.data[1].toString(),
+                                              textStyle: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 30.sp.clamp(20, 40),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        Padding(
-                                          padding: EdgeInsetsGeometry.all(5),
-                                          child: Text(
-                                            "ATTEND",
-                                            style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: ref.watch(backgroundColor),
-                                            ),
+                                        SizedBox(height: 8.h),
+                                        Text(
+                                          "ATTENDED",
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            color: ref.watch(backgroundColor),
+                                            letterSpacing: 0.4,
                                           ),
                                         ),
                                       ],
@@ -361,36 +403,30 @@ class AnalysisState extends ConsumerState<Analysis> {
                                   color: Colors.blueAccent,
                                   child: Center(
                                     child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Expanded(
-                                          child: Center(
-                                            child: AnimatedTextKit(
-                                              pause: Duration(seconds: 2),
-                                              totalRepeatCount: 1,
-                                              animatedTexts: [
-                                                ScrambleAnimatedText(
-                                                  snapshot.data[2].toString(),
-                                                  textStyle: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 30.sp.clamp(
-                                                      20,
-                                                      40,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                        AnimatedTextKit(
+                                          pause: Duration(seconds: 2),
+                                          totalRepeatCount: 1,
+                                          animatedTexts: [
+                                            ScrambleAnimatedText(
+                                              snapshot.data[2].toString(),
+                                              textStyle: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 30.sp.clamp(20, 40),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        Padding(
-                                          padding: EdgeInsetsGeometry.all(5),
-                                          child: Text(
-                                            "NULLIFIED",
-                                            style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: Colors.white,
-                                            ),
+                                        SizedBox(height: 8.h),
+                                        Text(
+                                          "NULLIFIED",
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            color: Colors.white,
+                                            letterSpacing: 0.4,
                                           ),
                                         ),
                                       ],
@@ -399,273 +435,553 @@ class AnalysisState extends ConsumerState<Analysis> {
                                 ),
                               ],
                             ),
-
-                            //bar chart showing analysis per day (available days in the history sql) and a line chart showing analysis per week (finding repetition in days) right underneath it
-                            Row(
-                              children: [
-                                Container(
-                                  width: ref.watch(deviceSizeX).w,
-                                  margin: EdgeInsets.symmetric(vertical: 30),
-                                  height: 300.h,
-                                  child: BarChart(
-                                    //the barchart itself does not do much, it the barchart data param in it that do all the heavy work
-                                    // swapAnimationDuration: Duration(seconds: 1),
-                                    // swapAnimationCurve: Curves.ease,
-                                    BarChartData(
-                                      //everythig aside the bargroups handle the design of the exterior
-                                      backgroundColor: Colors.transparent,
-
-                                      gridData: FlGridData(show: false),
-                                      borderData: FlBorderData(show: false),
-
-                                      barGroups: List.generate(
-                                        (snapshot.data[3] as List).length,
-                                        (index) {
-                                          return BarChartGroupData(
-                                            groupVertically: true,
-                                            x: index,
-                                            barRods: [
-                                              //missed
-                                              BarChartRodData(
-                                                width: 38.w,
-
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.zero,
-                                                  topRight: Radius.zero,
-                                                  bottomLeft: Radius.circular(
-                                                    3,
-                                                  ),
-                                                  bottomRight: Radius.circular(
-                                                    3,
-                                                  ),
-                                                ),
-                                                color: Colors.red,
-                                                fromY: 0,
-                                                toY: snapshot.data[3][index][0],
-                                              ),
-                                              //attend
-                                              BarChartRodData(
-                                                width: 38.w,
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.zero,
-                                                ),
-                                                color: Colors.green,
-                                                fromY:
-                                                    snapshot.data[3][index][0],
-                                                toY:
-                                                    snapshot.data[3][index][0] +
-                                                    snapshot.data[3][index][1],
-                                              ),
-                                              BarChartRodData(
-                                                width: 38.w,
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(3),
-                                                  topRight: Radius.circular(3),
-                                                  bottomLeft: Radius.zero,
-                                                  bottomRight: Radius.zero,
-                                                ),
-                                                color: Colors.blueAccent,
-                                                fromY:
-                                                    snapshot.data[3][index][0] +
-                                                    snapshot.data[3][index][1],
-                                                toY:
-                                                    snapshot.data[3][index][0] +
-                                                    snapshot.data[3][index][1] +
-                                                    snapshot.data[3][index][2],
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                      titlesData: FlTitlesData(
-                                        show: true,
-                                        bottomTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                            showTitles: true,
-                                            getTitlesWidget: (value, meta) =>
-                                                Text(
-                                                  [
-                                                    "SUN",
-                                                    "MON",
-                                                    "TUE",
-                                                    "WED",
-                                                    "THU",
-                                                    "FRI",
-                                                    "SAT",
-                                                  ][value.toInt()],
-                                                  style: TextStyle(
-                                                    color: ref.watch(
-                                                      foreGroundColor,
-                                                    ),
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10.sp.clamp(
-                                                      0,
-                                                      15,
-                                                    ),
-                                                  ),
-                                                ),
-                                          ),
-                                        ),
-                                        topTitles: AxisTitles(),
-                                        rightTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                            interval:
-                                                (snapshot.data[0] +
-                                                    snapshot.data[1] +
-                                                    snapshot.data[2]) /
-                                                4,
-                                            showTitles: true,
-                                            getTitlesWidget: (value, meta) =>
-                                                Text(
-                                                  (value).toString().split(
-                                                    ".",
-                                                  )[0],
-                                                  style: TextStyle(
-                                                    color: ref.watch(
-                                                      foreGroundColor,
-                                                    ),
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10.sp.clamp(
-                                                      0,
-                                                      15,
-                                                    ),
-                                                  ),
-                                                ),
-                                          ),
-                                        ),
-                                        leftTitles: AxisTitles(),
-                                      ),
+                            SizedBox(height: 20.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(18.r),
+                              decoration: BoxDecoration(
+                                color: ref.watch(lightMode)
+                                    ? Colors.white
+                                    : Colors.grey[900],
+                                borderRadius: BorderRadius.circular(18.r),
+                                border: Border.all(
+                                  color: ref
+                                      .watch(foreGroundColor)
+                                      .withAlpha(45),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Weekly Trend",
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: ref.watch(foreGroundColor),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            //end of line container for ai analysis
-                            Column(
-                              children: [
-                                Text(
-                                  "AI ANALYSIS",
-                                  style: TextStyle(
-                                    fontSize: 20.sp,
-                                    color: ref.watch(foreGroundColor),
-                                  ),
-                                ),
-
-                                FutureBuilder(
-                                  key: refreshAiProvider,
-                                  future: Future(() async {
-                                    final callAi = await ref
-                                        .refresh(aiAnayzer.future)
-                                        .timeout(
-                                          Duration(seconds: 10),
-                                          onTimeout: () {
-                                            return [
-                                              404,
-                                              {"message": "Network Issue"},
-                                            ];
+                                  SizedBox(height: 14.h),
+                                  //bar chart
+                                  SizedBox(
+                                    height: 320.h,
+                                    width: double.infinity,
+                                    child: BarChart(
+                                      BarChartData(
+                                        backgroundColor: Colors.transparent,
+                                        gridData: FlGridData(show: false),
+                                        borderData: FlBorderData(show: false),
+                                        barGroups: List.generate(
+                                          (snapshot.data[3] as List).length,
+                                          (index) {
+                                            return BarChartGroupData(
+                                              barsSpace: 10,
+                                              groupVertically: false,
+                                              x: index,
+                                              barRods: [
+                                                BarChartRodData(
+                                                  width: 25.w,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                        topLeft: Radius.zero,
+                                                        topRight: Radius.zero,
+                                                        bottomLeft:
+                                                            Radius.circular(3),
+                                                        bottomRight:
+                                                            Radius.circular(3),
+                                                      ),
+                                                  color: Colors.red,
+                                                  fromY: 0,
+                                                  toY: snapshot
+                                                      .data[3][index][0],
+                                                ),
+                                                BarChartRodData(
+                                                  width: 25.w,
+                                                  borderRadius:
+                                                      BorderRadius.zero,
+                                                  color: Colors.green,
+                                                  fromY: 0,
+                                                  toY: snapshot
+                                                      .data[3][index][1],
+                                                ),
+                                                BarChartRodData(
+                                                  width: 25.w,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(3),
+                                                        topRight:
+                                                            Radius.circular(3),
+                                                      ),
+                                                  color: Colors.blueAccent,
+                                                  fromY: 0,
+                                                  toY: snapshot
+                                                      .data[3][index][2],
+                                                ),
+                                              ],
+                                            );
                                           },
-                                        );
-                                    return callAi;
-                                  }),
-                                  builder: (BuildContext, innerSnapshot) {
-                                    if (innerSnapshot.hasData) {
-                                      print(innerSnapshot.data?[1]);
-                                      if (innerSnapshot.data?[0] == 404) {
-                                        return IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              refreshAiProvider = UniqueKey();
-                                            });
-                                          },
-                                          icon: Icon(
-                                            Icons.refresh,
-                                            color: ref.watch(foreGroundColor),
-                                          ),
-                                        );
-                                      }
-                                      return Container(
-                                        padding: EdgeInsets.all(20),
-                                        child: Text(
-                                          "${innerSnapshot.data?[1]?["message"]} \n\nStatus code: ${snapshot.data![0]}",
-
-                                          style: TextStyle(
-                                            fontSize: 16.sp,
-                                            color: ref.watch(foreGroundColor),
-                                          ),
                                         ),
-                                      );
-                                    } else if (innerSnapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return SizedBox(
-                                        width: 80.w,
-
-                                        child: Container(
-                                          clipBehavior: Clip.hardEdge,
-                                          margin: EdgeInsets.all(7),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(10),
+                                        titlesData: FlTitlesData(
+                                          show: true,
+                                          topTitles: AxisTitles(),
+                                          bottomTitles: AxisTitles(
+                                            sideTitles: SideTitles(
+                                              showTitles: true,
+                                              getTitlesWidget: (value, meta) =>
+                                                  Text(
+                                                    [
+                                                      "SUN",
+                                                      "MON",
+                                                      "TUE",
+                                                      "WED",
+                                                      "THU",
+                                                      "FRI",
+                                                      "SAT",
+                                                    ][value.toInt()],
+                                                    style: TextStyle(
+                                                      color: ref.watch(
+                                                        foreGroundColor,
+                                                      ),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 10.sp.clamp(
+                                                        0,
+                                                        15,
+                                                      ),
+                                                    ),
+                                                  ),
                                             ),
                                           ),
-                                          child: LinearProgressIndicator(
-                                            color: ref.watch(foreGroundColor),
-                                          ),
+                                          leftTitles: AxisTitles(),
+                                          // leftTitles: AxisTitles(
+                                          //   sideTitles: SideTitles(
+                                          //     interval:
+                                          //         (snapshot.data[0] +
+                                          //             snapshot.data[1] +
+                                          //             snapshot.data[2]) /
+                                          //         4,
+                                          //     showTitles: true,
+                                          //     getTitlesWidget:
+                                          //         (value, meta) => Text(
+                                          //           (value).toString().split(
+                                          //             ".",
+                                          //           )[0],
+                                          //           style: TextStyle(
+                                          //             color: ref.watch(
+                                          //               foreGroundColor,
+                                          //             ),
+                                          //             fontWeight:
+                                          //                 FontWeight.bold,
+                                          //             fontSize: 10.sp.clamp(
+                                          //               0,
+                                          //               15,
+                                          //             ),
+                                          //           ),
+                                          //         ),
+                                          //   ),
+                                          // ),
+                                          rightTitles: AxisTitles(),
                                         ),
-                                      );
-                                    } else {
-                                      return Text(
-                                        "404",
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          color: ref.watch(foreGroundColor),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                                Container(
-                                  key: UniqueKey(),
-                                  width: ref.watch(deviceSizeX) * 0.5.w,
-                                  margin: EdgeInsets.symmetric(vertical: 15),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: ref.watch(
-                                        foreGroundColor,
                                       ),
-                                      foregroundColor: ref.watch(
-                                        backgroundColor,
-                                      ),
-                                      padding: EdgeInsets.all(15),
-                                      shadowColor: Colors.red,
-                                      elevation: 3,
-                                      side: BorderSide(
-                                        color: ref.watch(lightMode)
-                                            ? Colors.black12
-                                            : Colors.white38,
-                                        strokeAlign: 20,
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      notifier(
-                                        context: context,
-                                        message: "coming soon",
-                                        bg: ref.watch(foreGroundColor),
-                                        fg: ref.read(backgroundColor),
-                                      );
-                                    },
-                                    child: Text(
-                                      "Continue to chat",
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
-                                ).animate().shake(
-                                  delay: Duration(milliseconds: 200),
-                                  duration: Duration(seconds: 1),
-                                  hz: 8,
-                                  offset: Offset(10, 1),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(18.r),
+                              decoration: BoxDecoration(
+                                color: ref.watch(lightMode)
+                                    ? Colors.white.withOpacity(0.95)
+                                    : Colors.grey[900],
+                                borderRadius: BorderRadius.circular(18.r),
+                                border: Border.all(
+                                  color: ref
+                                      .watch(foreGroundColor)
+                                      .withOpacity(0.12),
                                 ),
-                              ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "AI Analysis",
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: ref.watch(foreGroundColor),
+                                    ),
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  Container(
+                                    height: 260.h,
+                                    decoration: BoxDecoration(
+                                      color: ref.watch(lightMode)
+                                          ? Colors.grey[100]
+                                          : Colors.black26,
+                                      borderRadius: BorderRadius.circular(14.r),
+                                      border: Border.all(
+                                        color: Colors.transparent,
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(14.r),
+                                      child: FutureBuilder(
+                                        key: refreshAiProvider,
+                                        future: Future(() async {
+                                          List callAi = [];
+                                          //check if the user have signed in their login credentials
+                                          if (lookForSettingBox().get(
+                                                    "backupEmail",
+                                                  ) ==
+                                                  null ||
+                                              lookForSettingBox().get(
+                                                    "backupPassword",
+                                                  ) ==
+                                                  null) {
+                                            return [
+                                              400,
+                                              {
+                                                "message":
+                                                    "No login Credentials was found therefore ai response cannot be generated\n\nHint: Head to setting and click on backup data or retore data",
+                                              },
+                                            ];
+                                          }
+                                          //check if canContinueToAiChat is true - if yes, it mean user just came back from aichat so dont recall the aianalyzer
+                                          if (ref.read(canContinueToAiChat) ==
+                                              true) {
+                                            callAi = await ref.read(
+                                              aiAnayzer.future,
+                                            );
+                                          } else {
+                                            ref.invalidate(aiAnayzer);
+                                            callAi = await ref
+                                                .refresh(aiAnayzer.future)
+                                                .timeout(
+                                                  Duration(seconds: 10),
+                                                  onTimeout: () {
+                                                    return [
+                                                      404,
+                                                      {
+                                                        "message":
+                                                            "Network Issue",
+                                                      },
+                                                    ];
+                                                  },
+                                                );
+                                          }
+
+                                          //user have not login their email
+                                          if (callAi[0] == 400 &&
+                                              callAi[0]["message"] ==
+                                                  "user not found") {
+                                            return [
+                                              400,
+                                              {
+                                                "message":
+                                                    "No login Credentials was found therefore ai response cannot be generated\n\nHint: Head to setting and click on backup data or retore data",
+                                              },
+                                            ];
+                                          }
+                                          // incorrect password
+                                          else if (callAi[0] == 401) {
+                                            return [
+                                              401,
+                                              {
+                                                "message":
+                                                    "The password in the login credentials in your backup is not correct therefore ai response cannot be generated\n\nHint: Head to setting and click on backup / restore config to reset your password",
+                                              },
+                                            ];
+                                          }
+                                          return callAi;
+                                        }),
+                                        builder:
+                                            (
+                                              BuildContext innerContext,
+                                              AsyncSnapshot innerSnapshot,
+                                            ) {
+                                              print(innerSnapshot.data);
+
+                                              if (innerSnapshot.hasData) {
+                                                if (innerSnapshot.data?[0] ==
+                                                    404) {
+                                                  return Center(
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          "network issue, could not load feedback.",
+                                                          style: TextStyle(
+                                                            color: ref.watch(
+                                                              foreGroundColor,
+                                                            ),
+                                                            fontSize: 14.sp,
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 10.h),
+                                                        IconButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              refreshAiProvider =
+                                                                  UniqueKey();
+                                                            });
+                                                            ref.invalidate(
+                                                              canContinueToAiChat,
+                                                            );
+                                                            ref.invalidate(
+                                                              oneTimeAiAnalysis,
+                                                            );
+                                                          },
+                                                          icon: Icon(
+                                                            Icons.refresh,
+                                                            color: ref.watch(
+                                                              foreGroundColor,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }
+                                                //ai return proper text, now display
+                                                final aiText =
+                                                    innerSnapshot
+                                                        .data?[1]?['message']
+                                                        ?.toString() ??
+                                                    'No AI response available yet.';
+
+                                                //in some case, it might be a warning like 400 and not a prper text so dont alwasy allow user to enter the Ai chat if its not 200 as response
+                                                if (innerSnapshot.data?[0] ==
+                                                    200) {
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback((
+                                                        _,
+                                                      ) {
+                                                        ref
+                                                                .read(
+                                                                  canContinueToAiChat
+                                                                      .notifier,
+                                                                )
+                                                                .state =
+                                                            true;
+                                                        ref
+                                                                .read(
+                                                                  oneTimeAiAnalysis
+                                                                      .notifier,
+                                                                )
+                                                                .state =
+                                                            aiText;
+                                                      });
+                                                }
+                                                return Container(
+                                                  width: ref
+                                                      .watch(deviceSizeX)
+                                                      .w,
+                                                  height: ref
+                                                      .watch(deviceSizeY)
+                                                      .h,
+                                                  child: Center(
+                                                    child: Scrollbar(
+                                                      controller:
+                                                          aiScrollController,
+                                                      thumbVisibility: true,
+                                                      child: SingleChildScrollView(
+                                                        controller:
+                                                            aiScrollController,
+                                                        padding: EdgeInsets.all(
+                                                          16.r,
+                                                        ),
+                                                        physics:
+                                                            BouncingScrollPhysics(),
+                                                        child: Column(
+                                                          children: [
+                                                            Text(
+                                                              aiText,
+                                                              style: TextStyle(
+                                                                fontSize: 15.sp,
+                                                                color: ref.watch(
+                                                                  foreGroundColor,
+                                                                ),
+                                                                height: 1.5,
+                                                              ),
+                                                            ),
+                                                            IconButton(
+                                                              onPressed: () {
+                                                                setState(() {
+                                                                  refreshAiProvider =
+                                                                      UniqueKey();
+                                                                });
+                                                                ref.invalidate(
+                                                                  canContinueToAiChat,
+                                                                );
+                                                                ref.invalidate(
+                                                                  oneTimeAiAnalysis,
+                                                                );
+                                                              },
+                                                              icon: Icon(
+                                                                Icons.refresh,
+                                                                color: ref.watch(
+                                                                  foreGroundColor,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+
+                                              if (innerSnapshot
+                                                      .connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return Center(
+                                                  child: SizedBox(
+                                                    width: 120.w,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        LinearProgressIndicator(
+                                                          color: ref.watch(
+                                                            foreGroundColor,
+                                                          ),
+                                                          backgroundColor: ref
+                                                              .watch(
+                                                                foreGroundColor,
+                                                              )
+                                                              .withAlpha(65),
+                                                        ),
+                                                        SizedBox(height: 10.h),
+                                                        Text(
+                                                          'fetching ai insight...',
+                                                          style: TextStyle(
+                                                            color: ref.watch(
+                                                              foreGroundColor,
+                                                            ),
+                                                            fontSize: 13.sp,
+                                                          ),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+
+                                              //else if nothing
+                                              return Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Center(
+                                                    child: Text(
+                                                      'Error, please refresh. If error persist, please restart app',
+                                                      style: TextStyle(
+                                                        color: ref.watch(
+                                                          foreGroundColor,
+                                                        ),
+                                                        fontSize: 14.sp,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10.h),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        refreshAiProvider =
+                                                            UniqueKey();
+                                                      });
+                                                      ref.invalidate(
+                                                        canContinueToAiChat,
+                                                      );
+                                                      ref.invalidate(
+                                                        oneTimeAiAnalysis,
+                                                      );
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.refresh,
+                                                      color: ref.watch(
+                                                        foreGroundColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.h),
+
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child:
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: ref.watch(
+                                                foreGroundColor,
+                                              ),
+                                              foregroundColor: ref.watch(
+                                                backgroundColor,
+                                              ),
+                                              padding: EdgeInsets.all(15),
+                                              shadowColor: Colors.red,
+                                              elevation: 3,
+                                              side: BorderSide(
+                                                color: ref.watch(lightMode)
+                                                    ? Colors.black12
+                                                    : Colors.white38,
+                                                strokeAlign: 20,
+                                              ),
+                                            ),
+                                            onPressed: () async {
+                                              if (ref.read(
+                                                    canContinueToAiChat,
+                                                  ) ==
+                                                  false) {
+                                                notifier(
+                                                  context: context,
+                                                  message: "no AI response yet",
+                                                  fg: ref.read(backgroundColor),
+                                                  bg: ref.read(foreGroundColor),
+                                                );
+                                                return;
+                                              }
+                                              ref.invalidate(
+                                                userAITempChatHolder,
+                                              );
+                                              ref.invalidate(aiNavBarContent);
+                                              ref.invalidate(aiChatResponse);
+                                              // await Future.delayed(
+                                              //   Duration(seconds: 1),
+                                              // );
+                                              router.push("/aichat");
+                                            },
+                                            child: Text(
+                                              "continue to ai chat",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ).animate().shakeX(
+                                            duration: Duration(
+                                              milliseconds: 300,
+                                            ),
+                                            hz: 15,
+                                            delay: Duration(milliseconds: 800),
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -720,8 +1036,8 @@ Widget pieContainer({
 }) {
   return Container(
     margin: EdgeInsets.all(10.r),
-    width: 100.w,
-    height: 100.w,
+    width: 85.w,
+    height: 90.w,
     decoration: BoxDecoration(
       color: color,
       boxShadow: ref.watch(lightMode)
@@ -763,12 +1079,9 @@ final aiAnayzer = FutureProvider<List>((ref) async {
   return [send.statusCode, response];
 });
 
-// final missedLectureCounter = StateProvider<int>((ref) {
-//   return 0;
-// });
-// final attendlectureCounter = StateProvider<int>((ref) {
-//   return 0;
-// });
-// final nullLectureCounter = StateProvider<int>((ref) {
-//   return 0;
-// });
+final canContinueToAiChat = StateProvider<bool>((ref) {
+  return false;
+});
+final oneTimeAiAnalysis = StateProvider<String>((ref) {
+  return '';
+});

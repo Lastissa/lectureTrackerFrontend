@@ -480,6 +480,12 @@ class _SignupState extends ConsumerState<Signup> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   InkWell(
+                                    onLongPress: () => notifier(
+                                      context: context,
+                                      message: "clear current edit only",
+                                      fg: ref.watch(backgroundColor),
+                                      bg: ref.watch(foreGroundColor),
+                                    ),
                                     onTap: () {
                                       //wiping everything clean
                                       ref.invalidate(_dayOfTheWeekChoosen);
@@ -504,13 +510,22 @@ class _SignupState extends ConsumerState<Signup> {
                                   ),
                                   Container(width: 10),
                                   InkWell(
+                                    onLongPress: () => notifier(
+                                      context: context,
+                                      message: "go back to last course",
+                                      fg: ref.watch(backgroundColor),
+                                      bg: ref.watch(foreGroundColor),
+                                    ),
                                     onTap: ref.watch(_courseCreatedCount) == 0
-                                        ? null
-                                        // () => router.go(
-                                        //     '/error',
-                                        //     extra:
-                                        //         'error, courseCount is not zero meaning there is in imblance between the dbDecoy and courseCount',
-                                        //   )
+                                        ? () {
+                                            notifier(
+                                              context: context,
+                                              message: "no previous course!",
+                                              fg: ref.watch(backgroundColor),
+                                              bg: ref.watch(foreGroundColor),
+                                            );
+                                            return;
+                                          }
                                         : () {
                                             try {
                                               ref
@@ -655,6 +670,12 @@ class _SignupState extends ConsumerState<Signup> {
 
                                   Container(width: 10),
                                   InkWell(
+                                    onLongPress: () => notifier(
+                                      context: context,
+                                      message: "add more course",
+                                      fg: ref.watch(backgroundColor),
+                                      bg: ref.watch(foreGroundColor),
+                                    ),
                                     onTap: () {
                                       //check if alll field have been
                                       _formKey.currentState?.validate();
@@ -863,7 +884,7 @@ class _SignupState extends ConsumerState<Signup> {
                                   //since user is creating a new timetable, nullify the old ones
 
                                   //where to go
-                                  router.go('/splashScreen');
+                                  router.go('/WelcomeAnimate');
                                 }
                               }
                             } catch (e) {
@@ -927,7 +948,7 @@ class _SignupState extends ConsumerState<Signup> {
                           ),
                         ),
 
-                        // Back to dashboard
+                        // Back
                         TextButton(
                           onPressed: () {
                             router.go('/Welcomesignup2');
@@ -938,7 +959,7 @@ class _SignupState extends ConsumerState<Signup> {
                           },
 
                           child: Text(
-                            "Back to Dashboard",
+                            "Back",
                             style: TextStyle(
                               color: isLight
                                   ? Colors.grey[700]

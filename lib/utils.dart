@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lecture_tracker/errorpage.dart';
+import 'package:lecture_tracker/screens/aichat.dart';
 import 'package:lecture_tracker/screens/analysis.dart';
-import 'package:lecture_tracker/screens/change_theme.dart';
+import 'package:lecture_tracker/screens/assignment.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 import 'package:lecture_tracker/screens/secretPage.dart';
 import 'package:lecture_tracker/screens/settings.dart';
-import 'package:lecture_tracker/screens/signup.dart';
+import 'package:lecture_tracker/signupStacks/signup.dart';
 import 'package:lecture_tracker/screens/splashScreen.dart';
+import 'package:lecture_tracker/screens/userAccountSetting.dart';
+import 'package:lecture_tracker/signupStacks/welcome_animate.dart';
 import 'package:lecture_tracker/signupStacks/welcomeSignUp.dart';
 import 'package:lecture_tracker/signupStacks/welcomeSignUp2.dart';
 
@@ -25,7 +28,16 @@ GoRouter router = GoRouter(
       path: '/Welcomesignup2',
       builder: (context, state) => Welcomesignup2(),
     ),
+    GoRoute(path: "/assignment", builder: (context, state) => Assignment()),
+    GoRoute(
+      path: "/Useraccountsetting",
+      builder: (context, state) => Useraccountsetting(),
+    ),
     GoRoute(path: "/Secretpage", builder: (context, state) => Secretpage()),
+    GoRoute(
+      path: "/WelcomeAnimate",
+      builder: (context, state) => WelcomeAnimate(),
+    ),
     GoRoute(
       path: '/error',
       builder: (context, state) {
@@ -43,7 +55,7 @@ GoRouter router = GoRouter(
     ),
     GoRoute(path: "/analysis", builder: (context, state) => Analysis()),
     GoRoute(path: '/Editcourse', builder: (context, state) => Editcourse()),
-    GoRoute(path: '/change_theme', builder: (context, state) => ChangeTheme()),
+    GoRoute(path: "/aichat", builder: (context, state) => AiChat()),
   ],
 );
 
@@ -256,6 +268,7 @@ Widget customTextFeild({
   required Widget? prefix,
   required String? hint,
   required FormFieldValidator validator,
+  required ValueChanged<String>? onchanged,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -263,7 +276,7 @@ Widget customTextFeild({
       boxShadow: [
         BoxShadow(
           color: ref.watch(lightMode)
-              ? const Color.fromARGB(40, 0, 0, 0)
+              ? Colors.white
               : const Color.fromARGB(61, 0, 0, 0),
           blurRadius: 12,
           offset: const Offset(0, 6),
@@ -273,6 +286,7 @@ Widget customTextFeild({
     child: TextFormField(
       controller: controller,
       obscureText: isPassword,
+      onChanged: onchanged ?? null,
       style: TextStyle(color: ref.watch(foreGroundColor)),
       decoration: InputDecoration(
         suffixIcon: suffix,

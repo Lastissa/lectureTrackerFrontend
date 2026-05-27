@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
 import 'package:lecture_tracker/utils.dart';
 
@@ -120,6 +121,40 @@ class _SecretpageState extends ConsumerState<Secretpage> {
                     ),
                   ),
                 ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (builder) => AlertDialog(
+                        title: Text(
+                          style: TextStyle(fontSize: 15.sp),
+                          "current key lenght" +
+                              lookForSettingBox().keys.length.toString(),
+                        ),
+                        content: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(
+                            lookForSettingBox().keys.length,
+                            (index) => SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SelectableText(
+                                  "${lookForSettingBox().keys.toList()[index]} : ${lookForSettingBox().get(lookForSettingBox().keys.toList()[index])}",
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text("view all keys"),
+                ),
               ),
             ],
           ),

@@ -182,9 +182,10 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         //if the userName don change already
         if (lookForSettingBox().get('username') != null) {
           //if the user already changed their name from user, if the name is still user, just leave the provider to handle the task else change the username provider
-          ref.read(username.notifier).state = lookForSettingBox().get(
-            'username',
-          );
+          ref.read(username.notifier).state = lookForSettingBox()
+              .get('username')
+              .toString()
+              .split("@")[0];
         } else {
           ref.read(username.notifier).state = 'user';
         }

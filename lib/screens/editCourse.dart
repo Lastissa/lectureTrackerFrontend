@@ -21,8 +21,6 @@ class Editcourse extends ConsumerStatefulWidget {
 @override
 class EditcourseState extends ConsumerState<Editcourse> {
   void initstate() {
-    print('init state called');
-    // firstTimeEnteringPage = true;
     super.initState();
   }
 
@@ -87,7 +85,6 @@ class EditcourseState extends ConsumerState<Editcourse> {
 
   @override
   Widget build(BuildContext context) {
-    print(firstTimeEnteringPage);
     //to make sure the one time run function run only once when the user enter the page, and not every time the page rebuild, i check if the allUserData provider is empty, if it is empty, then it means the one time run function have not run before, so i run it, but if it is not empty, then it means the one time run function have run before
     if (ref.read(_allUserData).isEmpty && firstTimeEnteringPage) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -115,7 +112,6 @@ class EditcourseState extends ConsumerState<Editcourse> {
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didpop, result) async {
-          print('didpop value for editpage: $didpop');
           if (didpop) return;
           await _invalidateAll(ref: ref);
           if (mounted) {
@@ -1171,10 +1167,6 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                           );
                                         },
                                         onTap: () async {
-                                          print(
-                                            ref.read(_allUserData)[index],
-                                          ); //del soon brb
-
                                           // check if the textfeild is empty or day of the week have not been choosen
                                           if ((_textControllersList[index])
                                                   .text
@@ -1303,9 +1295,6 @@ class EditcourseState extends ConsumerState<Editcourse> {
                                             ],
                                           );
 
-                                          print(
-                                            ref.read(_allUserData)[index],
-                                          ); //brb
                                           //inserting the new data into the db, and generating a new id
                                           await _locator.rawInsert(
                                             "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",

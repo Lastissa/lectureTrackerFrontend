@@ -46,6 +46,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
             : Colors.black87,
       ),
       body: PopScope(
+        canPop: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -144,23 +145,12 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                       ],
                     ),
                     InkWell(
-                      onTap: ref.watch(lectureCardActive)
-                          ? () => ref.watch(lectureCardActive.notifier).state =
-                                false
-                          : () {
-                              if (ref.read(lightMode)) {
-                                ref.read(lightMode.notifier).state = false;
-                                lookForSettingBox().put('lightMode', false);
-                              } else {
-                                ref.read(lightMode.notifier).state = true;
-                                lookForSettingBox().put('lightMode', true);
-                              }
-                            },
+                      onTap: () {
+                        router.push("/assignment");
+                      },
 
                       child: Icon(
-                        ref.watch(lightMode)
-                            ? Icons.sunny
-                            : Icons.nightlight_round_sharp,
+                        Icons.notifications,
                         color: ref.watch(lightMode)
                             ? Colors.white70
                             : Colors.white54,
