@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
@@ -5,12 +7,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
+import 'package:lecture_tracker/screens/backupAndrestore.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:lottie/lottie.dart';
+import 'package:path/path.dart';
 
 class Useraccountsetting extends ConsumerStatefulWidget {
   const Useraccountsetting({super.key});
@@ -70,7 +77,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
         ); //the second part of the second minute
   UniqueKey customUniqueKeyOffline = UniqueKey();
   UniqueKey customUniqueKeyOnline = UniqueKey();
-
+  UniqueKey viewBackupHistoryUniqueKey = UniqueKey();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -298,7 +305,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                           animatedTexts: [
                             TypewriterAnimatedText(
                               cursor: "",
-                              "Configuring and managing your data on our server, please note that this mode require internet connection.",
+                              "Configuring and managing your data on our server, please note that this mode require internet connection.\nHint: Swipe to view other features avalaible",
                               textStyle: TextStyle(
                                 color: ref.watch(foreGroundColor),
                                 wordSpacing: 2,
@@ -336,10 +343,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                             ),
                             child: SingleChildScrollView(
                               physics: AlwaysScrollableScrollPhysics(),
-                              child: Column(
-                                //the one that handles what to show to user
-                                children: ref.watch(offlineConfig) == true
-                                    ? [
+                              child: ref.watch(offlineConfig) == true
+                                  ? Column(
+                                      //the one that handles what to show to user - for offline own
+                                      children: [
                                         //Change Username
                                         AnimatedCrossFade(
                                           firstChild: InkWell(
@@ -1360,16 +1367,611 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                           ),
                                           duration: Duration(milliseconds: 650),
                                         ),
+                                        InkWell(
+                                          onTap: () async {
+                                            await showDialog(
+                                              context: context,
+                                              builder: (builder) {
+                                                return AlertDialog(
+                                                  backgroundColor: ref.watch(
+                                                    foreGroundColor,
+                                                  ),
+                                                  title: Text(
+                                                    "Warning!",
+                                                    style: TextStyle(
+                                                      color: ref.watch(
+                                                        backgroundColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  content: Text(
+                                                    "This will wipe away the local history on this device!!!, to retreive it later, you need to restore backup from a previous one containing the data, do you still want to proceed or cancel",
+                                                    style: TextStyle(
+                                                      color: ref.watch(
+                                                        backgroundColor,
+                                                      ),
+                                                      wordSpacing: 1.5,
+                                                      letterSpacing: -1,
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    ElevatedButton(
+                                                      onPressed: () {},
+                                                      child: Text("Proceed"),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {},
+                                                      child: Text("Cancel"),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical:
+                                                  ref.watch(deviceSizeY) *
+                                                  0.02.h,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.delete_sweep_sharp,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Clear Past lectures',
+                                                  style: TextStyle(
+                                                    letterSpacing: -1,
+                                                    wordSpacing: 1.4,
+                                                    fontSize: 17.sp.clamp(
+                                                      0,
+                                                      17,
+                                                    ),
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                         LottieBuilder.asset(
                                           "assets/lottie/morning.json",
                                         ),
-                                      ]
-                                    : [
-                                        //for backup history veiewing and maybe retreiving
-                                        columnData(ref: ref),
-                                        columnData(ref: ref),
                                       ],
-                              ),
+                                    )
+                                  //online config page
+                                  : Container(
+                                      width: ref.watch(deviceSizeX).w,
+                                      height: 400.h,
+                                      child: PageView(
+                                        children: [
+                                          //view backup history
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              columnData(
+                                                text: "View Backup History",
+                                                ref: ref,
+                                                iconData: Icons.history,
+                                                onTap: () {},
+                                                iconOnTap: () {},
+                                              ),
+                                              Expanded(
+                                                child: FutureBuilder(
+                                                  future: Future(() async {
+                                                    List dataToUse = [];
+                                                    if (ref.watch(
+                                                      viewBackupHistoryPassed,
+                                                    )) {
+                                                      dataToUse = await ref
+                                                          .read(
+                                                            viewBackupHistory
+                                                                .future,
+                                                          );
+                                                    } else {
+                                                      ref
+                                                              .read(
+                                                                viewBackupHistoryPassed
+                                                                    .notifier,
+                                                              )
+                                                              .state =
+                                                          true;
+                                                      ;
+                                                      ref.invalidate(
+                                                        viewBackupHistory,
+                                                      );
+                                                      dataToUse = await ref
+                                                          .read(
+                                                            viewBackupHistory
+                                                                .future,
+                                                          )
+                                                          .timeout(
+                                                            Duration(
+                                                              seconds: 5,
+                                                            ),
+                                                            onTimeout: () => [
+                                                              404,
+                                                              {
+                                                                "message":
+                                                                    "Network Timeout",
+                                                              },
+                                                            ],
+                                                          );
+                                                    }
+
+                                                    return dataToUse;
+                                                  }),
+                                                  builder:
+                                                      (
+                                                        BuildContext builder,
+                                                        AsyncSnapshot snapshot,
+                                                      ) {
+                                                        print(snapshot.data);
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return Center(
+                                                            child: CircularProgressIndicator(
+                                                              color: ref.watch(
+                                                                foreGroundColor,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        } else if (snapshot
+                                                            .hasData) {
+                                                          //for when the status is not 200
+                                                          if (snapshot
+                                                                  .data[0] !=
+                                                              200) {
+                                                            return SingleChildScrollView(
+                                                              child: Column(
+                                                                children: [
+                                                                  IconButton(
+                                                                    onPressed: () {
+                                                                      ref.invalidate(
+                                                                        viewBackupHistoryPassed,
+                                                                      );
+                                                                    },
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .refresh,
+                                                                      color: Colors
+                                                                          .red,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+                                                          //the message is definety 200, format a response and return it
+                                                          return SingleChildScrollView(
+                                                            child: Column(
+                                                              children: [
+                                                                ...List.generate(
+                                                                  (snapshot.data?[1]["message"]
+                                                                          as List)
+                                                                      .length,
+                                                                  (index) {
+                                                                    return Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                            10,
+                                                                          ),
+                                                                      margin:
+                                                                          EdgeInsets.all(
+                                                                            4,
+                                                                          ),
+                                                                      width: ref
+                                                                          .watch(
+                                                                            deviceSizeX,
+                                                                          )
+                                                                          .w,
+                                                                      decoration: BoxDecoration(
+                                                                        color:
+                                                                            ref.watch(
+                                                                              lightMode,
+                                                                            )
+                                                                            ? Colors.transparent
+                                                                            : Colors.transparent,
+                                                                        border: BoxBorder.all(
+                                                                          width:
+                                                                              0.5,
+                                                                          color: ref
+                                                                              .watch(
+                                                                                foreGroundColor,
+                                                                              )
+                                                                              .withAlpha(
+                                                                                90,
+                                                                              ),
+                                                                        ),
+                                                                        boxShadow: [
+                                                                          BoxShadow(
+                                                                            color:
+                                                                                ref.watch(
+                                                                                  lightMode,
+                                                                                )
+                                                                                ? ref
+                                                                                      .watch(
+                                                                                        foreGroundColor,
+                                                                                      )
+                                                                                      .withAlpha(
+                                                                                        15,
+                                                                                      )
+                                                                                : Colors.white12,
+                                                                            offset: Offset(
+                                                                              1,
+                                                                              1,
+                                                                            ),
+                                                                            blurRadius:
+                                                                                2,
+                                                                          ),
+                                                                        ],
+                                                                        borderRadius: BorderRadius.all(
+                                                                          Radius.circular(
+                                                                            10,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+
+                                                                      child: Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          Text(
+                                                                            // "${snapshot.data}",
+                                                                            DateFormat(
+                                                                              "dd MMM yyyy, hh:mm a",
+                                                                            ).format(
+                                                                              DateTime.parse(
+                                                                                snapshot.data?[1]["message"][index]["time"],
+                                                                              ),
+                                                                            ),
+                                                                            style: TextStyle(
+                                                                              color: ref.watch(
+                                                                                foreGroundColor,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          ElevatedButton(
+                                                                            style: ElevatedButton.styleFrom(
+                                                                              backgroundColor: ref.watch(
+                                                                                foreGroundColor,
+                                                                              ),
+                                                                              foregroundColor: ref.watch(
+                                                                                backgroundColor,
+                                                                              ),
+                                                                              shadowColor: ref
+                                                                                  .watch(
+                                                                                    foreGroundColor,
+                                                                                  )
+                                                                                  .withAlpha(
+                                                                                    180,
+                                                                                  ),
+                                                                              elevation: 2,
+                                                                              shape: RoundedRectangleBorder(),
+                                                                              side: BorderSide(
+                                                                                color: ref
+                                                                                    .watch(
+                                                                                      foreGroundColor,
+                                                                                    )
+                                                                                    .withAlpha(
+                                                                                      30,
+                                                                                    ),
+                                                                                width: 2,
+                                                                              ),
+                                                                            ),
+                                                                            onPressed: () async {
+                                                                              //showdialog for confirmation
+                                                                              await showDialog(
+                                                                                context: context,
+                                                                                builder:
+                                                                                    (
+                                                                                      builder,
+                                                                                    ) {
+                                                                                      return AlertDialog(
+                                                                                        backgroundColor: ref.watch(
+                                                                                          foreGroundColor,
+                                                                                        ),
+
+                                                                                        title: Text(
+                                                                                          "Retreive Data",
+                                                                                          style: TextStyle(
+                                                                                            color: ref.watch(
+                                                                                              backgroundColor,
+                                                                                            ),
+                                                                                            fontWeight: FontWeight.bold,
+                                                                                            letterSpacing: -1,
+                                                                                            wordSpacing: 1.2,
+                                                                                          ),
+                                                                                        ),
+                                                                                        content: Container(
+                                                                                          height:
+                                                                                              ref
+                                                                                                  .watch(
+                                                                                                    deviceSizeY,
+                                                                                                  )
+                                                                                                  .w *
+                                                                                              0.25,
+                                                                                          child: Column(
+                                                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                                            children: [
+                                                                                              Text(
+                                                                                                "are you sure you want to overide your current data to this selected data?",
+                                                                                                style: TextStyle(
+                                                                                                  color: ref.watch(
+                                                                                                    backgroundColor,
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ),
+                                                                                              Text(
+                                                                                                "you can always overide data from any time in your backup history",
+                                                                                                style: TextStyle(
+                                                                                                  color: ref.watch(
+                                                                                                    backgroundColor,
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ),
+                                                                                            ],
+                                                                                          ),
+                                                                                        ),
+                                                                                        actions: [
+                                                                                          ElevatedButton(
+                                                                                            style: ElevatedButton.styleFrom(
+                                                                                              backgroundColor: ref.watch(
+                                                                                                foreGroundColor,
+                                                                                              ),
+
+                                                                                              foregroundColor: ref.watch(
+                                                                                                backgroundColor,
+                                                                                              ),
+                                                                                            ),
+                                                                                            onPressed: () async {
+                                                                                              ref
+                                                                                                      .read(
+                                                                                                        _nothingShouldWorkConfirmer.notifier,
+                                                                                                      )
+                                                                                                      .state =
+                                                                                                  true;
+                                                                                              await Future.delayed(
+                                                                                                Duration(
+                                                                                                  milliseconds: 300,
+                                                                                                ),
+                                                                                              );
+                                                                                              ;
+                                                                                              Navigator.of(
+                                                                                                context,
+                                                                                              ).pop();
+                                                                                            },
+                                                                                            child: Text(
+                                                                                              "Confirm",
+                                                                                            ),
+                                                                                          ),
+                                                                                          ElevatedButton(
+                                                                                            style: ElevatedButton.styleFrom(
+                                                                                              backgroundColor: Colors.red,
+
+                                                                                              foregroundColor: Colors.white,
+                                                                                            ),
+                                                                                            onPressed: () {
+                                                                                              Navigator.of(
+                                                                                                context,
+                                                                                              ).pop();
+                                                                                            },
+                                                                                            child: Text(
+                                                                                              "Cancel",
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      );
+                                                                                    },
+                                                                              );
+                                                                              if (ref.read(
+                                                                                    _nothingShouldWorkConfirmer,
+                                                                                  ) ==
+                                                                                  false)
+                                                                                return;
+                                                                              //i am allowed to perfom retreival now
+                                                                              ref
+                                                                                      .read(
+                                                                                        _nothingShouldWork.notifier,
+                                                                                      )
+                                                                                      .state =
+                                                                                  true;
+                                                                              int
+                                                                              id = snapshot.data?[1]["message"][index]["id"];
+                                                                              final url = await Uri.parse(
+                                                                                "${ref.read(domain)}alltimeHistory/",
+                                                                              );
+                                                                              final request = await http.post(
+                                                                                url,
+                                                                                headers: {
+                                                                                  "Content-Type": "application/json",
+                                                                                },
+                                                                                body: jsonEncode(
+                                                                                  {
+                                                                                    "email": lookForSettingBox().get(
+                                                                                      "backupEmail",
+                                                                                    ),
+                                                                                    "password": lookForSettingBox().get(
+                                                                                      "backupPassword",
+                                                                                    ),
+                                                                                    "id": id,
+                                                                                  },
+                                                                                ),
+                                                                              );
+                                                                              final response = await jsonDecode(
+                                                                                request.body,
+                                                                              );
+                                                                              List
+                                                                              data = [
+                                                                                request.statusCode,
+                                                                                response,
+                                                                              ];
+
+                                                                              if (data[0] ==
+                                                                                  200) {
+                                                                                final locator = await CustomDbClass.instance.getter;
+
+                                                                                await locator.rawDelete(
+                                                                                  "DELETE FROM todayLectures",
+                                                                                );
+                                                                                await locator.rawDelete(
+                                                                                  "DELETE FROM userAllTimetable",
+                                                                                );
+                                                                                await locator.rawDelete(
+                                                                                  "DELETE FROM lectureTrackers",
+                                                                                );
+
+                                                                                //draw the date back by one so the splashscreen can go pick data from the main table
+                                                                                lookForSettingBox().put(
+                                                                                  "todayDate",
+                                                                                  DateTime.now().day -
+                                                                                      1,
+                                                                                );
+                                                                                //Now update it
+                                                                                //update the past lectures
+                                                                                for (Map i in data[1]["message"]["history"]) {
+                                                                                  insertIntoPastLectureTrackers(
+                                                                                    dbLocator: locator,
+                                                                                    title: i["title"],
+                                                                                    date: i["date"],
+                                                                                    accomplised: i["accomplised"],
+                                                                                  );
+                                                                                  ref
+                                                                                      .read(
+                                                                                        pastLectureSQLprovider.notifier,
+                                                                                      )
+                                                                                      .update(
+                                                                                        (
+                                                                                          State,
+                                                                                        ) {
+                                                                                          return [
+                                                                                            ...State,
+                                                                                            i,
+                                                                                          ];
+                                                                                        },
+                                                                                      );
+                                                                                }
+
+                                                                                //update the main table
+                                                                                for (Map i in data[1]["message"]["currentData"])
+                                                                                  insertIntoMainLectures(
+                                                                                    dbLocator: locator,
+                                                                                    title: i["title"],
+                                                                                    start_time: i["start_time"],
+                                                                                    end_time: i["end_time"],
+                                                                                    dayOfTheWeek: i["dayOfTheWeek"],
+                                                                                    color: i["color"],
+                                                                                  );
+
+                                                                                //update success, now show the lottie
+                                                                                ref
+                                                                                        .read(
+                                                                                          successAnimation.notifier,
+                                                                                        )
+                                                                                        .state =
+                                                                                    true;
+                                                                              }
+                                                                              ref.invalidate(
+                                                                                _nothingShouldWork,
+                                                                              );
+                                                                              ref.invalidate(
+                                                                                _nothingShouldWorkConfirmer,
+                                                                              );
+                                                                              print(
+                                                                                data,
+                                                                              );
+                                                                            },
+                                                                            child: Text(
+                                                                              "Retreive",
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                    // .animate().slideX(
+                                                                    //   begin: -2,
+                                                                    //   end: 0,
+                                                                    //   curve: Curves
+                                                                    //       .bounceInOut,
+                                                                    //   duration: Duration(
+                                                                    //     seconds:
+                                                                    //         1,
+                                                                    //   ),
+                                                                    //   delay: Duration(
+                                                                    //     milliseconds:
+                                                                    //         index *
+                                                                    //         350,
+                                                                    //   ),
+                                                                    // );
+                                                                  },
+                                                                ).reversed,
+                                                                IconButton(
+                                                                  color: ref.watch(
+                                                                    foreGroundColor,
+                                                                  ),
+
+                                                                  onPressed: () {
+                                                                    ref.invalidate(
+                                                                      viewBackupHistoryPassed,
+                                                                    );
+                                                                  },
+                                                                  icon: Icon(
+                                                                    Icons
+                                                                        .refresh,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          return Center(
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Text(
+                                                                  "Error, Hit the retry button.",
+                                                                ),
+                                                                IconButton(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  onPressed: () {
+                                                                    ref.invalidate(
+                                                                      viewBackupHistoryPassed,
+                                                                    );
+                                                                  },
+                                                                  icon: Icon(
+                                                                    Icons
+                                                                        .refresh,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -1429,6 +2031,41 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                 ),
               ),
             ),
+            Positioned(
+              child: ref.watch(_nothingShouldWork)
+                  ? Container(
+                      width: ref.watch(deviceSizeX).w,
+                      height: ref.watch(deviceSizeY).h,
+                      color: Colors.white54,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: ref.read(deviceSizeX).w * 0.35,
+                                vertical: 20,
+                              ),
+                              child: LinearProgressIndicator(
+                                color: ref.watch(foreGroundColor),
+                              ),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.redAccent,
+                              ),
+                              onPressed: () {
+                                ref.invalidate(_nothingShouldWork);
+                              },
+                              child: Text("Cancel"),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
+            ),
           ],
         ),
       ),
@@ -1448,19 +2085,25 @@ final successAnimation = StateProvider((ref) {
   return false;
 });
 //come here to edit the input like ontap and co etc //brb
-Widget columnData({required WidgetRef ref}) {
+Widget columnData({
+  required WidgetRef ref,
+  required IconData iconData,
+  required void Function() onTap,
+  required void Function() iconOnTap,
+  required String text,
+}) {
   return Padding(
     padding: EdgeInsets.symmetric(vertical: ref.watch(deviceSizeY) * 0.02.h),
     child: InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.history, color: ref.watch(foreGroundColor)),
+            onPressed: iconOnTap,
+            icon: Icon(iconData, color: ref.watch(foreGroundColor)),
           ),
           Text(
-            "View Backup History",
+            text,
             style: TextStyle(
               letterSpacing: -1,
               wordSpacing: 1.4,
@@ -1540,5 +2183,33 @@ final autoThemeChange = StateProvider<bool>((ref) {
 });
 
 final isChangeTimeLogActive = StateProvider((ref) {
+  return false;
+});
+
+final viewBackupHistory = FutureProvider<List>((ref) async {
+  print("starting");
+  final url = await Uri.parse("${ref.read(domain)}alltimeHistory/");
+  //sending request
+  final request = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "email": lookForSettingBox().get("backupEmail"),
+      "password": lookForSettingBox().get("backupPassword"),
+    }),
+  );
+  ref.read(viewBackupHistoryPassed.notifier).state = true;
+  final response = await jsonDecode(request.body);
+  return [request.statusCode, response];
+});
+final viewBackupHistoryPassed = StateProvider<bool>((ref) {
+  return false;
+});
+
+final _nothingShouldWork = StateProvider<bool>((ref) {
+  return false;
+});
+
+final _nothingShouldWorkConfirmer = StateProvider((ref) {
   return false;
 });

@@ -150,7 +150,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                       },
 
                       child: Icon(
-                        Icons.notifications,
+                        Icons.add_task_outlined,
                         color: ref.watch(lightMode)
                             ? Colors.white70
                             : Colors.white54,
@@ -231,16 +231,8 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
           bottomNavChildren(
             value: [
               Text('Click ', style: customButtomTextStyle),
-              Icon(
-                ref.watch(lightMode)
-                    ? Icons.sunny
-                    : Icons.nightlight_round_sharp,
-                color: Colors.white,
-              ),
-              Text(
-                ' to enter ${ref.watch(lightMode) ? 'dark' : 'light'} mode',
-                style: customButtomTextStyle,
-              ),
+              Icon(Icons.add_task_outlined, color: Colors.white),
+              Text(' to enter assignment page', style: customButtomTextStyle),
             ],
             // onTap: () {},
           ),

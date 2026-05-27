@@ -225,7 +225,6 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                 setState(() {
                                   nothingShouldWork = true;
                                 });
-
                                 ref.invalidate(backup);
                                 final toShow = await ref
                                     .read(
@@ -299,7 +298,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                     fg: Colors.white,
                                     atTop: true,
                                   );
-                                }
+                                } else {}
                                 setState(() {
                                   nothingShouldWork = false;
                                 });

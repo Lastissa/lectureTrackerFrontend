@@ -46,7 +46,7 @@ class _WelcomeAnimateState extends ConsumerState<WelcomeAnimate> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ref.watch(foreGroundColor),
 
-                      foregroundColor: ref.watch(foreGroundColor),
+                      foregroundColor: ref.watch(backgroundColor),
                     ),
                     onPressed: () {
                       router.go("/dashboard");
