@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -158,13 +157,14 @@ class _YesterdayState extends ConsumerState<Yesterday> {
                   splashColor: Colors.transparent,
                   // onTap: () {},
                 ),
-              ).animate().slideY(
-                curve: Curves.decelerate,
-                begin: 5,
-                end: 0,
-                duration: Duration(milliseconds: 600),
-                delay: Duration(milliseconds: index * 100),
               );
+              // .animate().slideY(
+              //   curve: Curves.decelerate,
+              //   begin: 5,
+              //   end: 0,
+              //   duration: Duration(milliseconds: 600),
+              //   delay: Duration(milliseconds: index * 100),
+              // );
             },
           ),
         ),

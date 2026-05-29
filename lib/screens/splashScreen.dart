@@ -46,7 +46,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
         List<Map> fourDaysFromNowData = [];
         List<Map> fiveDaysAwayFromNowData = [];
         List<Map> sixDaysAwayFromNowData = [];
-        print(userTimeTable);
+        // print(userTimeTable);
         String tommorowDate =
             ref.read(wordWeekdayToInt)[DateTime.now().weekday %
                 7]; //this is to get wether the day is Monday, Tuesdat,etc
@@ -104,7 +104,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
             sixDaysAwayFromNowData;
 
         //end of data putting into each provider
-        print('starting starting starting...');
+        print('starting starting starting... = splashscreen');
         print('today date: ${lookForSettingBox().get('todayDate')}');
         ref.invalidate(decoyDB);
         //this is for ensuring the first time the app run on a device, it should create a new key for the lightMode and set it to true
@@ -162,15 +162,7 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
             //, the current hour min is greater than the end time hour or too low than the start time hour so dark mode cannot be auto apply
             await Hive.box('settingDb').put('lightMode', true);
           }
-          // else {
-          //   notifier(
-          //     context: context,
-          //     message:
-          //         "An error occur while trying to apply your auto dark mode setting, Please, reach out to development team",
-          //     bg: ref.watch(foreGroundColor),
-          //     fg: ref.watch(backgroundColor),
-          //   );
-          // }
+
           print([startTime, TimeOfDay.now().format(context), endTime]);
         }
 
@@ -294,7 +286,6 @@ class _SplashscreenState extends ConsumerState<Splashscreen> {
           } else {
             router.go("/Welcomesignup");
           }
-          // print(ref.read(decoyDB));
           await lookForSettingBox().put('isDataPassedForToday', true);
         } //this print is to knoe wether data was updated today, it is meant to let us know if at least one of the table passed data
         await Future.delayed(

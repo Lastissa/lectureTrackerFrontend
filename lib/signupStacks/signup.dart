@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
@@ -187,6 +188,13 @@ class _SignupState extends ConsumerState<Signup> {
                                                       : Colors.black,
                                                 ),
                                                 onPressed: () {
+                                                  if (FocusScope.of(
+                                                    context,
+                                                  ).hasFocus) {
+                                                    FocusScope.of(
+                                                      context,
+                                                    ).unfocus();
+                                                  }
                                                   ref
                                                           .read(
                                                             _dayOfTheWeekChoosen
@@ -772,6 +780,9 @@ class _SignupState extends ConsumerState<Signup> {
                         // Main Action Button
                         ElevatedButton(
                           onPressed: () async {
+                            if (FocusScope.of(context).hasFocus) {
+                              FocusScope.of(context).unfocus();
+                            }
                             try {
                               //accout creation
                               if (_formKey.currentState?.validate() ?? false) {
@@ -967,6 +978,39 @@ class _SignupState extends ConsumerState<Signup> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                "Privacy Policy",
+                                style: TextStyle(
+                                  color: ref.watch(lightMode)
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            VerticalDivider(
+                              color: ref.watch(foreGroundColor),
+                              thickness: 10,
+                            ),
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                "Term of use",
+                                style: TextStyle(
+                                  color: ref.watch(lightMode)
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

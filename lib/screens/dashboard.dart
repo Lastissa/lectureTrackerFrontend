@@ -47,134 +47,137 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
       ),
       body: PopScope(
         canPop: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            // Dashboard Header / Summary Area
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  boxShadow: ref.watch(lightMode)
-                      ? [
-                          BoxShadow(
-                            color: ref.watch(lightMode)
-                                ? Colors.black38
-                                : Colors.black87,
-                            offset: Offset(2, 2),
-                            blurRadius: 3,
-                          ),
+            Column(
+              children: [
+                // Dashboard Header / Summary Area
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      boxShadow: ref.watch(lightMode)
+                          ? [
+                              BoxShadow(
+                                color: ref.watch(lightMode)
+                                    ? Colors.black38
+                                    : Colors.black87,
+                                offset: Offset(2, 2),
+                                blurRadius: 3,
+                              ),
 
-                          BoxShadow(
-                            color: ref.watch(lightMode)
-                                ? Colors.black38
-                                : Colors.black87,
-                            offset: Offset(-2, 0),
-                            blurRadius: 3,
-                          ),
-                        ]
-                      : [
-                          BoxShadow(
-                            color: Color.fromARGB(221, 59, 59, 59),
-                            offset: Offset(2, 2),
-                            blurRadius: 3,
-                          ),
+                              BoxShadow(
+                                color: ref.watch(lightMode)
+                                    ? Colors.black38
+                                    : Colors.black87,
+                                offset: Offset(-2, 0),
+                                blurRadius: 3,
+                              ),
+                            ]
+                          : [
+                              BoxShadow(
+                                color: Color.fromARGB(221, 59, 59, 59),
+                                offset: Offset(2, 2),
+                                blurRadius: 3,
+                              ),
 
-                          BoxShadow(
-                            color: const Color.fromARGB(221, 59, 59, 59),
-                            offset: Offset(-2, -2),
-                            blurRadius: 3,
-                          ),
-                        ],
-                  color: ref.watch(lightMode)
-                      ? Colors.blueAccent
-                      : const Color.fromARGB(255, 4, 24, 59),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                              BoxShadow(
+                                color: const Color.fromARGB(221, 59, 59, 59),
+                                offset: Offset(-2, -2),
+                                blurRadius: 3,
+                              ),
+                            ],
+                      color: ref.watch(lightMode)
+                          ? Colors.blueAccent
+                          : const Color.fromARGB(255, 4, 24, 59),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        AnimatedTextKit(
-                          pause: Duration(seconds: 5),
-                          totalRepeatCount: 1,
-                          animatedTexts: [
-                            ScrambleAnimatedText(
-                              'Dev Ope Greet You',
-                              textStyle: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AnimatedTextKit(
+                              pause: Duration(seconds: 5),
+                              totalRepeatCount: 1,
+                              animatedTexts: [
+                                ScrambleAnimatedText(
+                                  'Dev Ope Greet You',
+                                  textStyle: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                TypewriterAnimatedText(
+                                  'Welcome ${ref.watch(username)}',
+                                  textStyle: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
-                            TypewriterAnimatedText(
-                              'Welcome ${ref.watch(username)}',
-                              textStyle: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
+
+                            const SizedBox(height: 8),
+                            AnimatedTextKit(
+                              pause: Duration(seconds: 8),
+                              repeatForever: true,
+                              animatedTexts: [
+                                TypewriterAnimatedText(
+                                  '${DateFormat.yMMMEd().format(DateTime.now())}',
+                                  textStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TypewriterAnimatedText(
+                                  '${ref.watch(todayLectureCount)} ${ref.watch(todayLectureCount) > 1 ? "Classes" : "Class"} Today',
+                                  textStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
+                        InkWell(
+                          onTap: () {
+                            router.push("/assignment");
+                          },
 
-                        const SizedBox(height: 8),
-                        AnimatedTextKit(
-                          pause: Duration(seconds: 8),
-                          repeatForever: true,
-                          animatedTexts: [
-                            TypewriterAnimatedText(
-                              '${DateFormat.yMMMEd().format(DateTime.now())}',
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TypewriterAnimatedText(
-                              '${ref.watch(todayLectureCount)} ${ref.watch(todayLectureCount) > 1 ? "Classes" : "Class"} Today',
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                          child: Icon(
+                            Icons.add_task_outlined,
+                            color: ref.watch(lightMode)
+                                ? Colors.white70
+                                : Colors.white54,
+                            size: 40.r,
+                          ),
                         ),
                       ],
                     ),
-                    InkWell(
-                      onTap: () {
-                        router.push("/assignment");
-                      },
-
-                      child: Icon(
-                        Icons.add_task_outlined,
-                        color: ref.watch(lightMode)
-                            ? Colors.white70
-                            : Colors.white54,
-                        size: 40.r,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              child: PageView(
-                // index: _currentToDisplay,
-                children: [
-                  Today(),
-                  Yesterday(),
-                  Tommorrow(),
-                  ThirdDay(),
-                  Fourthdate(),
-                  Fifthdate(),
-                  Sixthdate(),
-                  Seventhdate(),
-                ],
-              ),
+                Expanded(
+                  child: PageView(
+                    // index: _currentToDisplay,
+                    children: [
+                      Today(),
+                      Yesterday(),
+                      Tommorrow(),
+                      ThirdDay(),
+                      Fourthdate(),
+                      Fifthdate(),
+                      Sixthdate(),
+                      Seventhdate(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

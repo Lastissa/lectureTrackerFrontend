@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:elegant_notification/elegant_notification.dart';
@@ -9,9 +10,9 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
-import 'package:lecture_tracker/homepage_stacks/today.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
+import 'package:lecture_tracker/screens/userAccountSetting.dart';
 import 'package:lecture_tracker/utils.dart';
 
 class BackupAndReset extends ConsumerStatefulWidget {
@@ -23,6 +24,10 @@ class BackupAndReset extends ConsumerStatefulWidget {
 }
 
 class BackupAndResetState extends ConsumerState<BackupAndReset> {
+  void dispose() {
+    super.dispose();
+  }
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
@@ -216,11 +221,23 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                 //the backup about to begin
                                 final dbLocator =
                                     await CustomDbClass.instance.getter;
+                                if (!mounted) {
+                                  print(
+                                    "i don unmount am. backupAndREset :ln  224",
+                                  );
+                                  return;
+                                }
                                 final allRegisteredCourse = await fetchAll(
                                   dbLocator: dbLocator,
                                   tableName: 'userAllTimetable',
                                   limit: 1000,
                                 );
+                                if (!mounted) {
+                                  print(
+                                    "i don unmount am. backupAndREset :ln  233",
+                                  );
+                                  return;
+                                }
                                 //just before the sending
                                 setState(() {
                                   nothingShouldWork = true;
@@ -245,6 +262,12 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                         ];
                                       },
                                     );
+                                if (!mounted) {
+                                  print(
+                                    "i don unmount am. backupAndREset :ln  266",
+                                  );
+                                  return;
+                                }
                                 notifier(
                                   bg: ref.watch(foreGroundColor),
                                   fg: ref.watch(backgroundColor),
@@ -626,7 +649,9 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                             child:
                                 ElevatedButton(
                                   onPressed: () async {
-                                    FocusScope.of(context).unfocus();
+                                    if (FocusScope.of(context).hasFocus) {
+                                      FocusScope.of(context).unfocus();
+                                    }
                                     if (_emailController.text.contains(
                                           "@gmail.com",
                                         ) ==
@@ -653,6 +678,12 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                     setState(() {
                                       nothingShouldWork = true;
                                     });
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. backupAndREset :ln  680",
+                                      );
+                                      return;
+                                    }
                                     ref.invalidate(loginForSignUp);
                                     final List response = await ref
                                         .read(
@@ -671,6 +702,12 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                             {"message": "Network Error!"},
                                           ],
                                         );
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. backupAndREset :ln  704",
+                                      );
+                                      return;
+                                    }
                                     print(response);
                                     try {
                                       bool theMessageIamLookingFor =
@@ -743,7 +780,15 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                             child:
                                 ElevatedButton(
                                   onPressed: () async {
-                                    FocusScope.of(context).unfocus();
+                                    //invalidate stuff in my account so the user login will not be seeing those data
+                                    ref.invalidate(aboutMe);
+                                    ref.invalidate(viewBackupHistoryPassed);
+                                    ref.invalidate(viewBackupHistory);
+                                    ref.invalidate(resetLinkFutureProvider);
+                                    ref.invalidate(resetLink);
+                                    if (FocusScope.of(context).hasFocus) {
+                                      FocusScope.of(context).unfocus();
+                                    }
                                     if (_emailController.text.contains(
                                           "@gmail.com",
                                         ) ==
@@ -770,6 +815,12 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                     setState(() {
                                       nothingShouldWork = true;
                                     });
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. backupAndREset :ln  809",
+                                      );
+                                      return;
+                                    }
                                     ref.invalidate(loginForSignUp);
                                     final List response = await ref
                                         .read(
@@ -788,6 +839,12 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                                             {"message": "Network Error!"},
                                           ],
                                         );
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. backupAndREset :ln  833",
+                                      );
+                                      return;
+                                    }
                                     print(response);
                                     if (response[0] != 200) {
                                       notifier(
@@ -1011,6 +1068,10 @@ class RestoreAndReset extends ConsumerStatefulWidget {
 }
 
 class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
+  void dispose() async {
+    super.dispose();
+  }
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
@@ -1208,8 +1269,13 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                   nothingShouldWork = true;
                                 });
                                 print("...start...");
-
-                                ref.invalidate(retrieveDataFromBackend); //brb
+                                if (!mounted) {
+                                  print(
+                                    "i don unmount am. RestoreAndREset :ln  1263",
+                                  );
+                                  return;
+                                }
+                                ref.invalidate(retrieveDataFromBackend);
                                 final dataToShow = await ref
                                     .read(retrieveDataFromBackend.future)
                                     .timeout(
@@ -1219,7 +1285,12 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                         {"message": "request not sent"},
                                       ],
                                     );
-
+                                if (!mounted) {
+                                  print(
+                                    "i don unmount am. RestoreAndREset :ln  1279",
+                                  );
+                                  return;
+                                }
                                 print("...end...");
                                 print(dataToShow);
                                 if (dataToShow[0] == 404 ||
@@ -1297,28 +1368,56 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       return;
                                     }
                                     //since message is success, first clear the db so we can update it
-                                    print(dataToShow[1]["history"]);
+
                                     final locator =
                                         await CustomDbClass.instance.getter;
-
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1365",
+                                      );
+                                      return;
+                                    }
                                     await locator.rawDelete(
                                       "DELETE FROM todayLectures",
                                     );
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1374",
+                                      );
+                                      return;
+                                    }
                                     await locator.rawDelete(
                                       "DELETE FROM userAllTimetable",
                                     );
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1383",
+                                      );
+                                      return;
+                                    }
                                     await locator.rawDelete(
                                       "DELETE FROM lectureTrackers",
                                     );
-
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. backupAndREset :ln  1392",
+                                      );
+                                      return;
+                                    }
                                     //draw the date back by one so the splashscreen can go pick data from the main table
-                                    lookForSettingBox().put(
-                                      "todayDate",
-                                      DateTime.now().day - 1,
-                                    );
+                                    // lookForSettingBox().put(
+                                    //   "todayDate",
+                                    //   DateTime.now().day - 1,
+                                    // ); brb - cant draw the date back cos it is passing data from the main table and if the user have marked that activity as done, it will still go and reshow it which is an error
                                     //Now update it
                                     //update the past lectures
                                     for (Map i in dataToShow[1]["history"]) {
+                                      if (!mounted) {
+                                        print(
+                                          "i don unmount am. backupAndREset :ln  1406",
+                                        );
+                                        return;
+                                      }
                                       insertIntoPastLectureTrackers(
                                         dbLocator: locator,
                                         title: i["title"],
@@ -1331,9 +1430,9 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                             return [...State, i];
                                           });
                                     }
-                                    print(ref.read(pastLectureSQLprovider));
                                     //update the main table
-                                    for (Map i in dataToShow[1]["currentData"])
+                                    for (Map i
+                                        in dataToShow[1]["currentData"]) {
                                       insertIntoMainLectures(
                                         dbLocator: locator,
                                         title: i["title"],
@@ -1342,6 +1441,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                         dayOfTheWeek: i["dayOfTheWeek"],
                                         color: i["color"],
                                       );
+                                    }
                                     notifier(
                                       context: context,
                                       message:
@@ -1388,7 +1488,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                 } else {
                                   notifier(
                                     context: context,
-                                    message: "msg missing",
+                                    message: "msg missing -impossible",
                                   ); //this will happen if the backend does not return any message key which is almost impossible unless i remove it
                                 }
                                 //end the retreive since we are done
@@ -1701,13 +1801,6 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                           ref: ref,
                           onchanged: null,
                         ),
-                        // .animate().slideX(
-                        //   curve: Curves.decelerate,
-                        //   begin: 2,
-                        //   end: 0,
-                        //   duration: Duration(milliseconds: 500),
-                        //   delay: Duration(milliseconds: 200),
-                        // ),
                       ),
                       Column(
                         children: [
@@ -1716,7 +1809,9 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                             child:
                                 ElevatedButton(
                                   onPressed: () async {
-                                    FocusScope.of(context).unfocus();
+                                    if (FocusScope.of(context).hasFocus) {
+                                      FocusScope.of(context).unfocus();
+                                    }
                                     if (_emailController.text.contains(
                                           "@gmail.com",
                                         ) ==
@@ -1744,6 +1839,12 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       nothingShouldWork = true;
                                     });
                                     ref.invalidate(loginForSignUp);
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1831",
+                                      );
+                                      return;
+                                    }
                                     final List response = await ref
                                         .read(
                                           loginForSignUp({
@@ -1761,7 +1862,12 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                             {"message": "Network Error!"},
                                           ],
                                         );
-                                    print(response);
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1854",
+                                      );
+                                      return;
+                                    }
                                     try {
                                       bool theMessageIamLookingFor =
                                           response[1]["message"] ==
@@ -1832,7 +1938,15 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                             child:
                                 ElevatedButton(
                                   onPressed: () async {
-                                    FocusScope.of(context).unfocus();
+                                    //invalidate stuff in my account so the user login will not be seeing those data
+                                    ref.invalidate(aboutMe);
+                                    ref.invalidate(viewBackupHistoryPassed);
+                                    ref.invalidate(viewBackupHistory);
+                                    ref.invalidate(resetLinkFutureProvider);
+                                    ref.invalidate(resetLink);
+                                    if (FocusScope.of(context).hasFocus) {
+                                      FocusScope.of(context).unfocus();
+                                    }
                                     if (_emailController.text.contains(
                                           "@gmail.com",
                                         ) ==
@@ -1860,6 +1974,12 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       nothingShouldWork = true;
                                     });
                                     ref.invalidate(loginForSignUp);
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1956",
+                                      );
+                                      return;
+                                    }
                                     final List response = await ref
                                         .read(
                                           loginForSignUp({
@@ -1877,7 +1997,12 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                             {"message": "Network Error!"},
                                           ],
                                         );
-                                    print(response);
+                                    if (!mounted) {
+                                      print(
+                                        "i don unmount am. RestoreAndREset :ln  1981",
+                                      );
+                                      return;
+                                    }
                                     if (response[0] != 200) {
                                       notifier(
                                         context: context,
@@ -1938,7 +2063,6 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                                       }
                                     }
 
-                                    // print(response);
                                     setState(() {
                                       nothingShouldWork = false;
                                     });

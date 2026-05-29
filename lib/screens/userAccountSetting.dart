@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
+import 'package:lecture_tracker/homepage_stacks/today.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
 import 'package:http/http.dart' as http;
@@ -89,6 +90,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) return;
+          if (!mounted) {
+            print("i don unmount am. UserAccountSetting :ln  93");
+            return;
+          }
           router.pop();
         },
         child: Stack(
@@ -107,6 +112,12 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                     children: [
                       IconButton(
                         onPressed: () {
+                          if (!mounted) {
+                            print(
+                              "i don unmount am. UserAccountSetting :ln  116",
+                            );
+                            return;
+                          }
                           router.pop();
                         },
                         icon: Icon(
@@ -249,6 +260,30 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                             ),
                             onPressed: () {
                               if (ref.read(offlineConfig) == false) return;
+                              //to check if user have their credentials ready or not
+                              if (lookForSettingBox().get("backupPassword") ==
+                                      null &&
+                                  lookForSettingBox().get("backupEmail") ==
+                                      null) {
+                                notifier(
+                                  duration: Duration(seconds: 4),
+                                  context: context,
+                                  message:
+                                      "Access Denied\nlogin credentials missing",
+                                  bg: Colors.red,
+                                  fg: Colors.white,
+                                );
+                                ref.read(isRestoreDataClicked.notifier).state =
+                                    true;
+                                if (!mounted) {
+                                  print(
+                                    "i don unmount am. UserAccountSetting :ln  280",
+                                  );
+                                  return;
+                                }
+                                router.go("/settings");
+                                return;
+                              }
                               ref.read(offlineConfig.notifier).state = false;
                               customUniqueKeyOnline = UniqueKey();
                             },
@@ -438,11 +473,15 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                           background: ref.watch(
                                                             backgroundColor,
                                                           ),
+
                                                           dismissDirection:
                                                               DismissDirection
                                                                   .up,
                                                           description: Text(
                                                             "No change in username dectected",
+                                                            style: TextStyle(
+                                                              color: Colors.red,
+                                                            ),
                                                           ),
                                                         ).show(context);
                                                         return;
@@ -509,104 +548,130 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                         ),
 
                                         //auto dark mode
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            IconButton(
-                                              onPressed: null,
-                                              icon: Icon(Icons.auto_awesome),
-                                              color: ref.watch(foreGroundColor),
-                                              disabledColor: ref.watch(
-                                                foreGroundColor,
-                                              ),
-                                            ),
-
-                                            Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Text(
-                                                "Auto Dark Mode",
-                                                style: TextStyle(
-                                                  letterSpacing: -1,
-                                                  wordSpacing: 1.4,
-                                                  fontSize: 17.sp.clamp(0, 17),
-                                                  fontWeight: FontWeight.w600,
-                                                  color: ref.watch(
-                                                    foreGroundColor,
+                                        InkWell(
+                                          onTap: () {
+                                            //changing it to false
+                                            if (ref.read(autoThemeChange)) {
+                                              ref
+                                                      .read(
+                                                        autoThemeChange
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  false;
+                                              lookForSettingBox().delete(
+                                                "autoDarkModeInterval",
+                                              );
+                                              _firstHour = 0;
+                                              _firstMinuteFirst = 0;
+                                              _firstMinuteSecond = 0;
+                                              _secondHour = 0;
+                                              _secondMinuteFirst = 0;
+                                              _secondMinuteSecond = 0;
+                                            }
+                                            //changing it to true
+                                            else {
+                                              ref
+                                                      .read(
+                                                        autoThemeChange
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  true;
+                                            }
+                                          },
+                                          child:
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: null,
+                                                    icon: Icon(
+                                                      Icons.auto_awesome,
+                                                    ),
+                                                    color: ref.watch(
+                                                      foreGroundColor,
+                                                    ),
+                                                    disabledColor: ref.watch(
+                                                      foreGroundColor,
+                                                    ),
                                                   ),
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(child: SizedBox()),
-                                            InkWell(
-                                              onTap: () {
-                                                //changing it to false
-                                                if (ref.read(autoThemeChange)) {
-                                                  ref
-                                                          .read(
-                                                            autoThemeChange
-                                                                .notifier,
-                                                          )
-                                                          .state =
-                                                      false;
-                                                  lookForSettingBox().delete(
-                                                    "autoDarkModeInterval",
-                                                  );
-                                                  _firstHour = 0;
-                                                  _firstMinuteFirst = 0;
-                                                  _firstMinuteSecond = 0;
-                                                  _secondHour = 0;
-                                                  _secondMinuteFirst = 0;
-                                                  _secondMinuteSecond = 0;
-                                                }
-                                                //changing it to true
-                                                else {
-                                                  ref
-                                                          .read(
-                                                            autoThemeChange
-                                                                .notifier,
-                                                          )
-                                                          .state =
-                                                      true;
-                                                }
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                  vertical: 5,
-                                                  horizontal: 5,
-                                                ),
-                                                margin: EdgeInsets.all(10),
 
-                                                decoration: BoxDecoration(
-                                                  color: ref
-                                                      .watch(foreGroundColor)
-                                                      .withAlpha(100),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                        Radius.circular(10),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          10,
+                                                        ),
+                                                    child: Text(
+                                                      "Auto Dark Mode",
+                                                      style: TextStyle(
+                                                        letterSpacing: -1,
+                                                        wordSpacing: 1.4,
+                                                        fontSize: 17.sp.clamp(
+                                                          0,
+                                                          17,
+                                                        ),
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: ref.watch(
+                                                          foreGroundColor,
+                                                        ),
                                                       ),
-                                                ),
-                                                child: Text(
-                                                  ref.watch(autoThemeChange)
-                                                      ? " Active  "
-                                                      : "Inactive",
-                                                  style: TextStyle(
-                                                    color: ref.watch(lightMode)
-                                                        ? ref.watch(
+                                                    ),
+                                                  ),
+                                                  Expanded(child: SizedBox()),
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical: 5,
+                                                          horizontal: 5,
+                                                        ),
+                                                    margin: EdgeInsets.all(10),
+
+                                                    decoration: BoxDecoration(
+                                                      color: ref
+                                                          .watch(
                                                             foreGroundColor,
                                                           )
-                                                        : Colors.white54,
+                                                          .withAlpha(100),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                            Radius.circular(10),
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      lookForSettingBox().get(
+                                                                    "autoDarkModeInterval",
+                                                                  ) !=
+                                                                  null &&
+                                                              ref.read(
+                                                                autoThemeChange,
+                                                              )
+                                                          ? " Enabled "
+                                                          : "Disabled",
+                                                      style: TextStyle(
+                                                        color:
+                                                            ref.watch(lightMode)
+                                                            ? ref.watch(
+                                                                foreGroundColor,
+                                                              )
+                                                            : Colors.white54,
+                                                      ),
+                                                    ),
                                                   ),
+                                                ],
+                                              ).animate().slideX(
+                                                curve: Curves.decelerate,
+                                                begin: -2,
+                                                end: 0,
+                                                delay: Duration(
+                                                  milliseconds: 600,
+                                                ),
+                                                duration: Duration(
+                                                  milliseconds: 700,
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ).animate().slideX(
-                                          curve: Curves.decelerate,
-                                          begin: -2,
-                                          end: 0,
-                                          delay: Duration(milliseconds: 600),
-                                          duration: Duration(milliseconds: 700),
                                         ),
                                         //the prompt for confirmation of auto dark mode
                                         AnimatedCrossFade(
@@ -792,7 +857,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                           child: ListBody(
                                                             children: <Widget>[
                                                               Text(
-                                                                'Tapping on each box inside above the \'Click Me \' is used to update the time with the format beign \nH : MM to H : MM',
+                                                                'Tapping on each box inside above the \'Click to confirm update \' is used to update the time with the format beign \nH : MM to H : MM',
                                                                 style: TextStyle(
                                                                   fontWeight:
                                                                       FontWeight
@@ -829,7 +894,13 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                           ),
                                                         ),
                                                         actions: [
-                                                          TextButton(
+                                                          ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              foregroundColor:
+                                                                  Colors.white,
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                            ),
                                                             onPressed: () {
                                                               _firstHour =
                                                                   lookForSettingBox()
@@ -950,14 +1021,22 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                             },
                                                             child: Text(
                                                               "Reset",
-                                                              style: TextStyle(
-                                                                color: ref.watch(
-                                                                  backgroundColor,
-                                                                ),
-                                                              ),
                                                             ),
                                                           ),
-                                                          TextButton(
+                                                          ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              foregroundColor:
+                                                                  ref.watch(
+                                                                    backgroundColor,
+                                                                  ),
+                                                              backgroundColor: ref
+                                                                  .watch(
+                                                                    foreGroundColor,
+                                                                  )
+                                                                  .withAlpha(
+                                                                    190,
+                                                                  ),
+                                                            ),
                                                             onPressed: () async {
                                                               final autoDarkModeStart =
                                                                   "${_firstHour < 10 ? "0$_firstHour" : "$_firstHour"}:$_firstMinuteFirst$_firstMinuteSecond";
@@ -981,6 +1060,14 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                               Navigator.of(
                                                                 context,
                                                               ).pop();
+                                                              //for the success to showup
+                                                              ref
+                                                                      .read(
+                                                                        successAnimation
+                                                                            .notifier,
+                                                                      )
+                                                                      .state =
+                                                                  true;
                                                             },
                                                             child: Text(
                                                               "update",
@@ -1000,7 +1087,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                       top: 5,
                                                     ),
                                                     child: Text(
-                                                      "Click Me",
+                                                      "Click To Confirm Update",
                                                       style:
                                                           customButtomTextStyle
                                                               .copyWith(
@@ -1237,7 +1324,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              )
+                                                              ).reversed
                                                             : [Text("No Logs")],
                                                       ],
                                                     ),
@@ -1343,7 +1430,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              )
+                                                              ).reversed
                                                             : [Text("No Logs")],
                                                       ],
                                                     ),
@@ -1379,6 +1466,8 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                   title: Text(
                                                     "Warning!",
                                                     style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       color: ref.watch(
                                                         backgroundColor,
                                                       ),
@@ -1396,17 +1485,89 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                   ),
                                                   actions: [
                                                     ElevatedButton(
-                                                      onPressed: () {},
-                                                      child: Text("Proceed"),
+                                                      style:
+                                                          ElevatedButton.styleFrom(
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                          ),
+                                                      onPressed: () {
+                                                        //invalidate just to be sure cancel will not trigger anything.
+                                                        ref.invalidate(
+                                                          _nothingShouldWorkConfirmer,
+                                                        );
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                      },
+                                                      child: Text("Cancel"),
                                                     ),
                                                     ElevatedButton(
-                                                      onPressed: () {},
-                                                      child: Text("Cancel"),
+                                                      style: ElevatedButton.styleFrom(
+                                                        foregroundColor: ref
+                                                            .watch(
+                                                              backgroundColor,
+                                                            ),
+                                                        backgroundColor: ref
+                                                            .watch(
+                                                              foreGroundColor,
+                                                            )
+                                                            .withAlpha(190),
+                                                      ),
+                                                      onPressed: () {
+                                                        ref
+                                                                .watch(
+                                                                  _nothingShouldWorkConfirmer
+                                                                      .notifier,
+                                                                )
+                                                                .state =
+                                                            true;
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
+                                                      },
+                                                      child: Text("Proceed"),
                                                     ),
                                                   ],
                                                 );
                                               },
                                             );
+                                            //check if nothing should work confiurmer is false - we start the action if no
+                                            if (!ref.read(
+                                              _nothingShouldWorkConfirmer,
+                                            ))
+                                              return; //this will stop the code from continueing
+                                            ref
+                                                    .read(
+                                                      _nothingShouldWork
+                                                          .notifier,
+                                                    )
+                                                    .state =
+                                                true;
+                                            //check if cancel was trigged in the nothingshouldeork or it was unmounted
+                                            if (!mounted ||
+                                                !ref.read(_nothingShouldWork)) {
+                                              print(
+                                                "i don unmount am. UserAccountSetting :ln  1499",
+                                              );
+                                              return;
+                                            }
+                                            //start the delete
+                                            final locator = await CustomDbClass
+                                                .instance
+                                                .getter;
+                                            await locator.rawDelete(
+                                              "DELETE FROM lectureTrackers",
+                                            );
+                                            ref.invalidate(_nothingShouldWork);
+                                            //show success
+                                            ref
+                                                    .read(
+                                                      successAnimation.notifier,
+                                                    )
+                                                    .state =
+                                                true;
                                           },
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
@@ -1441,6 +1602,15 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                               ],
                                             ),
                                           ),
+                                        ).animate().slideX(
+                                          curve: Curves.decelerate,
+                                          begin: 2,
+                                          end: 0,
+                                          delay: Duration(
+                                            seconds: 1,
+                                            milliseconds: 200,
+                                          ),
+                                          duration: Duration(milliseconds: 650),
                                         ),
                                         LottieBuilder.asset(
                                           "assets/lottie/morning.json",
@@ -1458,26 +1628,62 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              columnData(
-                                                text: "View Backup History",
-                                                ref: ref,
-                                                iconData: Icons.history,
-                                                onTap: () {},
-                                                iconOnTap: () {},
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  columnData(
+                                                    text: "View Backup History",
+                                                    ref: ref,
+                                                    iconData: Icons.history,
+                                                    onTap: () {},
+                                                  ),
+                                                  Text(
+                                                    "swipe >",
+                                                    style: TextStyle(
+                                                      color: ref.watch(
+                                                        foreGroundColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                               Expanded(
                                                 child: FutureBuilder(
                                                   future: Future(() async {
                                                     List dataToUse = [];
+                                                    //this tell that the data have been passed before so no need to re get it that way, no constant server db hitting will be done
                                                     if (ref.watch(
                                                       viewBackupHistoryPassed,
                                                     )) {
+                                                      print(
+                                                        "Starting... Reading backup history from cache",
+                                                      );
                                                       dataToUse = await ref
                                                           .read(
                                                             viewBackupHistory
                                                                 .future,
+                                                          )
+                                                          .timeout(
+                                                            Duration(
+                                                              seconds: 8,
+                                                            ),
+                                                            onTimeout: () => [
+                                                              404,
+                                                              {
+                                                                "message":
+                                                                    "Network Issues",
+                                                              },
+                                                            ],
                                                           );
-                                                    } else {
+                                                    }
+                                                    //the data will be refecthed properly cos it have not been passed or reget was triggered(icons.refresh)
+                                                    else {
+                                                      print(
+                                                        "starting... Getting backup history list from server",
+                                                      );
+
                                                       ref
                                                               .read(
                                                                 viewBackupHistoryPassed
@@ -1489,6 +1695,12 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                       ref.invalidate(
                                                         viewBackupHistory,
                                                       );
+                                                      if (!mounted) {
+                                                        print(
+                                                          "i don unmount am. UserAccountSetting :ln  1573",
+                                                        );
+                                                        return null;
+                                                      }
                                                       dataToUse = await ref
                                                           .read(
                                                             viewBackupHistory
@@ -1506,6 +1718,12 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                               },
                                                             ],
                                                           );
+                                                      if (!mounted) {
+                                                        print(
+                                                          "i don unmount am. UserAccountSetting :ln  1596",
+                                                        );
+                                                        return null;
+                                                      }
                                                     }
 
                                                     return dataToUse;
@@ -1515,27 +1733,50 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                         BuildContext builder,
                                                         AsyncSnapshot snapshot,
                                                       ) {
-                                                        print(snapshot.data);
+                                                        print(
+                                                          snapshot.data?[0],
+                                                        );
                                                         if (snapshot
                                                                 .connectionState ==
                                                             ConnectionState
                                                                 .waiting) {
+                                                          //waiting phase
                                                           return Center(
-                                                            child: CircularProgressIndicator(
-                                                              color: ref.watch(
-                                                                foreGroundColor,
+                                                            child: Container(
+                                                              width: 70,
+                                                              height: 7,
+                                                              decoration:
+                                                                  BoxDecoration(),
+                                                              child: LinearProgressIndicator(
+                                                                color: ref.watch(
+                                                                  foreGroundColor,
+                                                                ),
                                                               ),
                                                             ),
                                                           );
                                                         } else if (snapshot
                                                             .hasData) {
+                                                          //data don dey
                                                           //for when the status is not 200
                                                           if (snapshot
                                                                   .data[0] !=
                                                               200) {
                                                             return SingleChildScrollView(
                                                               child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
                                                                 children: [
+                                                                  Text(
+                                                                    "statuscode : ${snapshot.data[0]}, response : ${snapshot.data[1]["message"]}",
+                                                                    style: TextStyle(
+                                                                      color: Colors
+                                                                          .red,
+                                                                    ),
+                                                                  ),
                                                                   IconButton(
                                                                     onPressed: () {
                                                                       ref.invalidate(
@@ -1763,6 +2004,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                                               foregroundColor: Colors.white,
                                                                                             ),
                                                                                             onPressed: () {
+                                                                                              //invalidate it so it will always be false by the time data retreival is about to begin
+                                                                                              ref.invalidate(
+                                                                                                _nothingShouldWorkConfirmer,
+                                                                                              );
                                                                                               Navigator.of(
                                                                                                 context,
                                                                                               ).pop();
@@ -1775,6 +2020,12 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                                       );
                                                                                     },
                                                                               );
+                                                                              if (!mounted) {
+                                                                                print(
+                                                                                  "i don unmount am. UserAccountSetting :ln  1892",
+                                                                                );
+                                                                                return;
+                                                                              }
                                                                               if (ref.read(
                                                                                     _nothingShouldWorkConfirmer,
                                                                                   ) ==
@@ -1792,6 +2043,15 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                               final url = await Uri.parse(
                                                                                 "${ref.read(domain)}alltimeHistory/",
                                                                               );
+                                                                              if (!mounted ||
+                                                                                  !ref.read(
+                                                                                    _nothingShouldWork,
+                                                                                  )) {
+                                                                                print(
+                                                                                  "i don unmount am. UserAccountSetting :ln  1915",
+                                                                                );
+                                                                                return;
+                                                                              }
                                                                               final request = await http.post(
                                                                                 url,
                                                                                 headers: {
@@ -1809,9 +2069,27 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                                   },
                                                                                 ),
                                                                               );
+                                                                              if (!mounted ||
+                                                                                  !ref.read(
+                                                                                    _nothingShouldWork,
+                                                                                  )) {
+                                                                                print(
+                                                                                  "i don unmount am. UserAccountSetting :ln  1944",
+                                                                                );
+                                                                                return;
+                                                                              }
                                                                               final response = await jsonDecode(
                                                                                 request.body,
                                                                               );
+                                                                              if (!mounted ||
+                                                                                  !ref.read(
+                                                                                    _nothingShouldWork,
+                                                                                  )) {
+                                                                                print(
+                                                                                  "i don unmount am. UserAccountSetting :ln  1947",
+                                                                                );
+                                                                                return;
+                                                                              }
                                                                               List
                                                                               data = [
                                                                                 request.statusCode,
@@ -1821,7 +2099,24 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                               if (data[0] ==
                                                                                   200) {
                                                                                 final locator = await CustomDbClass.instance.getter;
-
+                                                                                //let the user know if they cancel here, loss of data fit occur.
+                                                                                ElegantNotification.info(
+                                                                                  background: ref.watch(
+                                                                                    foreGroundColor,
+                                                                                  ),
+                                                                                  description: Text(
+                                                                                    "WARNING!!!. Please, do not press cancel as cancelling here can lead to loss of data",
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      fontSize: 12.sp,
+                                                                                      color: Colors.red.withAlpha(
+                                                                                        90,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ).show(
+                                                                                  context,
+                                                                                );
                                                                                 await locator.rawDelete(
                                                                                   "DELETE FROM todayLectures",
                                                                                 );
@@ -1832,12 +2127,12 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                                   "DELETE FROM lectureTrackers",
                                                                                 );
 
-                                                                                //draw the date back by one so the splashscreen can go pick data from the main table
-                                                                                lookForSettingBox().put(
-                                                                                  "todayDate",
-                                                                                  DateTime.now().day -
-                                                                                      1,
-                                                                                );
+                                                                                // //draw the date back by one so the splashscreen can go pick data from the main table
+                                                                                // lookForSettingBox().put(
+                                                                                //   "todayDate",
+                                                                                //   DateTime.now().day -
+                                                                                //       1,
+                                                                                // ); brb cos i am trying to fix the issue of data beign pick from main table istead of today table - it works for now
                                                                                 //Now update it
                                                                                 //update the past lectures
                                                                                 for (Map i in data[1]["message"]["history"]) {
@@ -1864,7 +2159,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                                 }
 
                                                                                 //update the main table
-                                                                                for (Map i in data[1]["message"]["currentData"])
+                                                                                for (Map i in data[1]["message"]["currentData"]) {
                                                                                   insertIntoMainLectures(
                                                                                     dbLocator: locator,
                                                                                     title: i["title"],
@@ -1873,8 +2168,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                                     dayOfTheWeek: i["dayOfTheWeek"],
                                                                                     color: i["color"],
                                                                                   );
+                                                                                }
 
                                                                                 //update success, now show the lottie
+
                                                                                 ref
                                                                                         .read(
                                                                                           successAnimation.notifier,
@@ -1898,22 +2195,24 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                           ),
                                                                         ],
                                                                       ),
+                                                                    ).animate().slideX(
+                                                                      begin: -2,
+                                                                      end: 0,
+                                                                      curve: Curves
+                                                                          .bounceInOut,
+                                                                      duration: Duration(
+                                                                        seconds:
+                                                                            1,
+                                                                      ),
+                                                                      delay: Duration(
+                                                                        milliseconds:
+                                                                            (((snapshot.data?[1]["message"]
+                                                                                        as List)
+                                                                                    .length) -
+                                                                                index) *
+                                                                            350,
+                                                                      ),
                                                                     );
-                                                                    // .animate().slideX(
-                                                                    //   begin: -2,
-                                                                    //   end: 0,
-                                                                    //   curve: Curves
-                                                                    //       .bounceInOut,
-                                                                    //   duration: Duration(
-                                                                    //     seconds:
-                                                                    //         1,
-                                                                    //   ),
-                                                                    //   delay: Duration(
-                                                                    //     milliseconds:
-                                                                    //         index *
-                                                                    //         350,
-                                                                    //   ),
-                                                                    // );
                                                                   },
                                                                 ).reversed,
                                                                 IconButton(
@@ -1969,6 +2268,741 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                               ),
                                             ],
                                           ),
+                                          //Reset page - password, email and username
+                                          Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  columnData(
+                                                    text:
+                                                        "Receive Reset Password Link",
+                                                    ref: ref,
+                                                    iconData: Icons
+                                                        .attach_email_sharp,
+                                                    onTap: () async {
+                                                      print(
+                                                        "starting ... Reset Password Link",
+                                                      );
+                                                      //set nothing should work as active
+                                                      ref
+                                                              .read(
+                                                                _nothingShouldWork
+                                                                    .notifier,
+                                                              )
+                                                              .state =
+                                                          true;
+                                                      ref.invalidate(
+                                                        resetLinkFutureProvider,
+                                                      );
+                                                      ref.invalidate(resetLink);
+                                                      if (!mounted ||
+                                                          !ref.read(
+                                                            _nothingShouldWork,
+                                                          )) {
+                                                        print(
+                                                          "i don unmount am. UserAccountSetting :ln  2288",
+                                                        );
+                                                        return;
+                                                      }
+                                                      final data = await ref
+                                                          .read(
+                                                            resetLinkFutureProvider({
+                                                              "heading":
+                                                                  "PASSWORD RESET",
+                                                            }).future,
+                                                          )
+                                                          .timeout(
+                                                            Duration(
+                                                              seconds: 8,
+                                                            ),
+                                                            onTimeout: () => [
+                                                              404,
+                                                              {
+                                                                "message":
+                                                                    "Network Timeout",
+                                                              },
+                                                            ],
+                                                          );
+                                                      if (!mounted ||
+                                                          !ref.read(
+                                                            _nothingShouldWork,
+                                                          )) {
+                                                        print(
+                                                          "i don unmount am. UserAccountSetting :ln  2312",
+                                                        );
+                                                        return;
+                                                      }
+                                                      print(data);
+                                                      //put out the nothing should work
+                                                      ref.invalidate(
+                                                        _nothingShouldWork,
+                                                      );
+                                                      if (data[0] == 200) {
+                                                        ref
+                                                            .read(
+                                                              resetLink
+                                                                  .notifier,
+                                                            )
+                                                            .state = [
+                                                          data[0],
+                                                          "Email Sent to \n${lookForSettingBox().get("backupEmail")}\nTime : ${TimeOfDay.now().format(context)}",
+                                                        ];
+                                                        return;
+                                                      }
+                                                      ref
+                                                          .read(
+                                                            resetLink.notifier,
+                                                          )
+                                                          .state = [
+                                                        data[0],
+                                                        "${data[1]["message"]}\nTime : ${TimeOfDay.now().format(context)}",
+                                                      ];
+
+                                                      print("End...");
+                                                    },
+                                                  ),
+
+                                                  //for the swipe indicator
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "swipe",
+                                                        style: TextStyle(
+                                                          color: ref.watch(
+                                                            foreGroundColor,
+                                                          ),
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                        ),
+                                                      ),
+                                                      Icon(
+                                                        color: ref.watch(
+                                                          foreGroundColor,
+                                                        ),
+                                                        Icons.chevron_right,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              columnData(
+                                                text:
+                                                    "Receive Reset Email Link",
+                                                ref: ref,
+                                                iconData: Icons.history,
+                                                onTap: () async {
+                                                  //debug
+
+                                                  print(
+                                                    "starting ... Reset Email Link",
+                                                  );
+                                                  //set nothing should work as active
+                                                  ref
+                                                          .read(
+                                                            _nothingShouldWork
+                                                                .notifier,
+                                                          )
+                                                          .state =
+                                                      true;
+                                                  ref.invalidate(
+                                                    resetLinkFutureProvider,
+                                                  );
+                                                  ref.invalidate(resetLink);
+                                                  if (!mounted ||
+                                                      !ref.read(
+                                                        _nothingShouldWork,
+                                                      )) {
+                                                    print(
+                                                      "i don unmount am. UserAccountSetting :ln  2397",
+                                                    );
+                                                    return;
+                                                  }
+                                                  final data = await ref
+                                                      .read(
+                                                        resetLinkFutureProvider(
+                                                          {
+                                                            "heading":
+                                                                "EMAIL RESET",
+                                                          },
+                                                        ).future,
+                                                      )
+                                                      .timeout(
+                                                        Duration(seconds: 8),
+                                                        onTimeout: () => [
+                                                          404,
+                                                          {
+                                                            "message":
+                                                                "Network Timeout",
+                                                          },
+                                                        ],
+                                                      );
+                                                  if (!mounted ||
+                                                      !ref.read(
+                                                        _nothingShouldWork,
+                                                      )) {
+                                                    print(
+                                                      "i don unmount am. UserAccountSetting :ln  2423",
+                                                    );
+                                                    return;
+                                                  }
+                                                  print(data);
+                                                  //put out the nothing should work
+                                                  ref.invalidate(
+                                                    _nothingShouldWork,
+                                                  );
+                                                  if (data[0] == 200) {
+                                                    ref
+                                                        .read(
+                                                          resetLink.notifier,
+                                                        )
+                                                        .state = [
+                                                      data[0],
+                                                      "Email Sent to \n${lookForSettingBox().get("backupEmail")}\nTime : ${TimeOfDay.now().format(context)}",
+                                                    ];
+                                                    return;
+                                                  }
+                                                  ref
+                                                      .read(resetLink.notifier)
+                                                      .state = [
+                                                    data[0],
+                                                    "${data[1]["message"]}\nTime : ${TimeOfDay.now().format(context)}",
+                                                  ];
+
+                                                  print("End...");
+
+                                                  //debug
+                                                },
+                                              ),
+                                              columnData(
+                                                text:
+                                                    "Receive Reset username Link",
+                                                ref: ref,
+                                                iconData: Icons.history,
+                                                onTap: () async {
+                                                  print(
+                                                    "starting ... Reset username Link",
+                                                  );
+                                                  //set nothing should work as active
+                                                  ref
+                                                          .read(
+                                                            _nothingShouldWork
+                                                                .notifier,
+                                                          )
+                                                          .state =
+                                                      true;
+                                                  ref.invalidate(
+                                                    resetLinkFutureProvider,
+                                                  );
+                                                  ref.invalidate(resetLink);
+                                                  if (!mounted ||
+                                                      !ref.read(
+                                                        _nothingShouldWork,
+                                                      )) {
+                                                    print(
+                                                      "i don unmount am. UserAccountSetting :ln  2474",
+                                                    );
+                                                    return;
+                                                  }
+                                                  final data = await ref
+                                                      .read(
+                                                        resetLinkFutureProvider({
+                                                          "heading":
+                                                              "USERNAME RESET",
+                                                        }).future,
+                                                      )
+                                                      .timeout(
+                                                        Duration(seconds: 8),
+                                                        onTimeout: () => [
+                                                          404,
+                                                          {
+                                                            "message":
+                                                                "Network Timeout",
+                                                          },
+                                                        ],
+                                                      );
+                                                  if (!mounted ||
+                                                      !ref.read(
+                                                        _nothingShouldWork,
+                                                      )) {
+                                                    print(
+                                                      "i don unmount am. UserAccountSetting :ln  2500",
+                                                    );
+                                                    return;
+                                                  }
+                                                  print(data);
+                                                  //put out the nothing should work
+                                                  ref.invalidate(
+                                                    _nothingShouldWork,
+                                                  );
+                                                  if (data[0] == 200) {
+                                                    ref
+                                                        .read(
+                                                          resetLink.notifier,
+                                                        )
+                                                        .state = [
+                                                      data[0],
+                                                      "Email Sent to \n${lookForSettingBox().get("backupEmail")}\nTime : ${TimeOfDay.now().format(context)}",
+                                                    ];
+                                                    return;
+                                                  }
+                                                  ref
+                                                      .read(resetLink.notifier)
+                                                      .state = [
+                                                    data[0],
+                                                    "${data[1]["message"]}\nTime : ${TimeOfDay.now().format(context)}",
+                                                  ];
+
+                                                  print("End...");
+                                                },
+                                              ),
+                                              Expanded(
+                                                child: Container(
+                                                  width: ref
+                                                      .watch(deviceSizeX)
+                                                      .w,
+
+                                                  decoration: BoxDecoration(
+                                                    color: ref
+                                                        .watch(foreGroundColor)
+                                                        .withAlpha(29),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                          Radius.circular(10),
+                                                        ),
+                                                  ),
+                                                  child: AnimatedCrossFade(
+                                                    duration: Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                    sizeCurve:
+                                                        Curves.decelerate,
+                                                    firstChild: Center(
+                                                      child: LottieBuilder.asset(
+                                                        "assets/lottie/awaiting.json",
+                                                      ),
+                                                    ),
+                                                    secondChild: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  vertical: 10,
+                                                                ),
+                                                            child: LottieBuilder.asset(
+                                                              repeat: false,
+                                                              ref.watch(
+                                                                        resetLink,
+                                                                      )[0] !=
+                                                                      200
+                                                                  ? "assets/lottie/error.json"
+                                                                  : ref.watch(
+                                                                      lightMode,
+                                                                    )
+                                                                  ? "assets/lottie/email_sent_light.json"
+                                                                  : "assets/lottie/email_sent_dark.json",
+                                                            ),
+                                                          ),
+                                                        ),
+
+                                                        Expanded(
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  vertical: 5,
+                                                                  horizontal: 6,
+                                                                ),
+                                                            margin:
+                                                                EdgeInsets.all(
+                                                                  10,
+                                                                ),
+
+                                                            decoration: BoxDecoration(
+                                                              color: ref
+                                                                  .watch(
+                                                                    foreGroundColor,
+                                                                  )
+                                                                  .withAlpha(
+                                                                    100,
+                                                                  ),
+                                                              borderRadius:
+                                                                  BorderRadius.all(
+                                                                    Radius.circular(
+                                                                      10,
+                                                                    ),
+                                                                  ),
+                                                            ),
+                                                            child: Text(
+                                                              ref
+                                                                      .watch(
+                                                                        resetLink,
+                                                                      )[1]
+                                                                      .toString()
+                                                                      .isEmpty
+                                                                  ? "No Message"
+                                                                  : ref.watch(
+                                                                      resetLink,
+                                                                    )[1],
+                                                              style: TextStyle(
+                                                                color:
+                                                                    ref.watch(
+                                                                      lightMode,
+                                                                    )
+                                                                    ? Colors
+                                                                          .black54
+                                                                    : Colors
+                                                                          .white70,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                      //brb
+                                                    ),
+                                                    crossFadeState:
+                                                        ref.watch(
+                                                              resetLink,
+                                                            )[0] ==
+                                                            999
+                                                        ? CrossFadeState
+                                                              .showFirst
+                                                        : CrossFadeState
+                                                              .showSecond,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          //view user details on server
+                                          Column(
+                                            children: [
+                                              columnData(
+                                                ref: ref,
+                                                iconData: Icons.person,
+                                                onTap: () {},
+                                                text: "Your Online Data",
+                                                customMainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                              ),
+                                              Expanded(
+                                                child: FutureBuilder(
+                                                  future: Future(() async {
+                                                    //so as to stop calling the about me if the response is 200
+                                                    if (ref
+                                                            .read(aboutMe)
+                                                            .value?[0] ==
+                                                        200) {
+                                                      print(
+                                                        " Starting ... reading Your Online Data from cache",
+                                                      );
+                                                      return ref
+                                                          .read(aboutMe)
+                                                          .value;
+                                                    }
+                                                    //hit the server since no local file is avail
+                                                    print(
+                                                      "Starting ...  Getting the Your Online Data from the server",
+                                                    );
+                                                    ref.invalidate(aboutMe);
+                                                    if (!mounted) {
+                                                      print(
+                                                        "i don unmount am. UserAccountSetting :ln  2707",
+                                                      );
+                                                      return [
+                                                        400,
+                                                        {
+                                                          "message":
+                                                              "unmounted",
+                                                        },
+                                                      ];
+                                                    }
+                                                    final dataToReturn = await ref
+                                                        .watch(aboutMe.future)
+                                                        .timeout(
+                                                          Duration(seconds: 8),
+                                                          onTimeout: () => [
+                                                            404,
+                                                            {
+                                                              "message":
+                                                                  "network issues",
+                                                            },
+                                                          ],
+                                                        );
+                                                    if (!mounted) {
+                                                      print(
+                                                        "i don unmount am. UserAccountSetting :ln  2707",
+                                                      );
+                                                      return [
+                                                        400,
+                                                        {
+                                                          "message":
+                                                              "unmounted",
+                                                        },
+                                                      ];
+                                                    }
+                                                    print(dataToReturn);
+                                                    return dataToReturn;
+                                                  }),
+                                                  builder: (builder, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      return Center(
+                                                        child: Container(
+                                                          width:
+                                                              ref
+                                                                  .watch(
+                                                                    deviceSizeX,
+                                                                  )
+                                                                  .w *
+                                                              0.2,
+                                                          child: LinearProgressIndicator(
+                                                            color: ref.watch(
+                                                              foreGroundColor,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                    if (snapshot.hasData) {
+                                                      if (snapshot.data?[0] ==
+                                                          200) {
+                                                        return SingleChildScrollView(
+                                                          child: Column(
+                                                            children: [
+                                                              ...List.generate(
+                                                                (snapshot.data?[1]
+                                                                        as Map)
+                                                                    .length,
+                                                                (index) {
+                                                                  String
+                                                                  rhsText =
+                                                                      ""; //for the username, email, last_login etc of the user onlinr
+                                                                  try {
+                                                                    rhsText =
+                                                                        index ==
+                                                                                2 ||
+                                                                            index ==
+                                                                                3
+                                                                        ? DateFormat(
+                                                                            "dd MMM yyyy, hh:mm a",
+                                                                          ).format(
+                                                                            DateTime.parse(
+                                                                              "${(snapshot.data?[1] as Map).values.toList()[index]}",
+                                                                            ),
+                                                                          )
+                                                                        : (snapshot.data?[1]
+                                                                                  as Map)
+                                                                              .values
+                                                                              .toList()[index];
+                                                                  } catch (e) {
+                                                                    rhsText =
+                                                                        "${(snapshot.data?[1] as Map).values.toList()[index]}";
+                                                                  }
+                                                                  return Container(
+                                                                    margin: EdgeInsets.symmetric(
+                                                                      vertical:
+                                                                          10,
+                                                                    ),
+                                                                    child: SingleChildScrollView(
+                                                                      scrollDirection:
+                                                                          Axis.horizontal,
+                                                                      child: Row(
+                                                                        children: [
+                                                                          Container(
+                                                                            width:
+                                                                                125,
+                                                                            child: ElevatedButton(
+                                                                              style: ElevatedButton.styleFrom(
+                                                                                disabledBackgroundColor: ref.watch(
+                                                                                  foreGroundColor,
+                                                                                ),
+                                                                                disabledForegroundColor: ref.watch(
+                                                                                  backgroundColor,
+                                                                                ),
+                                                                                shadowColor: ref
+                                                                                    .watch(
+                                                                                      foreGroundColor,
+                                                                                    )
+                                                                                    .withAlpha(
+                                                                                      180,
+                                                                                    ),
+                                                                                elevation: 2,
+
+                                                                                shape: RoundedRectangleBorder(),
+                                                                                side: BorderSide(
+                                                                                  color: ref
+                                                                                      .watch(
+                                                                                        foreGroundColor,
+                                                                                      )
+                                                                                      .withAlpha(
+                                                                                        30,
+                                                                                      ),
+                                                                                  width: 2,
+                                                                                ),
+                                                                              ),
+                                                                              onPressed: null,
+                                                                              child: Text(
+                                                                                "${(snapshot.data?[1] as Map).keys.toList()[index]}",
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          Padding(
+                                                                            padding: const EdgeInsets.all(
+                                                                              8.0,
+                                                                            ),
+                                                                            child: Text(
+                                                                              rhsText,
+                                                                              style: TextStyle(
+                                                                                color: ref
+                                                                                    .watch(
+                                                                                      foreGroundColor,
+                                                                                    )
+                                                                                    .withAlpha(
+                                                                                      200,
+                                                                                    ),
+                                                                                fontWeight: FontWeight.bold,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ).animate().slideX(
+                                                                curve: Curves
+                                                                    .easeInOut,
+                                                                duration:
+                                                                    Duration(
+                                                                      seconds:
+                                                                          1,
+                                                                    ),
+                                                                begin: 3,
+                                                                end: 0,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                      } else if (snapshot
+                                                              .data?[0] !=
+                                                          200) {
+                                                        return Column(
+                                                          children: [
+                                                            LottieBuilder.asset(
+                                                              "assets/lottie/error.json",
+                                                            ),
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceEvenly,
+                                                              children: [
+                                                                Container(
+                                                                  padding:
+                                                                      EdgeInsets.all(
+                                                                        10,
+                                                                      ),
+                                                                  decoration: BoxDecoration(
+                                                                    color: ref
+                                                                        .watch(
+                                                                          foreGroundColor,
+                                                                        )
+                                                                        .withAlpha(
+                                                                          200,
+                                                                        ),
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                          Radius.circular(
+                                                                            10,
+                                                                          ),
+                                                                        ),
+                                                                  ),
+                                                                  child: Text(
+                                                                    "${snapshot.data?[1]["message"]}\nTime Sent : ${TimeOfDay.now().format(context)}",
+                                                                    style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      color:
+                                                                          ref.watch(
+                                                                            lightMode,
+                                                                          )
+                                                                          ? Colors.white
+                                                                          : Colors.black,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                IconButton(
+                                                                  onPressed: () {
+                                                                    if ((ref
+                                                                                .read(
+                                                                                  aboutMe,
+                                                                                )
+                                                                                .value?[1]["message"]
+                                                                            as String)
+                                                                        .contains(
+                                                                          "token",
+                                                                        ))
+                                                                      lookForSettingBox()
+                                                                          .delete(
+                                                                            "auth_key",
+                                                                          );
+                                                                    lookForSettingBox()
+                                                                        .delete(
+                                                                          "backupEmail",
+                                                                        );
+                                                                    lookForSettingBox()
+                                                                        .delete(
+                                                                          "backupPassword",
+                                                                        );
+                                                                    ref
+                                                                            .read(
+                                                                              isBackupClicked.notifier,
+                                                                            )
+                                                                            .state =
+                                                                        true;
+                                                                    router.go(
+                                                                      "/settings",
+                                                                    );
+                                                                  },
+
+                                                                  icon: Icon(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    Icons
+                                                                        .refresh,
+                                                                    color: ref
+                                                                        .watch(
+                                                                          foreGroundColor,
+                                                                        ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }
+                                                    }
+                                                    return Text("error");
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ), //brb
                                         ],
                                       ),
                                     ),
@@ -1992,6 +3026,13 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                 "backupPassword",
                               );
                               await lookForSettingBox().delete("backupEmail");
+                              ref.invalidate(offlineConfig);
+                              ref.invalidate(isChangeTimeLogActive);
+                              ref.invalidate(resetLink);
+                              ref.invalidate(resetLinkFutureProvider);
+                              ref.invalidate(viewBackupHistory);
+                              ref.invalidate(viewBackupHistoryPassed);
+                              ref.invalidate(aboutMe);
                               ref.read(successAnimation.notifier).state = true;
                             },
                             child: Text(
@@ -2018,6 +3059,12 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                             await Future.delayed(Duration(seconds: 2));
                             ref.invalidate(successAnimation);
                             await Future.delayed(Duration(milliseconds: 500));
+                            if (!mounted) {
+                              print(
+                                "i don unmount am. UserAccountSetting :ln  2517",
+                              );
+                              return;
+                            }
                             router.pop();
                           },
                           width: ref.watch(deviceSizeX) * 0.3.w,
@@ -2036,7 +3083,9 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                   ? Container(
                       width: ref.watch(deviceSizeX).w,
                       height: ref.watch(deviceSizeY).h,
-                      color: Colors.white54,
+                      color: ref.watch(lightMode)
+                          ? Colors.white54
+                          : Colors.black54,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -2084,12 +3133,11 @@ final isChangeUsernameActive = StateProvider((ref) {
 final successAnimation = StateProvider((ref) {
   return false;
 });
-//come here to edit the input like ontap and co etc //brb
 Widget columnData({
+  MainAxisAlignment? customMainAxisAlignment,
   required WidgetRef ref,
   required IconData iconData,
   required void Function() onTap,
-  required void Function() iconOnTap,
   required String text,
 }) {
   return Padding(
@@ -2097,9 +3145,10 @@ Widget columnData({
     child: InkWell(
       onTap: onTap,
       child: Row(
+        mainAxisAlignment: customMainAxisAlignment ?? MainAxisAlignment.start,
         children: [
           IconButton(
-            onPressed: iconOnTap,
+            onPressed: null,
             icon: Icon(iconData, color: ref.watch(foreGroundColor)),
           ),
           Text(
@@ -2187,7 +3236,6 @@ final isChangeTimeLogActive = StateProvider((ref) {
 });
 
 final viewBackupHistory = FutureProvider<List>((ref) async {
-  print("starting");
   final url = await Uri.parse("${ref.read(domain)}alltimeHistory/");
   //sending request
   final request = await http.post(
@@ -2212,4 +3260,39 @@ final _nothingShouldWork = StateProvider<bool>((ref) {
 
 final _nothingShouldWorkConfirmer = StateProvider((ref) {
   return false;
+});
+
+final resetLink = StateProvider<List>((ref) {
+  return [999, ""];
+});
+
+final resetLinkFutureProvider = FutureProvider.family((
+  ref,
+  Map dataToSend,
+) async {
+  final url = await Uri.parse(
+    "${ref.read(domain)}otp/json/?heading=${dataToSend["heading"]}",
+  );
+  final request = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"email": await lookForSettingBox().get("backupEmail")}),
+  );
+  final dataToUse = await [request.statusCode, await jsonDecode(request.body)];
+  return dataToUse;
+});
+
+final aboutMe = FutureProvider((ref) async {
+  final url = await Uri.parse("${ref.read(domain)}userDetails/");
+  print(lookForSettingBox().get("auth_key").toString().length);
+  final request = await http.get(
+    url.replace(
+      queryParameters: {
+        "email": {lookForSettingBox().get("backupEmail")},
+        "auth_key": {lookForSettingBox().get("auth_key")},
+      },
+    ),
+  );
+  final response = await jsonDecode(request.body);
+  return ([request.statusCode, response]);
 });

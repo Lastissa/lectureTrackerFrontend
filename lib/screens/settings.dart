@@ -13,6 +13,7 @@ import 'package:lecture_tracker/screens/analysis.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
 import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
+import 'package:lecture_tracker/screens/userAccountSetting.dart';
 
 import 'package:lecture_tracker/utils.dart';
 import 'package:lottie/lottie.dart';
@@ -100,22 +101,22 @@ class _SettingsState extends ConsumerState<Settings> {
                           //backup / restore widget
                           InkWell(
                             onTap: () {
-                              if (lookForSettingBox().get("backupPassword") ==
-                                      null &&
-                                  lookForSettingBox().get("backupEmail") ==
-                                      null) {
-                                notifier(
-                                  duration: Duration(seconds: 4),
-                                  context: context,
-                                  message:
-                                      "Access Denied\nlogin credentials missing",
-                                  bg: Colors.red,
-                                  fg: Colors.white,
-                                );
-                                ref.read(isRestoreDataClicked.notifier).state =
-                                    true;
-                                return;
-                              }
+                              // if (lookForSettingBox().get("backupPassword") ==
+                              //         null &&
+                              //     lookForSettingBox().get("backupEmail") ==
+                              //         null) {
+                              //   notifier(
+                              //     duration: Duration(seconds: 4),
+                              //     context: context,
+                              //     message:
+                              //         "Access Denied\nlogin credentials missing",
+                              //     bg: Colors.red,
+                              //     fg: Colors.white,
+                              //   );
+                              //   ref.read(isRestoreDataClicked.notifier).state =
+                              //       true;
+                              //   return;
+                              // }
                               router.push("/Useraccountsetting");
                             },
                             child: Container(
@@ -521,6 +522,8 @@ class _SettingsState extends ConsumerState<Settings> {
                                                   ref.invalidate(
                                                     aiNavBarContent,
                                                   );
+                                                  ref.invalidate(offlineConfig);
+                                                  ref.invalidate(domain);
                                                   router.go('/splashScreen');
                                                 },
                                               ),

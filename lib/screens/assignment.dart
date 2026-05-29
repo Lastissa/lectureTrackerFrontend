@@ -97,7 +97,11 @@ class _AssignmentState extends ConsumerState<Assignment> {
               ),
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
-                child: Column(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [LottieBuilder.asset("assets/lottie/coming.json")],
+                ),
               ),
             ),
           ),

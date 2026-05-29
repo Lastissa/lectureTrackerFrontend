@@ -53,6 +53,7 @@ dependencies:
   fl_chart: ^0.66.0 #For chart and the likes
   share_plus: ^12.0.2 # For sharing the app link
   url_launcher: ^6.3.2 #for opening links in the browser about me or stuff
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   flutter_test:
