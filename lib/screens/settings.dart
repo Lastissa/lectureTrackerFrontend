@@ -49,26 +49,9 @@ class _SettingsState extends ConsumerState<Settings> {
     return Scaffold(
       backgroundColor: ref.watch(backgroundColor),
       appBar: AppBar(
-        toolbarHeight: ref.read(deviceSizeY) * 0.2.h,
+        toolbarHeight: 0, //ref.read(deviceSizeY) * 0.2.h,
         backgroundColor: ref.read(backgroundColor),
-        title: Container(
-          width: ref.watch(deviceSizeX).w,
-          height: ref.watch(deviceSizeY) * 0.2.h,
-          color: ref.watch(backgroundColor),
-          child: Center(
-            child: Text(
-              '\nSETTINGS',
-              textAlign: TextAlign.center,
-
-              style: TextStyle(
-                fontSize: 28.sp.clamp(0, 28),
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-                color: ref.watch(foreGroundColor),
-              ),
-            ),
-          ),
-        ),
+        // title:
       ),
       body: PopScope(
         canPop: false,
@@ -86,14 +69,33 @@ class _SettingsState extends ConsumerState<Settings> {
           ref.invalidate(isRestoreDataClicked);
           router.go('/splashScreen');
         },
-        child: Padding(
+        child: Container(
           padding: EdgeInsets.symmetric(
             horizontal: ref.watch(deviceSizeX) * 0.09.w,
           ),
           child: Stack(
             children: [
+              // Positioned(child: ref.watch(darkBg)),
               Column(
                 children: [
+                  Container(
+                    width: ref.watch(deviceSizeX).w,
+                    height: ref.watch(deviceSizeY) * 0.2.h,
+                    color: ref.watch(backgroundColor),
+                    child: Center(
+                      child: Text(
+                        '\nSETTINGS',
+                        textAlign: TextAlign.center,
+
+                        style: TextStyle(
+                          fontSize: 28.sp.clamp(0, 28),
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                          color: ref.watch(foreGroundColor),
+                        ),
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
@@ -1023,14 +1025,25 @@ class _SettingsState extends ConsumerState<Settings> {
                 ],
               ),
               Positioned(
+                // bottom: ref.watch(deviceSizeY).h * 0.2,
                 child: AnimatedCrossFade(
                   firstChild: Builder(
                     builder: (context) {
                       //Check if its backup that is active or recover data that is active
                       if (ref.read(isBackupClicked)) {
-                        return BackupAndReset(uniqueKey: UniqueKey());
+                        return Container(
+                          margin: EdgeInsets.only(
+                            top: ref.watch(deviceSizeY).h * 0.2,
+                          ),
+                          child: BackupAndReset(uniqueKey: UniqueKey()),
+                        );
                       } else if (ref.read(isRestoreDataClicked)) {
-                        return RestoreAndReset(uniqueKey: UniqueKey());
+                        return Container(
+                          margin: EdgeInsets.only(
+                            top: ref.watch(deviceSizeY).h * 0.2,
+                          ),
+                          child: RestoreAndReset(uniqueKey: UniqueKey()),
+                        );
                       } else {
                         return SizedBox();
                       }

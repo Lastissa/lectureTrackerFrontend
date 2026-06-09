@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lecture_tracker/db.dart';
 import 'package:lecture_tracker/main.dart';
+import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 
 // Assuming your lightMode provider is defined in a providers file
@@ -73,1004 +74,1057 @@ class _SignupState extends ConsumerState<Signup> {
         onPopInvokedWithResult: (didPop, result) {
           router.go('/splashScreen');
         },
-        child: SizedBox(
-          width: ref.watch(deviceSizeX).w,
-          height: ref.watch(deviceSizeY).h,
-          child: Stack(
-            children: [
-              Center(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: ref.watch(deviceSizeX) * 0.07.w,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(height: 32),
-                        Text(
-                          "Get Started",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 28.sp.clamp(0, 28),
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            color: isLight ? Colors.black87 : Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: ref.watch(deviceSizeY) * 0.05.h),
-
-                        // Username Input with Shadow
-                        _buildModernField(
-                          isLight: isLight,
-                          controller: _usernameController,
-                          hint: "Username",
-                          icon: Icons.person_outline_rounded,
-                          validator: (value) {
-                            if (_usernameController.text.isEmpty) {
-                              return 'Required';
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: ref.watch(deviceSizeY) * 0.02.h),
-
-                        // _buildModernField(isLight: isLight, controller: _courseCountController, hint: 'Number of Courses', icon: Icons., validator: validator)
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          margin: EdgeInsets.symmetric(vertical: 10),
-                          width: ref.watch(deviceSizeX) * 0.9.w,
-                          height: 220,
-                          decoration: BoxDecoration(
-                            // color: Colors.black12,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildModernField(
-                                isLight: isLight,
-                                controller: _courseCodeController,
-                                hint: 'COURSE CODE',
-                                icon: Icons.bookmark_add_sharp,
-                                validator: (v) {
-                                  if (_courseCodeController.text.isEmpty) {
-                                    return 'required';
-                                  }
-                                  return null;
-                                },
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(8),
+            margin: ref.watch(deviceSizeX).w < 372 ? null : EdgeInsets.all(10),
+            width: ref.watch(deviceSizeX).w.clamp(0, 372),
+            height: ref.watch(deviceSizeY).h,
+            decoration: BoxDecoration(
+              color: ref.watch(backgroundColor),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0, 4),
+                  blurRadius: 4,
+                  color: Colors.black38,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Positioned(
+                //   child: Container(
+                //     margin: EdgeInsets.only(
+                //       bottom: ref.watch(deviceSizeY).h * 0.2,
+                //     ),
+                //     child: ref.watch(darkBg),
+                //   ),
+                // ),
+                Center(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ref.watch(deviceSizeX) * 0.07.w,
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(height: 32),
+                          InkWell(
+                            onTap: () {
+                              print(ref.read(deviceSizeX).w);
+                              print(ref.read(deviceSizeY).h);
+                            },
+                            child: Text(
+                              "Get Started",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 28.sp.clamp(0, 28),
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.5,
+                                color: isLight ? Colors.black87 : Colors.white,
                               ),
-                              Container(
-                                margin: EdgeInsets.only(top: 8),
-                                width: ref.watch(deviceSizeX) * 0.8.w,
-                                height: 35,
+                            ),
+                          ),
+                          SizedBox(height: ref.watch(deviceSizeY) * 0.05.h),
 
-                                clipBehavior: Clip.hardEdge,
-                                decoration: BoxDecoration(),
-                                child: AnimatedCrossFade(
-                                  //this one is the defualt one that will show when user enters the signin page normally
-                                  firstChild: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: CarouselSlider(
-                                          options: CarouselOptions(
-                                            pauseAutoPlayOnManualNavigate: true,
-                                            enableInfiniteScroll: true,
-                                            viewportFraction: 0.3,
-                                            autoPlayInterval: Duration(
-                                              seconds: 2,
+                          // Username Input with Shadow
+                          _buildModernField(
+                            isLight: isLight,
+                            controller: _usernameController,
+                            hint: "Username",
+                            icon: Icons.person_outline_rounded,
+                            validator: (value) {
+                              if (_usernameController.text.isEmpty) {
+                                return 'Required';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: ref.watch(deviceSizeY) * 0.02.h),
+
+                          // _buildModernField(isLight: isLight, controller: _courseCountController, hint: 'Number of Courses', icon: Icons., validator: validator)
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            margin: EdgeInsets.symmetric(vertical: 10),
+                            width: ref.watch(deviceSizeX) * 0.9.w,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              // color: Colors.black12,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildModernField(
+                                  isLight: isLight,
+                                  controller: _courseCodeController,
+                                  hint: 'COURSE CODE',
+                                  icon: Icons.bookmark_add_sharp,
+                                  validator: (v) {
+                                    if (_courseCodeController.text.isEmpty) {
+                                      return 'required';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: 8),
+                                  width: ref.watch(deviceSizeX) * 0.8.w,
+                                  height: 35,
+
+                                  clipBehavior: Clip.hardEdge,
+                                  decoration: BoxDecoration(),
+                                  child: AnimatedCrossFade(
+                                    //this one is the defualt one that will show when user enters the signin page normally
+                                    firstChild: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: CarouselSlider(
+                                            options: CarouselOptions(
+                                              pauseAutoPlayOnManualNavigate:
+                                                  true,
+                                              enableInfiniteScroll: true,
+                                              viewportFraction: 0.3,
+                                              autoPlayInterval: Duration(
+                                                seconds: 2,
+                                              ),
+                                              autoPlay: true,
                                             ),
-                                            autoPlay: true,
-                                          ),
-                                          items: List.generate(7, (index) {
-                                            return Container(
-                                              clipBehavior: Clip.hardEdge,
-                                              decoration: BoxDecoration(),
-                                              width: 70,
-                                              height: 30,
-                                              margin: EdgeInsets.only(
-                                                right: 10,
-                                                top: 1,
-                                                bottom: 1,
-                                              ),
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      ref.watch(lightMode)
-                                                      ? Colors.blue
-                                                      : Colors.greenAccent,
-                                                  foregroundColor:
-                                                      ref.watch(lightMode)
-                                                      ? Colors.white
-                                                      : Colors.black,
+                                            items: List.generate(7, (index) {
+                                              return Container(
+                                                clipBehavior: Clip.hardEdge,
+                                                decoration: BoxDecoration(),
+                                                width: 70,
+                                                height: 30,
+                                                margin: EdgeInsets.only(
+                                                  right: 10,
+                                                  top: 1,
+                                                  bottom: 1,
                                                 ),
-                                                onPressed: () {
-                                                  if (FocusScope.of(
-                                                    context,
-                                                  ).hasFocus) {
-                                                    FocusScope.of(
+                                                child: ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            ref.watch(lightMode)
+                                                            ? Colors.blue
+                                                            : Colors
+                                                                  .greenAccent,
+                                                        foregroundColor:
+                                                            ref.watch(lightMode)
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      ),
+                                                  onPressed: () {
+                                                    if (FocusScope.of(
                                                       context,
-                                                    ).unfocus();
-                                                  }
-                                                  ref
-                                                          .read(
-                                                            _dayOfTheWeekChoosen
-                                                                .notifier,
-                                                          )
-                                                          .state =
-                                                      true;
-                                                  //knowing the index first
-                                                  String knownIndex = [
-                                                    'M',
-                                                    'Tu',
-                                                    'W',
-                                                    'Th',
-                                                    'F',
-                                                    'S',
-                                                    'Su',
-                                                  ][index];
-                                                  ref
-                                                      .read(
-                                                        _dayOfTheWeekChoosenText
-                                                            .notifier,
-                                                      )
-                                                      .state = {
-                                                    'M': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[0], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                    'Tu': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[1], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                    'W': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[2], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                    'Th': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[3], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                    'F': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[4], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                    'S': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[5], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                    'Su': ref.read(
-                                                      wordWeekdayToInt,
-                                                    )[6], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
-                                                  }[knownIndex]!;
-                                                },
-                                                child: Text(
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                  [
-                                                    'M',
-                                                    'Tu',
-                                                    'W',
-                                                    'Th',
-                                                    'F',
-                                                    'S',
-                                                    'Su',
-                                                  ][index],
+                                                    ).hasFocus) {
+                                                      FocusScope.of(
+                                                        context,
+                                                      ).unfocus();
+                                                    }
+                                                    ref
+                                                            .read(
+                                                              _dayOfTheWeekChoosen
+                                                                  .notifier,
+                                                            )
+                                                            .state =
+                                                        true;
+                                                    //knowing the index first
+                                                    String knownIndex = [
+                                                      'M',
+                                                      'Tu',
+                                                      'W',
+                                                      'Th',
+                                                      'F',
+                                                      'S',
+                                                      'Su',
+                                                    ][index];
+                                                    ref
+                                                        .read(
+                                                          _dayOfTheWeekChoosenText
+                                                              .notifier,
+                                                        )
+                                                        .state = {
+                                                      'M': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[0], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                      'Tu': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[1], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                      'W': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[2], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                      'Th': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[3], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                      'F': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[4], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                      'S': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[5], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                      'Su': ref.read(
+                                                        wordWeekdayToInt,
+                                                      )[6], // using the provider for the days usage so i can have a universal edit of the way the days are formatted,
+                                                    }[knownIndex]!;
+                                                  },
+                                                  child: Text(
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.visible,
+                                                    [
+                                                      'M',
+                                                      'Tu',
+                                                      'W',
+                                                      'Th',
+                                                      'F',
+                                                      'S',
+                                                      'Su',
+                                                    ][index],
+                                                  ),
                                                 ),
-                                              ),
+                                              );
+                                            }),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    secondChild: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.blue
+                                                : Colors.greenAccent,
+                                            foregroundColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          onPressed: () {},
+                                          child: Text(
+                                            ref.watch(_dayOfTheWeekChoosenText),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.red
+                                                : Colors.red,
+                                            foregroundColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                          onPressed: () {
+                                            ref.invalidate(
+                                              _dayOfTheWeekChoosen,
                                             );
-                                          }),
+                                            ref.invalidate(
+                                              _dayOfTheWeekChoosenText,
+                                            );
+                                          },
+                                          child: Text('Rechoose'),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                    duration: Duration(milliseconds: 400),
+                                    sizeCurve: Curves.easeIn,
+                                    crossFadeState:
+                                        ref.watch(_dayOfTheWeekChoosen)
+                                        ? CrossFadeState.showSecond
+                                        : CrossFadeState.showFirst,
                                   ),
-                                  secondChild: Row(
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 10,
+                                    bottom: 10,
+                                  ),
+                                  child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceAround,
                                     children: [
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: ref.watch(lightMode)
-                                              ? Colors.blue
-                                              : Colors.greenAccent,
-                                          foregroundColor: ref.watch(lightMode)
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                        onPressed: () {},
-                                        child: Text(
-                                          ref.watch(_dayOfTheWeekChoosenText),
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: ref.watch(lightMode)
-                                              ? Colors.red
-                                              : Colors.red,
-                                          foregroundColor: ref.watch(lightMode)
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                        onPressed: () {
-                                          ref.invalidate(_dayOfTheWeekChoosen);
-                                          ref.invalidate(
-                                            _dayOfTheWeekChoosenText,
-                                          );
-                                        },
-                                        child: Text('Rechoose'),
-                                      ),
-                                    ],
-                                  ),
-                                  duration: Duration(milliseconds: 400),
-                                  sizeCurve: Curves.easeIn,
-                                  crossFadeState:
-                                      ref.watch(_dayOfTheWeekChoosen)
-                                      ? CrossFadeState.showSecond
-                                      : CrossFadeState.showFirst,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 10,
-                                  bottom: 10,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    //first Hour
-                                    _timeWidget(
-                                      ontap: () {
-                                        setState(() {
-                                          if (firstHour == 11) {
-                                            firstHour = 0;
-                                            secondHour = 0;
-                                            firstIndex = firstIndex == 0
-                                                ? 1
-                                                : 0;
-                                            secondIndex = firstIndex;
-                                          } else {
-                                            firstHour = firstHour + 1;
-                                            secondHour = firstHour;
-                                          }
-                                        });
-                                      },
-                                      text: firstHour == 0
-                                          ? '12'
-                                          : firstHour.toString(),
-                                      ref: ref,
-                                    ),
-                                    Text(
-                                      ':',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.black
-                                            : Colors.white,
-                                      ),
-                                    ),
-                                    //First Minutes
-                                    _timeWidget(
-                                      ontap: () {
-                                        setState(() {
-                                          if (firstMinute >= 55) {
+                                      //first Hour
+                                      _timeWidget(
+                                        ontap: () {
+                                          setState(() {
                                             if (firstHour == 11) {
+                                              firstHour = 0;
+                                              secondHour = 0;
                                               firstIndex = firstIndex == 0
                                                   ? 1
                                                   : 0;
                                               secondIndex = firstIndex;
+                                            } else {
+                                              firstHour = firstHour + 1;
+                                              secondHour = firstHour;
                                             }
-                                            firstMinute = 0;
-                                            secondMinute = 0;
-                                            firstHour = firstHour == 11
-                                                ? 0
-                                                : firstHour + 1;
-                                            secondHour = secondHour == 11
-                                                ? 0
-                                                : secondHour + 1;
-                                          } else {
-                                            firstMinute = firstMinute + 5;
-                                            secondMinute = firstMinute;
-                                          }
-                                        });
-                                      },
-                                      text: firstMinute < 10
-                                          ? "0${firstMinute}"
-                                          : firstMinute.toString(),
-                                      ref: ref,
-                                    ),
-                                    //First meridien - AM or PM
-                                    _timeWidget(
-                                      ontap: () {
-                                        setState(() {
-                                          if (firstIndex == 0) {
-                                            firstIndex = 1;
-                                          } else {
-                                            firstIndex = 0;
-                                          }
-                                          firstMeridien = [
-                                            'AM',
-                                            'PM',
-                                          ][firstIndex];
-                                          secondMeridien = [
-                                            'AM',
-                                            'PM',
-                                          ][firstIndex];
-                                          secondIndex = firstIndex;
-                                        });
-                                      },
-                                      text: ['AM', 'PM'][firstIndex],
-                                      ref: ref,
-                                    ),
-
-                                    Text(
-                                      'to',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.black
-                                            : Colors.white,
+                                          });
+                                        },
+                                        text: firstHour == 0
+                                            ? '12'
+                                            : firstHour.toString(),
+                                        ref: ref,
                                       ),
-                                    ),
-                                    //second hour
-                                    _timeWidget(
-                                      ontap: () {
-                                        setState(() {
-                                          if (secondHour == 11) {
-                                            secondHour = 0;
-                                            secondIndex = secondIndex == 0
-                                                ? 1
-                                                : 0;
-                                          } else {
-                                            secondHour = secondHour + 1;
-                                          }
-                                        });
-                                      },
-                                      text: secondHour == 0
-                                          ? '12'
-                                          : secondHour.toString(),
-                                      ref: ref,
-                                    ),
-
-                                    Text(
-                                      ':',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.black
-                                            : Colors.white,
+                                      Text(
+                                        ':',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: ref.watch(lightMode)
+                                              ? Colors.black
+                                              : Colors.white,
+                                        ),
                                       ),
-                                    ),
-                                    //second minute
-                                    _timeWidget(
-                                      ontap: () {
-                                        setState(() {
-                                          if (secondMinute >= 55) {
+                                      //First Minutes
+                                      _timeWidget(
+                                        ontap: () {
+                                          setState(() {
+                                            if (firstMinute >= 55) {
+                                              if (firstHour == 11) {
+                                                firstIndex = firstIndex == 0
+                                                    ? 1
+                                                    : 0;
+                                                secondIndex = firstIndex;
+                                              }
+                                              firstMinute = 0;
+                                              secondMinute = 0;
+                                              firstHour = firstHour == 11
+                                                  ? 0
+                                                  : firstHour + 1;
+                                              secondHour = secondHour == 11
+                                                  ? 0
+                                                  : secondHour + 1;
+                                            } else {
+                                              firstMinute = firstMinute + 5;
+                                              secondMinute = firstMinute;
+                                            }
+                                          });
+                                        },
+                                        text: firstMinute < 10
+                                            ? "0${firstMinute}"
+                                            : firstMinute.toString(),
+                                        ref: ref,
+                                      ),
+                                      //First meridien - AM or PM
+                                      _timeWidget(
+                                        ontap: () {
+                                          setState(() {
+                                            if (firstIndex == 0) {
+                                              firstIndex = 1;
+                                            } else {
+                                              firstIndex = 0;
+                                            }
+                                            firstMeridien = [
+                                              'AM',
+                                              'PM',
+                                            ][firstIndex];
+                                            secondMeridien = [
+                                              'AM',
+                                              'PM',
+                                            ][firstIndex];
+                                            secondIndex = firstIndex;
+                                          });
+                                        },
+                                        text: ['AM', 'PM'][firstIndex],
+                                        ref: ref,
+                                      ),
+
+                                      Text(
+                                        'to',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: ref.watch(lightMode)
+                                              ? Colors.black
+                                              : Colors.white,
+                                        ),
+                                      ),
+                                      //second hour
+                                      _timeWidget(
+                                        ontap: () {
+                                          setState(() {
                                             if (secondHour == 11) {
+                                              secondHour = 0;
                                               secondIndex = secondIndex == 0
                                                   ? 1
                                                   : 0;
+                                            } else {
+                                              secondHour = secondHour + 1;
                                             }
-                                            secondMinute = 0;
-                                            secondHour = secondHour == 11
-                                                ? 0
-                                                : secondHour + 1;
-                                          } else {
-                                            secondMinute = secondMinute + 5;
-                                          }
-                                        });
-                                      },
-                                      text: secondMinute < 10
-                                          ? "0${secondMinute}"
-                                          : secondMinute.toString(),
-                                      ref: ref,
-                                    ),
-                                    //second meridien - AM or PM
-                                    _timeWidget(
-                                      ontap: () {
+                                          });
+                                        },
+                                        text: secondHour == 0
+                                            ? '12'
+                                            : secondHour.toString(),
+                                        ref: ref,
+                                      ),
+
+                                      Text(
+                                        ':',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: ref.watch(lightMode)
+                                              ? Colors.black
+                                              : Colors.white,
+                                        ),
+                                      ),
+                                      //second minute
+                                      _timeWidget(
+                                        ontap: () {
+                                          setState(() {
+                                            if (secondMinute >= 55) {
+                                              if (secondHour == 11) {
+                                                secondIndex = secondIndex == 0
+                                                    ? 1
+                                                    : 0;
+                                              }
+                                              secondMinute = 0;
+                                              secondHour = secondHour == 11
+                                                  ? 0
+                                                  : secondHour + 1;
+                                            } else {
+                                              secondMinute = secondMinute + 5;
+                                            }
+                                          });
+                                        },
+                                        text: secondMinute < 10
+                                            ? "0${secondMinute}"
+                                            : secondMinute.toString(),
+                                        ref: ref,
+                                      ),
+                                      //second meridien - AM or PM
+                                      _timeWidget(
+                                        ontap: () {
+                                          setState(() {
+                                            if (secondIndex == 0) {
+                                              secondIndex = 1;
+                                            } else {
+                                              secondIndex = 0;
+                                            }
+                                          });
+                                          secondMeridien = [
+                                            'AM',
+                                            'PM',
+                                          ][secondIndex];
+                                        },
+                                        text: ['AM', 'PM'][secondIndex],
+                                        ref: ref,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    InkWell(
+                                      onLongPress: () => notifier(
+                                        context: context,
+                                        message: "clear current edit only",
+                                        fg: ref.watch(backgroundColor),
+                                        bg: ref.watch(foreGroundColor),
+                                      ),
+                                      onTap: () {
+                                        //wiping everything clean
+                                        ref.invalidate(_dayOfTheWeekChoosen);
+                                        ref.invalidate(
+                                          _dayOfTheWeekChoosenText,
+                                        );
+                                        _courseCodeController.text = '';
                                         setState(() {
-                                          if (secondIndex == 0) {
-                                            secondIndex = 1;
-                                          } else {
-                                            secondIndex = 0;
-                                          }
+                                          firstHour = 0;
+                                          firstMinute = 0;
+                                          firstIndex = 0;
+                                          secondHour = 0;
+                                          secondMinute = 0;
+                                          secondIndex = 0;
                                         });
-                                        secondMeridien = [
-                                          'AM',
-                                          'PM',
-                                        ][secondIndex];
                                       },
-                                      text: ['AM', 'PM'][secondIndex],
-                                      ref: ref,
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.red,
+                                        child: Icon(
+                                          Icons.restart_alt_rounded,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(width: 10),
+                                    InkWell(
+                                      onLongPress: () => notifier(
+                                        context: context,
+                                        message: "go back to last course",
+                                        fg: ref.watch(backgroundColor),
+                                        bg: ref.watch(foreGroundColor),
+                                      ),
+                                      onTap: ref.watch(_courseCreatedCount) == 0
+                                          ? () {
+                                              notifier(
+                                                context: context,
+                                                message: "no previous course!",
+                                                fg: ref.watch(backgroundColor),
+                                                bg: ref.watch(foreGroundColor),
+                                              );
+                                              return;
+                                            }
+                                          : () {
+                                              try {
+                                                ref
+                                                    .read(decoyDB.notifier)
+                                                    .state = ref
+                                                    .read(decoyDB)
+                                                    .sublist(
+                                                      0,
+                                                      ref.read(
+                                                        _courseCreatedCount,
+                                                      ),
+                                                    );
+                                              } catch (e) {
+                                                router.go(
+                                                  '/error',
+                                                  extra: e.toString(),
+                                                ); //do nothing
+                                                return;
+                                              }
+
+                                              ref
+                                                      .read(
+                                                        _courseCreatedCount
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  ref.read(
+                                                    _courseCreatedCount,
+                                                  ) -
+                                                  1;
+                                              List<Map> currentDataInDecoyDb =
+                                                  ref.read(decoyDB);
+                                              Map dataToReturnTo =
+                                                  currentDataInDecoyDb[ref.read(
+                                                    _courseCreatedCount,
+                                                  )];
+                                              //try to delete the last entry in the riverpod bfore the _coursecount reduce, if there is an index for it in the riverpod using the _courseCreatedCount
+                                              currentDataInDecoyDb.removeAt(
+                                                ref.read(_courseCreatedCount),
+                                              ); //i do not know how but this somehow remove the last entry in the riverpod and then i update the riverpod with the new list that have the last entry removed, this is for making sure say if user click the back button, e go just remove the last entry wey user add and then update the feilds with the data of the last entry wey be like a preview of the last entry, this one go make user experience better as e go make user know say na the last entry wey e add e be like e just remove and also e go make am easier for user to edit any mistake wey e make in the last entry without having to retype everything, user fit just click the back button and then correct the mistake and then click the add button again, this one go make the app more user friendly
+                                              _courseCodeController.text =
+                                                  dataToReturnTo['title'];
+                                              ref
+                                                      .read(
+                                                        _dayOfTheWeekChoosenText
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  dataToReturnTo['dayOfTheWeek'];
+                                              ref
+                                                      .read(
+                                                        _dayOfTheWeekChoosen
+                                                            .notifier,
+                                                      )
+                                                      .state =
+                                                  true;
+                                              //for the time period own
+                                              List _start_time =
+                                                  dataToReturnTo['start_time']
+                                                      ?.split(
+                                                        ':',
+                                                      ); //split the start time into ['hour', 'minutes meridien']
+                                              List _end_time =
+                                                  dataToReturnTo['end_time']?.split(
+                                                    ':',
+                                                  ); //split the end time into ['hour', 'minutes meridien']
+
+                                              setState(() {
+                                                firstHour = int.parse(
+                                                  _start_time[0],
+                                                ); //splitting the list and passing the first item of the splited variable
+                                                firstMinute = int.parse(
+                                                  (_start_time[1]).substring(
+                                                    0,
+                                                    2,
+                                                  ),
+                                                );
+                                                // taking the second index 'minute meridien' and since minutes cannot have more than two var i just substring the werey
+                                                firstIndex = ['AM', 'PM']
+                                                    .indexOf(
+                                                      (_start_time[1])
+                                                          .substring(3, 5)
+                                                          .toString()
+                                                          .trim(),
+                                                    );
+
+                                                //working on the time here and ctrl c and v for the second timing
+                                                secondHour = int.parse(
+                                                  _end_time[0],
+                                                ); //splitting the list and passing the first item of the splited variable
+                                                secondMinute = int.parse(
+                                                  (_end_time[1]).substring(
+                                                    0,
+                                                    2,
+                                                  ),
+                                                ); //taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
+                                                print(
+                                                  _end_time[1]
+                                                      .substring(
+                                                        _end_time[1]
+                                                                .toString()
+                                                                .length -
+                                                            2,
+                                                        _end_time[1]
+                                                            .toString()
+                                                            .length,
+                                                      )
+                                                      .toString()
+                                                      .trim(),
+                                                );
+                                                secondIndex = ['AM', 'PM']
+                                                    .indexOf(
+                                                      (_end_time[1])
+                                                          .substring(
+                                                            _end_time[1]
+                                                                    .toString()
+                                                                    .length -
+                                                                2,
+                                                            _end_time[1]
+                                                                .toString()
+                                                                .length,
+                                                          )
+                                                          .toString()
+                                                          .trim(),
+                                                    );
+                                              });
+                                            },
+                                      child: CircleAvatar(
+                                        backgroundColor:
+                                            ref.watch(_courseCreatedCount) == 0
+                                            ? const Color.fromARGB(
+                                                151,
+                                                158,
+                                                158,
+                                                158,
+                                              )
+                                            : const Color.fromARGB(
+                                                195,
+                                                68,
+                                                137,
+                                                255,
+                                              ),
+                                        child: Icon(
+                                          Icons.arrow_left_sharp,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+
+                                    Container(width: 10),
+                                    InkWell(
+                                      onLongPress: () => notifier(
+                                        context: context,
+                                        message: "add more course",
+                                        fg: ref.watch(backgroundColor),
+                                        bg: ref.watch(foreGroundColor),
+                                      ),
+                                      onTap: () {
+                                        //check if alll field have been
+                                        _formKey.currentState?.validate();
+                                        if (!ref.read(_dayOfTheWeekChoosen)) {
+                                          ElegantNotification(
+                                            description: Text(
+                                              'Day of week cannot be empty',
+                                            ),
+                                          ).show(context);
+                                          return;
+                                        } else if (_courseCodeController
+                                            .text
+                                            .isEmpty) {
+                                          return;
+                                        }
+
+                                        {
+                                          //add the already data to the provider
+                                          ref.read(
+                                            updateDecoyDb({
+                                              'title': _courseCodeController
+                                                  .text
+                                                  .trim()
+                                                  .toUpperCase(),
+                                              'start_time':
+                                                  '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                              'end_time':
+                                                  '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+
+                                              'dayOfTheWeek': ref.read(
+                                                _dayOfTheWeekChoosenText,
+                                              ),
+                                            }),
+                                          );
+                                          ref
+                                                  .read(
+                                                    _courseCreatedCount
+                                                        .notifier,
+                                                  )
+                                                  .state =
+                                              ref.read(_courseCreatedCount) +
+                                              1; //increment the course count by one
+                                          //all fields are filled, lecture card updated ,clear only the unnecesary feild and get ready for another inputs
+
+                                          _courseCodeController.text = '';
+                                          setState(() {
+                                            firstHour = secondHour;
+                                            firstMinute = secondMinute;
+                                            firstIndex = secondIndex;
+                                            secondHour = 0;
+                                            secondMinute = 0;
+                                          });
+                                          ElegantNotification(
+                                            progressIndicatorBackground:
+                                                ref.watch(lightMode)
+                                                ? Colors.white
+                                                : Colors.black,
+                                            progressIndicatorColor:
+                                                ref.watch(lightMode)
+                                                ? Colors.blue
+                                                : Colors.greenAccent,
+                                            background: ref.watch(lightMode)
+                                                ? Colors.white
+                                                : Colors.black,
+                                            description: Text(
+                                              'added',
+                                              style: TextStyle(
+                                                color: ref.watch(lightMode)
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                              ),
+                                            ),
+                                          ).show(context);
+                                        }
+                                      },
+                                      child: CircleAvatar(
+                                        backgroundColor: const Color.fromARGB(
+                                          195,
+                                          68,
+                                          137,
+                                          255,
+                                        ),
+                                        child: Icon(
+                                          Icons.add,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  InkWell(
-                                    onLongPress: () => notifier(
-                                      context: context,
-                                      message: "clear current edit only",
-                                      fg: ref.watch(backgroundColor),
-                                      bg: ref.watch(foreGroundColor),
-                                    ),
-                                    onTap: () {
-                                      //wiping everything clean
-                                      ref.invalidate(_dayOfTheWeekChoosen);
-                                      ref.invalidate(_dayOfTheWeekChoosenText);
-                                      _courseCodeController.text = '';
-                                      setState(() {
-                                        firstHour = 0;
-                                        firstMinute = 0;
-                                        firstIndex = 0;
-                                        secondHour = 0;
-                                        secondMinute = 0;
-                                        secondIndex = 0;
-                                      });
-                                    },
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      child: Icon(
-                                        Icons.restart_alt_rounded,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(width: 10),
-                                  InkWell(
-                                    onLongPress: () => notifier(
-                                      context: context,
-                                      message: "go back to last course",
-                                      fg: ref.watch(backgroundColor),
-                                      bg: ref.watch(foreGroundColor),
-                                    ),
-                                    onTap: ref.watch(_courseCreatedCount) == 0
-                                        ? () {
-                                            notifier(
-                                              context: context,
-                                              message: "no previous course!",
-                                              fg: ref.watch(backgroundColor),
-                                              bg: ref.watch(foreGroundColor),
-                                            );
-                                            return;
-                                          }
-                                        : () {
-                                            try {
-                                              ref
-                                                  .read(decoyDB.notifier)
-                                                  .state = ref
-                                                  .read(decoyDB)
-                                                  .sublist(
-                                                    0,
-                                                    ref.read(
-                                                      _courseCreatedCount,
-                                                    ),
-                                                  );
-                                            } catch (e) {
-                                              router.go(
-                                                '/error',
-                                                extra: e.toString(),
-                                              ); //do nothing
-                                              return;
-                                            }
-
-                                            ref
-                                                    .read(
-                                                      _courseCreatedCount
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                ref.read(_courseCreatedCount) -
-                                                1;
-                                            List<Map> currentDataInDecoyDb = ref
-                                                .read(decoyDB);
-                                            Map dataToReturnTo =
-                                                currentDataInDecoyDb[ref.read(
-                                                  _courseCreatedCount,
-                                                )];
-                                            //try to delete the last entry in the riverpod bfore the _coursecount reduce, if there is an index for it in the riverpod using the _courseCreatedCount
-                                            currentDataInDecoyDb.removeAt(
-                                              ref.read(_courseCreatedCount),
-                                            ); //i do not know how but this somehow remove the last entry in the riverpod and then i update the riverpod with the new list that have the last entry removed, this is for making sure say if user click the back button, e go just remove the last entry wey user add and then update the feilds with the data of the last entry wey be like a preview of the last entry, this one go make user experience better as e go make user know say na the last entry wey e add e be like e just remove and also e go make am easier for user to edit any mistake wey e make in the last entry without having to retype everything, user fit just click the back button and then correct the mistake and then click the add button again, this one go make the app more user friendly
-                                            _courseCodeController.text =
-                                                dataToReturnTo['title'];
-                                            ref
-                                                    .read(
-                                                      _dayOfTheWeekChoosenText
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                dataToReturnTo['dayOfTheWeek'];
-                                            ref
-                                                    .read(
-                                                      _dayOfTheWeekChoosen
-                                                          .notifier,
-                                                    )
-                                                    .state =
-                                                true;
-                                            //for the time period own
-                                            List _start_time =
-                                                dataToReturnTo['start_time']?.split(
-                                                  ':',
-                                                ); //split the start time into ['hour', 'minutes meridien']
-                                            List _end_time =
-                                                dataToReturnTo['end_time']?.split(
-                                                  ':',
-                                                ); //split the end time into ['hour', 'minutes meridien']
-
-                                            setState(() {
-                                              firstHour = int.parse(
-                                                _start_time[0],
-                                              ); //splitting the list and passing the first item of the splited variable
-                                              firstMinute = int.parse(
-                                                (_start_time[1]).substring(
-                                                  0,
-                                                  2,
-                                                ),
-                                              );
-                                              // taking the second index 'minute meridien' and since minutes cannot have more than two var i just substring the werey
-                                              firstIndex = ['AM', 'PM'].indexOf(
-                                                (_start_time[1])
-                                                    .substring(3, 5)
-                                                    .toString()
-                                                    .trim(),
-                                              );
-
-                                              //working on the time here and ctrl c and v for the second timing
-                                              secondHour = int.parse(
-                                                _end_time[0],
-                                              ); //splitting the list and passing the first item of the splited variable
-                                              secondMinute = int.parse(
-                                                (_end_time[1]).substring(0, 2),
-                                              ); //taking the second index 'minute meridien' and since min cannot have more than two var i just substring the werey
-                                              print(
-                                                _end_time[1]
-                                                    .substring(
-                                                      _end_time[1]
-                                                              .toString()
-                                                              .length -
-                                                          2,
-                                                      _end_time[1]
-                                                          .toString()
-                                                          .length,
-                                                    )
-                                                    .toString()
-                                                    .trim(),
-                                              );
-                                              secondIndex = ['AM', 'PM']
-                                                  .indexOf(
-                                                    (_end_time[1])
-                                                        .substring(
-                                                          _end_time[1]
-                                                                  .toString()
-                                                                  .length -
-                                                              2,
-                                                          _end_time[1]
-                                                              .toString()
-                                                              .length,
-                                                        )
-                                                        .toString()
-                                                        .trim(),
-                                                  );
-                                            });
-                                          },
-                                    child: CircleAvatar(
-                                      backgroundColor:
-                                          ref.watch(_courseCreatedCount) == 0
-                                          ? const Color.fromARGB(
-                                              151,
-                                              158,
-                                              158,
-                                              158,
-                                            )
-                                          : const Color.fromARGB(
-                                              195,
-                                              68,
-                                              137,
-                                              255,
-                                            ),
-                                      child: Icon(
-                                        Icons.arrow_left_sharp,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-
-                                  Container(width: 10),
-                                  InkWell(
-                                    onLongPress: () => notifier(
-                                      context: context,
-                                      message: "add more course",
-                                      fg: ref.watch(backgroundColor),
-                                      bg: ref.watch(foreGroundColor),
-                                    ),
-                                    onTap: () {
-                                      //check if alll field have been
-                                      _formKey.currentState?.validate();
-                                      if (!ref.read(_dayOfTheWeekChoosen)) {
-                                        ElegantNotification(
-                                          description: Text(
-                                            'Day of week cannot be empty',
-                                          ),
-                                        ).show(context);
-                                        return;
-                                      } else if (_courseCodeController
-                                          .text
-                                          .isEmpty) {
-                                        return;
-                                      }
-
-                                      {
-                                        //add the already data to the provider
-                                        ref.read(
-                                          updateDecoyDb({
-                                            'title': _courseCodeController.text
-                                                .trim()
-                                                .toUpperCase(),
-                                            'start_time':
-                                                '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
-                                            'end_time':
-                                                '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
-
-                                            'dayOfTheWeek': ref.read(
-                                              _dayOfTheWeekChoosenText,
-                                            ),
-                                          }),
-                                        );
-                                        ref
-                                                .read(
-                                                  _courseCreatedCount.notifier,
-                                                )
-                                                .state =
-                                            ref.read(_courseCreatedCount) +
-                                            1; //increment the course count by one
-                                        //all fields are filled, lecture card updated ,clear only the unnecesary feild and get ready for another inputs
-
-                                        _courseCodeController.text = '';
-                                        setState(() {
-                                          firstHour = secondHour;
-                                          firstMinute = secondMinute;
-                                          firstIndex = secondIndex;
-                                          secondHour = 0;
-                                          secondMinute = 0;
-                                        });
-                                        ElegantNotification(
-                                          progressIndicatorBackground:
-                                              ref.watch(lightMode)
-                                              ? Colors.white
-                                              : Colors.black,
-                                          progressIndicatorColor:
-                                              ref.watch(lightMode)
-                                              ? Colors.blue
-                                              : Colors.greenAccent,
-                                          background: ref.watch(lightMode)
-                                              ? Colors.white
-                                              : Colors.black,
-                                          description: Text(
-                                            'added',
-                                            style: TextStyle(
-                                              color: ref.watch(lightMode)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                            ),
-                                          ),
-                                        ).show(context);
-                                      }
-                                    },
-                                    child: CircleAvatar(
-                                      backgroundColor: const Color.fromARGB(
-                                        195,
-                                        68,
-                                        137,
-                                        255,
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: ref.watch(deviceSizeY) * 0.03.h),
+                          SizedBox(height: ref.watch(deviceSizeY) * 0.03.h),
 
-                        // Main Action Button
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (FocusScope.of(context).hasFocus) {
-                              FocusScope.of(context).unfocus();
-                            }
-                            try {
-                              //accout creation
-                              if (_formKey.currentState?.validate() ?? false) {
-                                //validate the course code and the userName field and make sure they are not a threath any longer then focus day of the week
-                                if (ref.read(_dayOfTheWeekChoosen) == false) {
-                                  ElegantNotification(
-                                    description: Text(
-                                      'Day of the week Cannot be empty.\nSelect day of the week',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
+                          // Main Action Button
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (FocusScope.of(context).hasFocus) {
+                                FocusScope.of(context).unfocus();
+                              }
+                              try {
+                                //accout creation
+                                if (_formKey.currentState?.validate() ??
+                                    false) {
+                                  //validate the course code and the userName field and make sure they are not a threath any longer then focus day of the week
+                                  if (ref.read(_dayOfTheWeekChoosen) == false) {
+                                    ElegantNotification(
+                                      description: Text(
+                                        'Day of the week Cannot be empty.\nSelect day of the week',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
-                                    ),
-                                  ).show(context);
-                                } else {
-                                  //this mean all fields have been filled and we are good to go with data addition and also leaving the page
-                                  //collect the data in the course selection last time just before creating account, this has to be last just before the page closes to avoid double entry
-                                  List<Map> allDataCollected = await ref.read(
-                                    decoyDB,
-                                  );
-                                  // return;
-                                  allDataCollected.add({
-                                    'title': _courseCodeController.text
-                                        .trim()
-                                        .toUpperCase(),
-                                    'start_time':
-                                        '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
-                                    'end_time':
-                                        '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
-
-                                    'dayOfTheWeek': ref.read(
-                                      _dayOfTheWeekChoosenText,
-                                    ),
-                                  });
-                                  //now i can go ahead and clear the entered fields{optional}
-                                  final Dblocator =
-                                      await CustomDbClass.instance.getter;
-                                  int index =
-                                      0; //this is just for color picking
-                                  //to make sure the all tables get overidden
-                                  await Dblocator.rawDelete(
-                                    "DELETE FROM userAllTimetable",
-                                  );
-
-                                  await deleteAllRowsPastLectures(
-                                    dbLocator: Dblocator,
-                                  );
-                                  await Dblocator.rawDelete(
-                                    "DELETE FROM todayLectures",
-                                  );
-
-                                  for (Map i in allDataCollected) {
-                                    await Dblocator.rawInsert(
-                                      "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
-                                      [
-                                        i['title'],
-                                        i['start_time'],
-                                        i['end_time'],
-                                        i['dayOfTheWeek'],
-                                        prefixColors[index],
-                                      ],
+                                    ).show(context);
+                                  } else {
+                                    //this mean all fields have been filled and we are good to go with data addition and also leaving the page
+                                    //collect the data in the course selection last time just before creating account, this has to be last just before the page closes to avoid double entry
+                                    List<Map> allDataCollected = await ref.read(
+                                      decoyDB,
                                     );
-                                    //to update the today lecture card
-                                    if (i.containsKey('dayOfTheWeek') &&
-                                        i['dayOfTheWeek'] ==
-                                            ref.read(
-                                              wordWeekdayToInt,
-                                            )[DateTime.now().weekday - 1]) {
-                                      await insertIntoTodayLectures(
-                                        dbLocator: Dblocator,
-                                        title: i['title'],
-                                        start_time: i['start_time'],
-                                        end_time: i['end_time'],
-                                        dayOfTheWeek: i['dayOfTheWeek'],
-                                        color: prefixColors[index],
-                                      );
-                                    }
-                                    //incase index get to twelve which is the maximum colour available, reset index to 0 -remove in the future if i have a way to add more colour
-                                    if ((prefixColors.length - 1) == index) {
-                                      index = 0;
-                                    } else {
-                                      index++;
-                                    }
-                                  }
-
-                                  //update the username if it is changed else just leave it
-                                  if (_usernameController.text
-                                          .trim()
-                                          .toLowerCase() !=
-                                      'user') {
-                                    lookForSettingBox().put(
-                                      'username',
-                                      _usernameController.text
+                                    // return;
+                                    allDataCollected.add({
+                                      'title': _courseCodeController.text
                                           .trim()
                                           .toUpperCase(),
+                                      'start_time':
+                                          '$firstHour:${firstMinute == 0 ? '00' : firstMinute} $firstMeridien',
+                                      'end_time':
+                                          '$secondHour:${secondMinute == 0 ? '00' : secondMinute} $secondMeridien',
+
+                                      'dayOfTheWeek': ref.read(
+                                        _dayOfTheWeekChoosenText,
+                                      ),
+                                    });
+                                    //now i can go ahead and clear the entered fields{optional}
+                                    final Dblocator =
+                                        await CustomDbClass.instance.getter;
+                                    int index =
+                                        0; //this is just for color picking
+                                    //to make sure the all tables get overidden
+                                    await Dblocator.rawDelete(
+                                      "DELETE FROM userAllTimetable",
                                     );
+
+                                    await deleteAllRowsPastLectures(
+                                      dbLocator: Dblocator,
+                                    );
+                                    await Dblocator.rawDelete(
+                                      "DELETE FROM todayLectures",
+                                    );
+
+                                    for (Map i in allDataCollected) {
+                                      await Dblocator.rawInsert(
+                                        "INSERT INTO userAllTimetable(title,start_time,end_time,dayOfTheWeek,color) VALUES(?, ?, ?, ?, ?)",
+                                        [
+                                          i['title'],
+                                          i['start_time'],
+                                          i['end_time'],
+                                          i['dayOfTheWeek'],
+                                          prefixColors[index],
+                                        ],
+                                      );
+                                      //to update the today lecture card
+                                      if (i.containsKey('dayOfTheWeek') &&
+                                          i['dayOfTheWeek'] ==
+                                              ref.read(
+                                                wordWeekdayToInt,
+                                              )[DateTime.now().weekday - 1]) {
+                                        await insertIntoTodayLectures(
+                                          dbLocator: Dblocator,
+                                          title: i['title'],
+                                          start_time: i['start_time'],
+                                          end_time: i['end_time'],
+                                          dayOfTheWeek: i['dayOfTheWeek'],
+                                          color: prefixColors[index],
+                                        );
+                                      }
+                                      //incase index get to twelve which is the maximum colour available, reset index to 0 -remove in the future if i have a way to add more colour
+                                      if ((prefixColors.length - 1) == index) {
+                                        index = 0;
+                                      } else {
+                                        index++;
+                                      }
+                                    }
+
+                                    //update the username if it is changed else just leave it
+                                    if (_usernameController.text
+                                            .trim()
+                                            .toLowerCase() !=
+                                        'user') {
+                                      lookForSettingBox().put(
+                                        'username',
+                                        _usernameController.text
+                                            .trim()
+                                            .toUpperCase(),
+                                      );
+                                    }
+                                    // invalidate all now useless providers
+                                    ref.invalidate(_courseCreatedCount);
+                                    ref.invalidate(_dayOfTheWeekChoosen);
+                                    ref.invalidate(_dayOfTheWeekChoosenText);
+                                    //this is for knowing wether to skip the signup page when user press the settings
+                                    await lookForSettingBox().put(
+                                      'userHaveCreatedCourses',
+                                      true,
+                                    );
+                                    await lookForSettingBox().put(
+                                      'todayDate',
+                                      DateTime.now().day,
+                                    ); //pass today date to the db so that we can use it in splashscreen
+                                    //since user is creating a new timetable, nullify the old ones
+
+                                    //where to go
+                                    router.go('/WelcomeAnimate');
                                   }
-                                  // invalidate all now useless providers
-                                  ref.invalidate(_courseCreatedCount);
-                                  ref.invalidate(_dayOfTheWeekChoosen);
-                                  ref.invalidate(_dayOfTheWeekChoosenText);
-                                  //this is for knowing wether to skip the signup page when user press the settings
-                                  await lookForSettingBox().put(
-                                    'userHaveCreatedCourses',
-                                    true,
-                                  );
-                                  await lookForSettingBox().put(
-                                    'todayDate',
-                                    DateTime.now().day,
-                                  ); //pass today date to the db so that we can use it in splashscreen
-                                  //since user is creating a new timetable, nullify the old ones
-
-                                  //where to go
-                                  router.go('/WelcomeAnimate');
                                 }
+                              } catch (e) {
+                                router.go('/error', extra: e.toString());
                               }
-                            } catch (e) {
-                              router.go('/error', extra: e.toString());
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isLight
-                                ? Colors.blueAccent
-                                : Colors.tealAccent,
-                            foregroundColor: isLight
-                                ? Colors.white
-                                : Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          child: Text(
-                            "CREATE ACCOUNT",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp.clamp(0, 16),
-                            ),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Divider(
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.teal,
-                                ),
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isLight
+                                  ? Colors.blueAccent
+                                  : Colors.tealAccent,
+                              foregroundColor: isLight
+                                  ? Colors.white
+                                  : Colors.black,
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: ref.watch(deviceSizeX) * 0.06.w,
+                            ),
+                            child: Text(
+                              "CREATE ACCOUNT",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp.clamp(0, 16),
+                              ),
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Divider(
+                                    color: ref.watch(lightMode)
+                                        ? Colors.blueAccent
+                                        : Colors.teal,
+                                  ),
                                 ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: ref.watch(deviceSizeX) * 0.06.w,
+                                  ),
+                                  child: Text(
+                                    "OR",
+                                    style: TextStyle(
+                                      color: ref.watch(lightMode)
+                                          ? Colors.black87
+                                          : Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Divider(
+                                    color: ref.watch(lightMode)
+                                        ? Colors.blueAccent
+                                        : Colors.teal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Back
+                          TextButton(
+                            onPressed: () {
+                              router.go('/Welcomesignup2');
+                              ref.invalidate(_comfirmpasswordOpen);
+                              ref.invalidate(_courseCreatedCount);
+                              ref.invalidate(_dayOfTheWeekChoosen);
+                              ref.invalidate(_dayOfTheWeekChoosenText);
+                            },
+
+                            child: Text(
+                              "Back",
+                              style: TextStyle(
+                                color: isLight
+                                    ? Colors.grey[700]
+                                    : Colors.grey[400],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                onPressed: () {},
                                 child: Text(
-                                  "OR",
+                                  "Privacy Policy",
                                   style: TextStyle(
                                     color: ref.watch(lightMode)
-                                        ? Colors.black87
-                                        : Colors.white70,
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
-                              Expanded(
-                                child: Divider(
-                                  color: ref.watch(lightMode)
-                                      ? Colors.blueAccent
-                                      : Colors.teal,
+                              VerticalDivider(
+                                color: ref.watch(foreGroundColor),
+                                thickness: 10,
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                child: Text(
+                                  "Term of use",
+                                  style: TextStyle(
+                                    color: ref.watch(lightMode)
+                                        ? Colors.black
+                                        : Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-
-                        // Back
-                        TextButton(
-                          onPressed: () {
-                            router.go('/Welcomesignup2');
-                            ref.invalidate(_comfirmpasswordOpen);
-                            ref.invalidate(_courseCreatedCount);
-                            ref.invalidate(_dayOfTheWeekChoosen);
-                            ref.invalidate(_dayOfTheWeekChoosenText);
-                          },
-
-                          child: Text(
-                            "Back",
-                            style: TextStyle(
-                              color: isLight
-                                  ? Colors.grey[700]
-                                  : Colors.grey[400],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "Privacy Policy",
-                                style: TextStyle(
-                                  color: ref.watch(lightMode)
-                                      ? Colors.black
-                                      : Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            VerticalDivider(
-                              color: ref.watch(foreGroundColor),
-                              thickness: 10,
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                "Term of use",
-                                style: TextStyle(
-                                  color: ref.watch(lightMode)
-                                      ? Colors.black
-                                      : Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Positioned(
-              //   child: Row(
-              //     children: [
-              //       InkWell(
-              //         onTap: () {
-              //           router.go('/splashScreen');
-              //           ref.invalidate(_comfirmpasswordOpen);
-              //           ref.invalidate(_courseCreatedCount);
-              //           ref.invalidate(_dayOfTheWeekChoosen);
-              //           ref.invalidate(_dayOfTheWeekChoosenText);
-              //         },
-              //         child: Container(
-              //           margin: EdgeInsets.all(10),
-              //           child: CircleAvatar(
-              //             backgroundColor: const Color.fromARGB(
-              //               255,
-              //               185,
-              //               56,
-              //               46,
-              //             ),
+                // Positioned(
+                //   child: Row(
+                //     children: [
+                //       InkWell(
+                //         onTap: () {
+                //           router.go('/splashScreen');
+                //           ref.invalidate(_comfirmpasswordOpen);
+                //           ref.invalidate(_courseCreatedCount);
+                //           ref.invalidate(_dayOfTheWeekChoosen);
+                //           ref.invalidate(_dayOfTheWeekChoosenText);
+                //         },
+                //         child: Container(
+                //           margin: EdgeInsets.all(10),
+                //           child: CircleAvatar(
+                //             backgroundColor: const Color.fromARGB(
+                //               255,
+                //               185,
+                //               56,
+                //               46,
+                //             ),
 
-              //             child: Icon(Icons.close, color: Colors.white),
-              //           ),
-              //         ),
-              //       ),
-              //       InkWell(
-              //         onTap: () {
-              //           if (ref.read(lightMode)) {
-              //             ref.read(lightMode.notifier).state = false;
-              //             lookForSettingBox().put('lightMode', false);
-              //           } else {
-              //             ref.read(lightMode.notifier).state = true;
-              //             lookForSettingBox().put('lightMode', true);
-              //           }
-              //         },
-              //         child: CircleAvatar(
-              //           backgroundColor: ref.watch(lightMode)
-              //               ? Colors.black87
-              //               : Colors.white70,
+                //             child: Icon(Icons.close, color: Colors.white),
+                //           ),
+                //         ),
+                //       ),
+                //       InkWell(
+                //         onTap: () {
+                //           if (ref.read(lightMode)) {
+                //             ref.read(lightMode.notifier).state = false;
+                //             lookForSettingBox().put('lightMode', false);
+                //           } else {
+                //             ref.read(lightMode.notifier).state = true;
+                //             lookForSettingBox().put('lightMode', true);
+                //           }
+                //         },
+                //         child: CircleAvatar(
+                //           backgroundColor: ref.watch(lightMode)
+                //               ? Colors.black87
+                //               : Colors.white70,
 
-              //           child: Icon(
-              //             ref.watch(lightMode)
-              //                 ? Icons.sunny
-              //                 : Icons.nightlight_round_sharp,
-              //             color: ref.watch(lightMode)
-              //                 ? Colors.white
-              //                 : Colors.black,
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-            ],
+                //           child: Icon(
+                //             ref.watch(lightMode)
+                //                 ? Icons.sunny
+                //                 : Icons.nightlight_round_sharp,
+                //             color: ref.watch(lightMode)
+                //                 ? Colors.white
+                //                 : Colors.black,
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+              ],
+            ),
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:lottie/lottie.dart';
 
@@ -29,8 +30,7 @@ class _WelcomeAnimateState extends ConsumerState<WelcomeAnimate> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 LottieBuilder.asset(
-                  // errorBuilder: (context, error, stackTrace) =>
-                  //     Text(error.toString()),
+                  options: LottieOptions(enableApplyingOpacityToLayers: true),
                   repeat: true,
                   onLoaded: (v) async {
                     await Future.delayed(
@@ -44,6 +44,7 @@ class _WelcomeAnimateState extends ConsumerState<WelcomeAnimate> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      side: BorderSide(width: 2),
                       backgroundColor: ref.watch(foreGroundColor),
 
                       foregroundColor: ref.watch(backgroundColor),

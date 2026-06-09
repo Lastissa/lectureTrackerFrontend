@@ -16,6 +16,7 @@ import 'package:lecture_tracker/homepage_stacks/tommorrow.dart';
 import 'package:lecture_tracker/homepage_stacks/yesterday.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/utils.dart';
+import 'package:lottie/lottie.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
@@ -46,9 +47,10 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
             : Colors.black87,
       ),
       body: PopScope(
-        canPop: false,
+        canPop: true,
         child: Stack(
           children: [
+            Positioned(child: ref.watch(darkBg)),
             Column(
               children: [
                 // Dashboard Header / Summary Area
@@ -61,7 +63,7 @@ class _LectureDashboardState extends ConsumerState<Dashboard> {
                           ? [
                               BoxShadow(
                                 color: ref.watch(lightMode)
-                                    ? Colors.black38
+                                    ? Colors.black26
                                     : Colors.black87,
                                 offset: Offset(2, 2),
                                 blurRadius: 3,
@@ -373,3 +375,13 @@ TextStyle customButtomTextStyle = TextStyle(
   fontWeight: FontWeight.bold,
   fontSize: 18.sp.clamp(0, 18),
 );
+
+final darkBg = StateProvider<Widget>((ref) {
+  return LottieBuilder.asset(
+    "assets/lottie/light_bg.json",
+    // : "assets/lottie/light_bg.json",
+    fit: BoxFit.fill,
+    width: ref.watch(deviceSizeX).w,
+    height: ref.watch(deviceSizeY).h,
+  );
+});

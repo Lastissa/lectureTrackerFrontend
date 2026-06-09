@@ -185,7 +185,12 @@ class _TodayState extends ConsumerState<Today> {
                             boxShadow: ref.watch(lightMode)
                                 ? [
                                     BoxShadow(
-                                      color: Color.fromARGB(96, 0, 0, 0),
+                                      color: const Color.fromARGB(
+                                        120,
+                                        68,
+                                        137,
+                                        255,
+                                      ),
                                       offset: Offset(1, 1),
                                       blurRadius: 1,
                                     ),

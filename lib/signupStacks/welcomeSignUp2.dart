@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/utils.dart';
 
 class Welcomesignup2 extends ConsumerStatefulWidget {
@@ -23,234 +24,263 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
         toolbarHeight: 0,
         backgroundColor: ref.watch(backgroundColor),
       ),
-      backgroundColor: ref.watch(lightMode)
+      backgroundColor: !ref.watch(lightMode)
           ? const Color(0xFF0B0F1A)
           : Colors.grey[100],
       body: Stack(
         children: [
-          Container(
-            width: ref.watch(deviceSizeX).w,
-            height: ref.watch(deviceSizeY).h,
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: [
-                /// Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.chevron_left,
-                        color: ref.watch(lightMode)
-                            ? Colors.white
-                            : Colors.black,
+          Center(
+            child: Container(
+              margin: ref.watch(deviceSizeX).w < 372
+                  ? null
+                  : EdgeInsets.all(10),
+              width: ref.watch(deviceSizeX).w.clamp(0, 372),
+              height: ref.watch(deviceSizeY).h,
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: ref.watch(backgroundColor),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    offset: Offset(0, 4),
+                    blurRadius: 4,
+                    color: Colors.black38,
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(child: ref.watch(darkBg)),
+                  Column(
+                    children: [
+                      /// Header
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.chevron_left,
+                              color: !ref.watch(lightMode)
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                            onPressed: () {
+                              router.go("/Welcomesignup");
+                            },
+                          ),
+                          Text(
+                            "Analytics",
+                            style: TextStyle(
+                              fontSize: 22.sp.clamp(10, 25),
+                              fontWeight: FontWeight.bold,
+                              color: !ref.watch(lightMode)
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
+                          // IconButton(
+                          //   icon: Icon(
+                          //     !ref.watch(lightMode)
+                          //         ? Icons.light_mode
+                          //         : Icons.dark_mode,
+                          //     color: !ref.watch(lightMode)
+                          //         ? Colors.white
+                          //         : Colors.black,
+                          //   ),
+                          //   onPressed: () {
+                          //     if (ref.read(lightMode)) {
+                          //       ref.read(lightMode.notifier).state = false;
+                          //     } else {
+                          //       ref.read(lightMode.notifier).state = true;
+                          //     }
+                          //   },
+                          // ),
+                        ],
                       ),
-                      onPressed: () {
-                        router.go("/Welcomesignup");
-                      },
-                    ),
-                    Text(
-                      "Analytics",
-                      style: TextStyle(
-                        fontSize: 22.sp.clamp(10, 25),
-                        fontWeight: FontWeight.bold,
-                        color: ref.watch(lightMode)
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        ref.watch(lightMode)
-                            ? Icons.light_mode
-                            : Icons.dark_mode,
-                        color: ref.watch(lightMode)
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                      onPressed: () {
-                        if (ref.read(lightMode)) {
-                          ref.read(lightMode.notifier).state = false;
-                        } else {
-                          ref.read(lightMode.notifier).state = true;
-                        }
-                      },
-                    ),
-                  ],
-                ),
 
-                SizedBox(height: 15.sp.clamp(10, 20)),
+                      SizedBox(height: 15.sp.clamp(10, 20)),
 
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// Attendance Card
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: _cardDecoration(),
+                      Expanded(
+                        child: SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Attendance Rate", style: _titleStyle()),
-                              SizedBox(height: 15.sp.clamp(10, 20)),
-
-                              Center(
-                                child: Stack(
-                                  alignment: Alignment.center,
+                              /// Attendance Card
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: _cardDecoration(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(
-                                      width: 120.sp.clamp(10, 120),
-                                      height: 120.sp.clamp(10, 120),
-                                      child: CircularProgressIndicator(
-                                        value: attendance / 100,
-                                        strokeWidth: 10,
-                                        backgroundColor: Colors.grey
-                                            .withOpacity(0.2),
-                                        color: Colors.blueAccent,
+                                    Text(
+                                      "Attendance Rate",
+                                      style: _titleStyle(),
+                                    ),
+                                    SizedBox(height: 15.sp.clamp(10, 20)),
+
+                                    Center(
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 120.sp.clamp(10, 120),
+                                            height: 120.sp.clamp(10, 120),
+                                            child: CircularProgressIndicator(
+                                              value: attendance / 100,
+                                              strokeWidth: 10,
+                                              backgroundColor: Colors.grey
+                                                  .withOpacity(0.2),
+                                              color: Colors.blueAccent,
+                                            ),
+                                          ),
+                                          Text(
+                                            "${attendance.toInt()}%",
+                                            style: TextStyle(
+                                              fontSize: 22.sp.clamp(10, 25),
+                                              fontWeight: FontWeight.bold,
+                                              color: !ref.watch(lightMode)
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
+
+                                    SizedBox(height: 10.sp.clamp(10, 20)),
                                     Text(
-                                      "${attendance.toInt()}%",
-                                      style: TextStyle(
-                                        fontSize: 22.sp.clamp(10, 25),
-                                        fontWeight: FontWeight.bold,
-                                        color: ref.watch(lightMode)
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
+                                      "Your attendance performance is being continuously analyzed to help you stay consistent.",
+                                      style: _descStyle(),
                                     ),
                                   ],
                                 ),
                               ),
 
-                              SizedBox(height: 10.sp.clamp(10, 20)),
-                              Text(
-                                "Your attendance performance is being continuously analyzed to help you stay consistent.",
-                                style: _descStyle(),
-                              ),
-                            ],
-                          ),
-                        ),
+                              SizedBox(height: 20.sp.clamp(10, 20)),
 
-                        SizedBox(height: 20.sp.clamp(10, 20)),
+                              /// Weekly Bar Chart
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: _cardDecoration(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Weekly Lecture Distribution",
+                                      style: _titleStyle(),
+                                    ),
+                                    SizedBox(height: 20.sp),
 
-                        /// Weekly Bar Chart
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: _cardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Weekly Lecture Distribution",
-                                style: _titleStyle(),
-                              ),
-                              SizedBox(height: 20.sp),
-
-                              SizedBox(
-                                height: 180,
-                                child: BarChart(
-                                  BarChartData(
-                                    gridData: FlGridData(show: true),
-                                    borderData: FlBorderData(show: false),
-                                    titlesData: FlTitlesData(
-                                      leftTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: false,
-                                        ),
-                                      ),
-                                      rightTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: false,
-                                        ),
-                                      ),
-                                      topTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: false,
-                                        ),
-                                      ),
-                                      bottomTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          getTitlesWidget: (value, _) {
-                                            const days = [
-                                              "M",
-                                              "T",
-                                              "W",
-                                              "T",
-                                              "F",
-                                              "S",
-                                              "S",
-                                            ];
-                                            return Text(
-                                              days[value.toInt()],
-                                              style: TextStyle(
-                                                color: ref.watch(lightMode)
-                                                    ? Colors.white70
-                                                    : Colors.black54,
-                                                fontSize: 12.sp.clamp(10, 12),
+                                    SizedBox(
+                                      height: 180,
+                                      child: BarChart(
+                                        BarChartData(
+                                          gridData: FlGridData(show: true),
+                                          borderData: FlBorderData(show: false),
+                                          titlesData: FlTitlesData(
+                                            leftTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: false,
                                               ),
-                                            );
-                                          },
+                                            ),
+                                            rightTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: false,
+                                              ),
+                                            ),
+                                            topTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: false,
+                                              ),
+                                            ),
+                                            bottomTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                getTitlesWidget: (value, _) {
+                                                  const days = [
+                                                    "M",
+                                                    "T",
+                                                    "W",
+                                                    "T",
+                                                    "F",
+                                                    "S",
+                                                    "S",
+                                                  ];
+                                                  return Text(
+                                                    days[value.toInt()],
+                                                    style: TextStyle(
+                                                      color:
+                                                          !ref.watch(lightMode)
+                                                          ? Colors.white70
+                                                          : Colors.black54,
+                                                      fontSize: 12.sp.clamp(
+                                                        10,
+                                                        12,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          barGroups: List.generate(
+                                            weeklyData.length,
+                                            (i) => BarChartGroupData(
+                                              x: i,
+                                              barRods: [
+                                                BarChartRodData(
+                                                  toY: weeklyData[i],
+                                                  width: 14,
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  color: Colors.blueAccent,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    barGroups: List.generate(
-                                      weeklyData.length,
-                                      (i) => BarChartGroupData(
-                                        x: i,
-                                        barRods: [
-                                          BarChartRodData(
-                                            toY: weeklyData[i],
-                                            width: 14,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                            color: Colors.blueAccent,
-                                          ),
-                                        ],
+
+                                    SizedBox(height: 10.h.clamp(10, 20)),
+                                    Text(
+                                      "Visual breakdown of lectures attended per day to identify your most active periods.",
+                                      style: _descStyle(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              SizedBox(height: 20.h.clamp(10, 20)),
+
+                              /// Insight Card
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                margin: EdgeInsets.only(bottom: 90),
+                                decoration: _cardDecoration(),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.insights,
+                                      color: Colors.blueAccent,
+                                    ),
+                                    SizedBox(width: 10.h.clamp(10, 20)),
+                                    Expanded(
+                                      child: Text(
+                                        "Lecture Tracker analyzes your patterns to help you improve consistency and academic performance.",
+                                        style: _descStyle(),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ),
-
-                              SizedBox(height: 10.h.clamp(10, 20)),
-                              Text(
-                                "Visual breakdown of lectures attended per day to identify your most active periods.",
-                                style: _descStyle(),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 20.h.clamp(10, 20)),
-
-                        /// Insight Card
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          margin: EdgeInsets.only(bottom: 90),
-                          decoration: _cardDecoration(),
-                          child: Row(
-                            children: [
-                              Icon(Icons.insights, color: Colors.blueAccent),
-                              SizedBox(width: 10.h.clamp(10, 20)),
-                              Expanded(
-                                child: Text(
-                                  "Lecture Tracker analyzes your patterns to help you improve consistency and academic performance.",
-                                  style: _descStyle(),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Positioned(
@@ -285,12 +315,12 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
   /// Styles
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: ref.watch(lightMode) ? const Color(0xFF141A2A) : Colors.white,
+      color: !ref.watch(lightMode) ? const Color(0xFF141A2A) : Colors.white70,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 10,
+          color: Colors.black12,
+          blurRadius: 5,
           offset: const Offset(0, 4),
         ),
       ],
@@ -301,14 +331,14 @@ class _Welcomesignup2State extends ConsumerState<Welcomesignup2> {
     return TextStyle(
       fontSize: 16.sp.clamp(12, 18),
       fontWeight: FontWeight.bold,
-      color: ref.watch(lightMode) ? Colors.white : Colors.black,
+      color: !ref.watch(lightMode) ? Colors.white : Colors.black,
     );
   }
 
   TextStyle _descStyle() {
     return TextStyle(
       fontSize: 13.sp.clamp(10, 13),
-      color: ref.watch(lightMode) ? Colors.white70 : Colors.black54,
+      color: !ref.watch(lightMode) ? Colors.white70 : Colors.black87,
     );
   }
 }

@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:lecture_tracker/db.dart';
-import 'package:lecture_tracker/homepage_stacks/today.dart';
 import 'package:lecture_tracker/main.dart';
 import 'package:lecture_tracker/screens/backupAndrestore.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +17,6 @@ import 'package:lecture_tracker/screens/dashboard.dart';
 import 'package:lecture_tracker/screens/editCourse.dart';
 import 'package:lecture_tracker/utils.dart';
 import 'package:lottie/lottie.dart';
-import 'package:path/path.dart';
 
 class Useraccountsetting extends ConsumerStatefulWidget {
   const Useraccountsetting({super.key});
@@ -544,7 +542,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                           curve: Curves.decelerate,
                                           begin: -1,
                                           end: 0,
-                                          duration: Duration(milliseconds: 600),
+                                          duration: Duration(milliseconds: 300),
                                         ),
 
                                         //auto dark mode
@@ -663,16 +661,17 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                 ],
                                               ).animate().slideX(
                                                 curve: Curves.decelerate,
-                                                begin: -2,
+                                                begin: -1,
                                                 end: 0,
                                                 delay: Duration(
-                                                  milliseconds: 600,
+                                                  milliseconds: 200,
                                                 ),
                                                 duration: Duration(
-                                                  milliseconds: 700,
+                                                  milliseconds: 300,
                                                 ),
                                               ),
                                         ),
+
                                         //the prompt for confirmation of auto dark mode
                                         AnimatedCrossFade(
                                           firstChild: SizedBox(
@@ -1122,10 +1121,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                           sizeCurve: Curves.easeIn,
                                         ).animate().slideX(
                                           curve: Curves.decelerate,
-                                          begin: -2,
+                                          begin: -1,
                                           end: 0,
                                           delay: Duration(milliseconds: 400),
-                                          duration: Duration(milliseconds: 700),
+                                          duration: Duration(milliseconds: 300),
                                         ),
 
                                         //for the offline log of backups and retreival
@@ -1446,13 +1445,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                           duration: Duration(milliseconds: 350),
                                         ).animate().slideX(
                                           curve: Curves.decelerate,
-                                          begin: -2,
+                                          begin: -1,
                                           end: 0,
-                                          delay: Duration(
-                                            seconds: 1,
-                                            milliseconds: 200,
-                                          ),
-                                          duration: Duration(milliseconds: 650),
+                                          delay: Duration(milliseconds: 600),
+                                          duration: Duration(milliseconds: 300),
                                         ),
                                         InkWell(
                                           onTap: () async {
@@ -1580,6 +1576,7 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                 Padding(
                                                   padding: EdgeInsets.symmetric(
                                                     horizontal: 10,
+                                                    vertical: 10,
                                                   ),
                                                   child: Icon(
                                                     Icons.delete_sweep_sharp,
@@ -1604,13 +1601,10 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                           ),
                                         ).animate().slideX(
                                           curve: Curves.decelerate,
-                                          begin: 2,
+                                          begin: -1,
                                           end: 0,
-                                          delay: Duration(
-                                            seconds: 1,
-                                            milliseconds: 200,
-                                          ),
-                                          duration: Duration(milliseconds: 650),
+                                          delay: Duration(milliseconds: 400),
+                                          duration: Duration(milliseconds: 300),
                                         ),
                                         LottieBuilder.asset(
                                           "assets/lottie/morning.json",
@@ -1637,7 +1631,14 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                     text: "View Backup History",
                                                     ref: ref,
                                                     iconData: Icons.history,
-                                                    onTap: () {},
+                                                    onTap: () {
+                                                      ref.invalidate(
+                                                        viewBackupHistoryPassed,
+                                                      );
+                                                      ref.invalidate(
+                                                        viewBackupHistory,
+                                                      );
+                                                    },
                                                   ),
                                                   Text(
                                                     "swipe >",
@@ -1745,8 +1746,16 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                             child: Container(
                                                               width: 70,
                                                               height: 7,
-                                                              decoration:
-                                                                  BoxDecoration(),
+                                                              clipBehavior:
+                                                                  Clip.hardEdge,
+                                                              decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius.all(
+                                                                      Radius.circular(
+                                                                        10,
+                                                                      ),
+                                                                    ),
+                                                              ),
                                                               child: LinearProgressIndicator(
                                                                 color: ref.watch(
                                                                   foreGroundColor,
@@ -2947,35 +2956,8 @@ class _UseraccountsettingState extends ConsumerState<Useraccountsetting> {
                                                                 ),
                                                                 IconButton(
                                                                   onPressed: () {
-                                                                    if ((ref
-                                                                                .read(
-                                                                                  aboutMe,
-                                                                                )
-                                                                                .value?[1]["message"]
-                                                                            as String)
-                                                                        .contains(
-                                                                          "token",
-                                                                        ))
-                                                                      lookForSettingBox()
-                                                                          .delete(
-                                                                            "auth_key",
-                                                                          );
-                                                                    lookForSettingBox()
-                                                                        .delete(
-                                                                          "backupEmail",
-                                                                        );
-                                                                    lookForSettingBox()
-                                                                        .delete(
-                                                                          "backupPassword",
-                                                                        );
-                                                                    ref
-                                                                            .read(
-                                                                              isBackupClicked.notifier,
-                                                                            )
-                                                                            .state =
-                                                                        true;
-                                                                    router.go(
-                                                                      "/settings",
+                                                                    ref.invalidate(
+                                                                      viewBackupHistory,
                                                                     );
                                                                   },
 

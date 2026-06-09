@@ -42,7 +42,7 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
         Container(
           key: widget.uniqueKey,
           decoration: BoxDecoration(
-            border: Border.all(color: ref.watch(foreGroundColor), width: 1),
+            // border: Border.all(color: ref.watch(foreGroundColor), width: 1),
             color: ref.watch(backgroundColor),
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(10),
@@ -51,7 +51,18 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
               bottomRight: Radius.circular(20),
             ),
 
-            boxShadow: [],
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0, -2),
+                blurRadius: 10,
+                color: ref.watch(foreGroundColor).withAlpha(70),
+              ),
+              BoxShadow(
+                offset: Offset(0, 0),
+                blurRadius: 1,
+                color: ref.watch(foreGroundColor).withAlpha(255),
+              ),
+            ],
           ),
 
           height: ref.watch(deviceSizeY) * 0.7.h,
@@ -506,456 +517,231 @@ class BackupAndResetState extends ConsumerState<BackupAndReset> {
                     ),
                   ],
                 )
-              : Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-                    children: [
-                      Text(
-                        "Welcome".toUpperCase(),
-                        style: TextStyle(
-                          color: ref.watch(foreGroundColor),
-                          fontSize: 20.sp,
-                          letterSpacing: -1,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-
-                      customTextFeild(
-                        ref: ref,
-                        controller: _emailController,
-                        isPassword: false,
-                        suffix: SizedBox(),
-                        hint: 'Email',
-
-                        validator: (v) {
-                          if (_emailController.text.trim().isEmpty) {
-                            notifier(
-                              atTop: true,
-                              context: context,
-                              message: 'Email cannot be null',
-                              bg: ref.watch(foreGroundColor),
-                              fg: ref.watch(backgroundColor),
-                            );
-                            return;
-                          } else if (!_emailController.text
-                              .toLowerCase()
-                              .contains("@gmail.com")) {
-                            notifier(
-                              atTop: true,
-                              context: context,
-                              message: 'Not a valid email',
-                              bg: ref.watch(foreGroundColor),
-                              fg: ref.watch(backgroundColor),
-                            );
-                            return;
-                          }
-                          return;
-                        },
-                        prefix: null,
-                        onchanged: null,
-                      ).animate().slideX(
-                        curve: Curves.decelerate,
-                        begin: -2,
-                        end: 0,
-                        duration: Duration(milliseconds: 500),
-                      ),
-                      // Password Input with Shadow
-                      Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              offset: Offset(1, 0),
-                              blurRadius: 3,
-                            ),
+              : askUserToLogin(
+                  ref: ref,
+                  context: context,
+                  formKey: _formKey,
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                  visibilityFunction: () {
+                    //  password visibility function
+                    setState(() {
+                      if (hidePassword) {
+                        hidePassword = false;
+                      } else {
+                        hidePassword = true;
+                      }
+                    });
+                  },
+                  createAccountOnpressed: () async {
+                    if (FocusScope.of(context).hasFocus) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    if (_emailController.text.contains("@gmail.com") == false) {
+                      notifier(
+                        context: context,
+                        message: "invalid Email",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    if (_passwordController.text.length < 6) {
+                      notifier(
+                        context: context,
+                        message: "Password Too Short",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    setState(() {
+                      nothingShouldWork = true;
+                    });
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  680");
+                      return;
+                    }
+                    ref.invalidate(loginForSignUp);
+                    final List response = await ref
+                        .read(
+                          loginForSignUp({
+                            "email": _emailController.text.trim(),
+                            "password": _passwordController.text,
+                            "user_type": "new",
+                          }).future,
+                        )
+                        .timeout(
+                          Duration(seconds: 6),
+                          onTimeout: () => [
+                            "404",
+                            {"message": "Network Error!"},
                           ],
-                        ),
-                        //for the password input, i want to have a suffix icon that when clicked, it changes the state of the password from plain text to hidden and vice versa
-                        child: customTextFeild(
-                          prefix: Icon(
-                            Icons.lock,
-                            color: ref.watch(foreGroundColor),
-                          ),
+                        );
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  704");
+                      return;
+                    }
+                    print(response);
+                    try {
+                      bool theMessageIamLookingFor =
+                          response[1]["message"] == "user not found";
+                      if (theMessageIamLookingFor) {
+                        //now update the backup credentials
+                        await lookForSettingBox().put(
+                          'backupEmail',
+                          _emailController.text.toUpperCase().trim(),
+                        );
+                        await lookForSettingBox().put(
+                          'backupPassword',
+                          _passwordController.text,
+                        );
+                        _emailController.text = '';
+                        _passwordController.text = '';
+                        ref.invalidate(isBackupClicked);
+                        ref.read(successProvider.notifier).state = true;
+                      } else {
+                        setState(() {
+                          nothingShouldWork = false;
+                        });
+                        notifier(
+                          atTop: true,
+                          context: context,
+                          message: (response[1]["message"]).toString(),
+                          bg: ref.read(foreGroundColor),
+                          fg: ref.watch(backgroundColor),
+                        );
 
-                          suffix: InkWell(
-                            onTap: () {
-                              //i comment it out cos it changes to confirm password
-                              // _passwordConfirmController.text = '';
-                              // ref.read(_comfirmpasswordOpen.notifier).state =
-                              //     true;
-                              setState(() {
-                                if (hidePassword) {
-                                  hidePassword = false;
-                                } else {
-                                  hidePassword = true;
-                                }
-                              });
-                            },
-                            child: Icon(
-                              hidePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: ref.watch(lightMode)
-                                  ? Colors.blueAccent
-                                  : Colors.teal,
-                            ),
-                          ),
-                          controller: _passwordController,
-                          hint: "Password",
-                          isPassword: hidePassword,
-                          validator: (value) {
-                            if (_passwordController.text.trim().isEmpty) {
-                              ElegantNotification(
-                                toastDuration: Duration(seconds: 2),
-                                background: Colors.red,
-                                description: Text(
-                                  style: TextStyle(color: Colors.white),
-                                  'Password cannot be Empty',
-                                ),
-                              ).show(context);
-                              _passwordController.text = '';
-                              return;
-                            } else if (_passwordController.text.trim().length <
-                                6) {
-                              notifier(
-                                context: context,
-                                message: 'Password too short',
-                                bg: Colors.red,
-                                atTop: true,
-                              );
-                              return;
-                            }
-                            return;
-                          },
-                          ref: ref,
-                          onchanged: null,
-                        ),
-                        // .animate().slideX(
-                        //   curve: Curves.decelerate,
-                        //   begin: 2,
-                        //   end: 0,
-                        //   duration: Duration(milliseconds: 500),
-                        //   delay: Duration(milliseconds: 200),
-                        // ),
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            width: ref.watch(deviceSizeX).r * 0.5,
-                            child:
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    if (FocusScope.of(context).hasFocus) {
-                                      FocusScope.of(context).unfocus();
-                                    }
-                                    if (_emailController.text.contains(
-                                          "@gmail.com",
-                                        ) ==
-                                        false) {
-                                      notifier(
-                                        context: context,
-                                        message: "invalid Email",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    if (_passwordController.text.length < 6) {
-                                      notifier(
-                                        context: context,
-                                        message: "Password Too Short",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    setState(() {
-                                      nothingShouldWork = true;
-                                    });
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. backupAndREset :ln  680",
-                                      );
-                                      return;
-                                    }
-                                    ref.invalidate(loginForSignUp);
-                                    final List response = await ref
-                                        .read(
-                                          loginForSignUp({
-                                            "email": _emailController.text
-                                                .trim(),
-                                            "password":
-                                                _passwordController.text,
-                                            "user_type": "new",
-                                          }).future,
-                                        )
-                                        .timeout(
-                                          Duration(seconds: 6),
-                                          onTimeout: () => [
-                                            "404",
-                                            {"message": "Network Error!"},
-                                          ],
-                                        );
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. backupAndREset :ln  704",
-                                      );
-                                      return;
-                                    }
-                                    print(response);
-                                    try {
-                                      bool theMessageIamLookingFor =
-                                          response[1]["message"] ==
-                                          "user not found";
-                                      if (theMessageIamLookingFor) {
-                                        //now update the backup credentials
-                                        await lookForSettingBox().put(
-                                          'backupEmail',
-                                          _emailController.text
-                                              .toUpperCase()
-                                              .trim(),
-                                        );
-                                        await lookForSettingBox().put(
-                                          'backupPassword',
-                                          _passwordController.text,
-                                        );
-                                        _emailController.text = '';
-                                        _passwordController.text = '';
-                                        ref.invalidate(isBackupClicked);
-                                        ref
-                                                .read(successProvider.notifier)
-                                                .state =
-                                            true;
-                                      } else {
-                                        setState(() {
-                                          nothingShouldWork = false;
-                                        });
-                                        notifier(
-                                          atTop: true,
-                                          context: context,
-                                          message: (response[1]["message"])
-                                              .toString(),
-                                          bg: ref.read(foreGroundColor),
-                                          fg: ref.watch(backgroundColor),
-                                        );
+                        return;
+                      }
+                    } catch (error) {
+                      router.go("/error", extra: error.toString());
+                      return;
+                    }
+                    setState(() {
+                      nothingShouldWork = false;
+                    });
+                  },
 
-                                        return;
-                                      }
-                                    } catch (error) {
-                                      router.go(
-                                        "/error",
-                                        extra: error.toString(),
-                                      );
-                                      return;
-                                    }
-                                    setState(() {
-                                      nothingShouldWork = false;
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(),
-                                    backgroundColor: ref.watch(foreGroundColor),
-                                    foregroundColor: ref.watch(lightMode)
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
-                                  child: Text("Create Account"),
-                                ).animate().slideX(
-                                  curve: Curves.decelerate,
-                                  begin: -2,
-                                  end: 0,
-                                  duration: Duration(milliseconds: 500),
-                                ),
-                          ),
-                          SizedBox(height: 5),
-                          //for logging in
-                          Container(
-                            width: ref.watch(deviceSizeX).r * 0.5,
-                            child:
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    //invalidate stuff in my account so the user login will not be seeing those data
-                                    ref.invalidate(aboutMe);
-                                    ref.invalidate(viewBackupHistoryPassed);
-                                    ref.invalidate(viewBackupHistory);
-                                    ref.invalidate(resetLinkFutureProvider);
-                                    ref.invalidate(resetLink);
-                                    if (FocusScope.of(context).hasFocus) {
-                                      FocusScope.of(context).unfocus();
-                                    }
-                                    if (_emailController.text.contains(
-                                          "@gmail.com",
-                                        ) ==
-                                        false) {
-                                      notifier(
-                                        context: context,
-                                        message: "invalid Email",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    if (_passwordController.text.length < 6) {
-                                      notifier(
-                                        context: context,
-                                        message: "Password Too Short",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    setState(() {
-                                      nothingShouldWork = true;
-                                    });
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. backupAndREset :ln  809",
-                                      );
-                                      return;
-                                    }
-                                    ref.invalidate(loginForSignUp);
-                                    final List response = await ref
-                                        .read(
-                                          loginForSignUp({
-                                            "email": _emailController.text
-                                                .trim(),
-                                            "password":
-                                                _passwordController.text,
-                                            "user_type": "old",
-                                          }).future,
-                                        )
-                                        .timeout(
-                                          Duration(seconds: 6),
-                                          onTimeout: () => [
-                                            "404",
-                                            {"message": "Network Error!"},
-                                          ],
-                                        );
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. backupAndREset :ln  833",
-                                      );
-                                      return;
-                                    }
-                                    print(response);
-                                    if (response[0] != 200) {
-                                      notifier(
-                                        context: context,
-                                        message: "${response[1]["message"]}",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                    } else {
-                                      //got a 200 response, it most likely to be something good
-                                      try {
-                                        final wordOfConfirmation =
-                                            response[1]["message"] == "success";
-                                        if (wordOfConfirmation) {
-                                          //add the auth_key to backend and keep the user active is is is still genuine
-                                          lookForSettingBox().put(
-                                            "auth_key",
-                                            response[1]["auth_key"],
-                                          );
-                                          //now update the backup credentials
-                                          await lookForSettingBox().put(
-                                            'backupEmail',
-                                            _emailController.text
-                                                .toUpperCase()
-                                                .trim(),
-                                          );
-                                          await lookForSettingBox().put(
-                                            'backupPassword',
-                                            _passwordController.text,
-                                          );
+                  loginOnpressed: () async {
+                    //invalidate stuff in my account so the user login will not be seeing those data
+                    ref.invalidate(aboutMe);
+                    ref.invalidate(viewBackupHistoryPassed);
+                    ref.invalidate(viewBackupHistory);
+                    ref.invalidate(resetLinkFutureProvider);
+                    ref.invalidate(resetLink);
+                    if (FocusScope.of(context).hasFocus) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    if (_emailController.text.contains("@gmail.com") == false) {
+                      notifier(
+                        context: context,
+                        message: "invalid Email",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    if (_passwordController.text.length < 6) {
+                      notifier(
+                        context: context,
+                        message: "Password Too Short",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    setState(() {
+                      nothingShouldWork = true;
+                    });
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  809");
+                      return;
+                    }
+                    ref.invalidate(loginForSignUp);
+                    final List response = await ref
+                        .read(
+                          loginForSignUp({
+                            "email": _emailController.text.trim(),
+                            "password": _passwordController.text,
+                            "user_type": "old",
+                          }).future,
+                        )
+                        .timeout(
+                          Duration(seconds: 6),
+                          onTimeout: () => [
+                            "404",
+                            {"message": "Network Error!"},
+                          ],
+                        );
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  833");
+                      return;
+                    }
+                    print(response);
+                    if (response[0] != 200) {
+                      notifier(
+                        context: context,
+                        message: "${response[1]["message"]}",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                    } else {
+                      //got a 200 response, it most likely to be something good
+                      try {
+                        final wordOfConfirmation =
+                            response[1]["message"] == "success";
+                        if (wordOfConfirmation) {
+                          //add the auth_key to backend and keep the user active is is is still genuine
+                          lookForSettingBox().put(
+                            "auth_key",
+                            response[1]["auth_key"],
+                          );
+                          //now update the backup credentials
+                          await lookForSettingBox().put(
+                            'backupEmail',
+                            _emailController.text.toUpperCase().trim(),
+                          );
+                          await lookForSettingBox().put(
+                            'backupPassword',
+                            _passwordController.text,
+                          );
 
-                                          lookForSettingBox().put(
-                                            "username",
-                                            response[1]["username"],
-                                          );
-                                          ref.read(username.notifier).state =
-                                              response[1]["username"];
-                                          ref.invalidate(isBackupClicked);
-                                          _emailController.text = '';
-                                          _passwordController.text = '';
-
-                                          ref
-                                                  .read(
-                                                    successProvider.notifier,
-                                                  )
-                                                  .state =
-                                              true;
-                                        }
-                                      } catch (Error) {
-                                        notifier(
-                                          atTop: true,
-                                          context: context,
-                                          message: (response[1]["message"])
-                                              .toString(),
-                                          bg: ref.read(foreGroundColor),
-                                          fg: ref.watch(backgroundColor),
-                                        );
-                                      }
-                                    }
-
-                                    // print(response);
-                                    setState(() {
-                                      nothingShouldWork = false;
-                                    });
-                                  },
-
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(),
-                                    backgroundColor: ref.watch(foreGroundColor),
-                                    foregroundColor: ref.watch(lightMode)
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
-                                  child: Text(
-                                    //backup data own
-                                    "Login",
-                                    style: TextStyle(letterSpacing: 2),
-                                  ),
-                                ).animate().slideX(
-                                  curve: Curves.decelerate,
-                                  begin: 2,
-                                  end: 0,
-                                  duration: Duration(milliseconds: 500),
-                                ),
-                          ),
-                        ],
-                      ),
-                      InkWell(
-                        onTap: () {
+                          lookForSettingBox().put(
+                            "username",
+                            response[1]["username"],
+                          );
+                          ref.read(username.notifier).state =
+                              response[1]["username"];
                           ref.invalidate(isBackupClicked);
+                          _emailController.text = '';
                           _passwordController.text = '';
-                        },
-                        child: Icon(
-                          Icons.close,
-                          color: ref.watch(foreGroundColor),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          "Note: Account creation is only for backup and RestoreAndReset purposes. It does not sync data across devices.",
-                          style: TextStyle(
-                            color: ref.watch(foreGroundColor),
-                            fontSize: 12.sp,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+
+                          ref.read(successProvider.notifier).state = true;
+                        }
+                      } catch (Error) {
+                        notifier(
+                          atTop: true,
+                          context: context,
+                          message: (response[1]["message"]).toString(),
+                          bg: ref.read(foreGroundColor),
+                          fg: ref.watch(backgroundColor),
+                        );
+                      }
+                    }
+
+                    // print(response);
+                    setState(() {
+                      nothingShouldWork = false;
+                    });
+                  },
+
+                  hidePassword: hidePassword,
                 ),
         ),
         nothingShouldWork
@@ -1087,7 +873,7 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
           key: widget.uniqueKey,
 
           decoration: BoxDecoration(
-            border: Border.all(color: ref.watch(foreGroundColor), width: 1),
+            // border: Border.all(color: ref.watch(foreGroundColor), width: 1),
             color: ref.watch(backgroundColor),
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(10),
@@ -1096,7 +882,18 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
               bottomRight: Radius.circular(20),
             ),
 
-            boxShadow: [],
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0, -2),
+                blurRadius: 10,
+                color: ref.watch(foreGroundColor).withAlpha(70),
+              ),
+              BoxShadow(
+                offset: Offset(0, 0),
+                blurRadius: 1,
+                color: ref.watch(foreGroundColor).withAlpha(255),
+              ),
+            ],
           ),
 
           height: ref.watch(deviceSizeY) * 0.7.h,
@@ -1674,444 +1471,231 @@ class _RestoreAndResetState extends ConsumerState<RestoreAndReset> {
                     ),
                   ],
                 )
-              : Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-                    children: [
-                      Text(
-                        "WELCOME",
-                        style: TextStyle(
-                          color: ref.watch(foreGroundColor),
-                          fontSize: 20.sp,
-                          letterSpacing: -1,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-
-                      customTextFeild(
-                        ref: ref,
-                        controller: _emailController,
-                        isPassword: false,
-                        suffix: SizedBox(),
-                        hint: 'Email',
-                        validator: (v) {
-                          if (_emailController.text.trim().isEmpty) {
-                            notifier(
-                              atTop: true,
-                              context: context,
-                              message: 'Email cannot be null',
-                              bg: ref.watch(foreGroundColor),
-                              fg: ref.watch(backgroundColor),
-                            );
-                            return;
-                          } else if (!_emailController.text
-                              .toLowerCase()
-                              .contains("@gmail.com")) {
-                            notifier(
-                              atTop: true,
-                              context: context,
-                              message: 'Not a valid email',
-                              bg: ref.watch(foreGroundColor),
-                              fg: ref.watch(backgroundColor),
-                            );
-                            return;
-                          }
-                          return;
-                        },
-                        prefix: null,
-                        onchanged: null,
-                      ).animate().slideX(
-                        curve: Curves.decelerate,
-                        begin: -2,
-                        end: 0,
-                        duration: Duration(milliseconds: 500),
-                      ),
-                      // Password Input with Shadow
-                      Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              offset: Offset(1, 0),
-                              blurRadius: 3,
-                            ),
+              : askUserToLogin(
+                  ref: ref,
+                  context: context,
+                  formKey: _formKey,
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                  visibilityFunction: () {
+                    //  password visibility function
+                    setState(() {
+                      if (hidePassword) {
+                        hidePassword = false;
+                      } else {
+                        hidePassword = true;
+                      }
+                    });
+                  },
+                  createAccountOnpressed: () async {
+                    if (FocusScope.of(context).hasFocus) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    if (_emailController.text.contains("@gmail.com") == false) {
+                      notifier(
+                        context: context,
+                        message: "invalid Email",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    if (_passwordController.text.length < 6) {
+                      notifier(
+                        context: context,
+                        message: "Password Too Short",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    setState(() {
+                      nothingShouldWork = true;
+                    });
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  680");
+                      return;
+                    }
+                    ref.invalidate(loginForSignUp);
+                    final List response = await ref
+                        .read(
+                          loginForSignUp({
+                            "email": _emailController.text.trim(),
+                            "password": _passwordController.text,
+                            "user_type": "new",
+                          }).future,
+                        )
+                        .timeout(
+                          Duration(seconds: 6),
+                          onTimeout: () => [
+                            "404",
+                            {"message": "Network Error!"},
                           ],
-                        ),
-                        //for the password input, i want to have a suffix icon that when clicked, it changes the state of the password from plain text to hidden and vice versa
-                        child: customTextFeild(
-                          prefix: Icon(
-                            Icons.lock,
-                            color: ref.watch(foreGroundColor),
-                          ),
+                        );
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  704");
+                      return;
+                    }
+                    print(response);
+                    try {
+                      bool theMessageIamLookingFor =
+                          response[1]["message"] == "user not found";
+                      if (theMessageIamLookingFor) {
+                        //now update the backup credentials
+                        await lookForSettingBox().put(
+                          'backupEmail',
+                          _emailController.text.toUpperCase().trim(),
+                        );
+                        await lookForSettingBox().put(
+                          'backupPassword',
+                          _passwordController.text,
+                        );
+                        _emailController.text = '';
+                        _passwordController.text = '';
+                        ref.invalidate(isBackupClicked);
+                        ref.read(successProvider.notifier).state = true;
+                      } else {
+                        setState(() {
+                          nothingShouldWork = false;
+                        });
+                        notifier(
+                          atTop: true,
+                          context: context,
+                          message: (response[1]["message"]).toString(),
+                          bg: ref.read(foreGroundColor),
+                          fg: ref.watch(backgroundColor),
+                        );
 
-                          suffix: InkWell(
-                            onTap: () {
-                              //i comment it out cos it changes to confirm password
-                              // _passwordConfirmController.text = '';
-                              // ref.read(_comfirmpasswordOpen.notifier).state =
-                              //     true;
-                              setState(() {
-                                if (hidePassword) {
-                                  hidePassword = false;
-                                } else {
-                                  hidePassword = true;
-                                }
-                              });
-                            },
-                            child: Icon(
-                              hidePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: ref.watch(lightMode)
-                                  ? Colors.blueAccent
-                                  : Colors.teal,
-                            ),
-                          ),
-                          controller: _passwordController,
-                          hint: "Password",
-                          isPassword: hidePassword,
-                          validator: (value) {
-                            if (_passwordController.text.trim().isEmpty) {
-                              ElegantNotification(
-                                toastDuration: Duration(seconds: 2),
-                                background: Colors.red,
-                                description: Text(
-                                  style: TextStyle(color: Colors.white),
-                                  'Password cannot be Empty',
-                                ),
-                              ).show(context);
-                              _passwordController.text = '';
-                              return;
-                            } else if (_passwordController.text.trim().length <
-                                6) {
-                              notifier(
-                                context: context,
-                                message: 'Password too short',
-                                bg: Colors.red,
-                                atTop: true,
-                              );
-                              return;
-                            }
-                            return;
-                          },
-                          ref: ref,
-                          onchanged: null,
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Container(
-                            width: ref.watch(deviceSizeX).r * 0.5,
-                            child:
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    if (FocusScope.of(context).hasFocus) {
-                                      FocusScope.of(context).unfocus();
-                                    }
-                                    if (_emailController.text.contains(
-                                          "@gmail.com",
-                                        ) ==
-                                        false) {
-                                      notifier(
-                                        context: context,
-                                        message: "invalid Email",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    if (_passwordController.text.length < 6) {
-                                      notifier(
-                                        context: context,
-                                        message: "Password Too Short",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    setState(() {
-                                      nothingShouldWork = true;
-                                    });
-                                    ref.invalidate(loginForSignUp);
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. RestoreAndREset :ln  1831",
-                                      );
-                                      return;
-                                    }
-                                    final List response = await ref
-                                        .read(
-                                          loginForSignUp({
-                                            "email": _emailController.text
-                                                .trim(),
-                                            "password":
-                                                _passwordController.text,
-                                            "user_type": "new",
-                                          }).future,
-                                        )
-                                        .timeout(
-                                          Duration(seconds: 6),
-                                          onTimeout: () => [
-                                            "404",
-                                            {"message": "Network Error!"},
-                                          ],
-                                        );
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. RestoreAndREset :ln  1854",
-                                      );
-                                      return;
-                                    }
-                                    try {
-                                      bool theMessageIamLookingFor =
-                                          response[1]["message"] ==
-                                          "user not found";
-                                      if (theMessageIamLookingFor) {
-                                        //now update the backup credentials
-                                        await lookForSettingBox().put(
-                                          'backupEmail',
-                                          _emailController.text
-                                              .toUpperCase()
-                                              .trim(),
-                                        );
-                                        await lookForSettingBox().put(
-                                          'backupPassword',
-                                          _passwordController.text,
-                                        );
-                                        _emailController.text = '';
-                                        _passwordController.text = '';
-                                        ref.invalidate(isRestoreDataClicked);
+                        return;
+                      }
+                    } catch (error) {
+                      router.go("/error", extra: error.toString());
+                      return;
+                    }
+                    setState(() {
+                      nothingShouldWork = false;
+                    });
+                  },
 
-                                        ref
-                                                .read(successProvider.notifier)
-                                                .state =
-                                            true;
-                                        return;
-                                      } else {
-                                        setState(() {
-                                          nothingShouldWork = false;
-                                        });
-                                        notifier(
-                                          atTop: true,
-                                          context: context,
-                                          message: (response[1]["message"])
-                                              .toString(),
-                                          bg: ref.read(foreGroundColor),
-                                          fg: ref.watch(backgroundColor),
-                                        );
+                  loginOnpressed: () async {
+                    //invalidate stuff in my account so the user login will not be seeing those data
+                    ref.invalidate(aboutMe);
+                    ref.invalidate(viewBackupHistoryPassed);
+                    ref.invalidate(viewBackupHistory);
+                    ref.invalidate(resetLinkFutureProvider);
+                    ref.invalidate(resetLink);
+                    if (FocusScope.of(context).hasFocus) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    if (_emailController.text.contains("@gmail.com") == false) {
+                      notifier(
+                        context: context,
+                        message: "invalid Email",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    if (_passwordController.text.length < 6) {
+                      notifier(
+                        context: context,
+                        message: "Password Too Short",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                      return;
+                    }
+                    setState(() {
+                      nothingShouldWork = true;
+                    });
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  809");
+                      return;
+                    }
+                    ref.invalidate(loginForSignUp);
+                    final List response = await ref
+                        .read(
+                          loginForSignUp({
+                            "email": _emailController.text.trim(),
+                            "password": _passwordController.text,
+                            "user_type": "old",
+                          }).future,
+                        )
+                        .timeout(
+                          Duration(seconds: 6),
+                          onTimeout: () => [
+                            "404",
+                            {"message": "Network Error!"},
+                          ],
+                        );
+                    if (!mounted) {
+                      print("i don unmount am. backupAndREset :ln  833");
+                      return;
+                    }
+                    print(response);
+                    if (response[0] != 200) {
+                      notifier(
+                        context: context,
+                        message: "${response[1]["message"]}",
+                        bg: Colors.red,
+                        fg: Colors.white,
+                        atTop: true,
+                      );
+                    } else {
+                      //got a 200 response, it most likely to be something good
+                      try {
+                        final wordOfConfirmation =
+                            response[1]["message"] == "success";
+                        if (wordOfConfirmation) {
+                          //add the auth_key to backend and keep the user active is is is still genuine
+                          lookForSettingBox().put(
+                            "auth_key",
+                            response[1]["auth_key"],
+                          );
+                          //now update the backup credentials
+                          await lookForSettingBox().put(
+                            'backupEmail',
+                            _emailController.text.toUpperCase().trim(),
+                          );
+                          await lookForSettingBox().put(
+                            'backupPassword',
+                            _passwordController.text,
+                          );
 
-                                        return;
-                                      }
-                                    } catch (error) {
-                                      router.go(
-                                        "/error",
-                                        extra: error.toString(),
-                                      );
-                                      return;
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(),
-                                    backgroundColor: ref.watch(foreGroundColor),
-                                    foregroundColor: ref.watch(lightMode)
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
-                                  child: Text("Create Account"),
-                                ).animate().slideX(
-                                  curve: Curves.decelerate,
-                                  begin: -2,
-                                  end: 0,
-                                  duration: Duration(milliseconds: 500),
-                                ),
-                          ),
-                          SizedBox(height: 5),
-                          //for logging in
-                          Container(
-                            width: ref.watch(deviceSizeX).r * 0.5,
-                            child:
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    //invalidate stuff in my account so the user login will not be seeing those data
-                                    ref.invalidate(aboutMe);
-                                    ref.invalidate(viewBackupHistoryPassed);
-                                    ref.invalidate(viewBackupHistory);
-                                    ref.invalidate(resetLinkFutureProvider);
-                                    ref.invalidate(resetLink);
-                                    if (FocusScope.of(context).hasFocus) {
-                                      FocusScope.of(context).unfocus();
-                                    }
-                                    if (_emailController.text.contains(
-                                          "@gmail.com",
-                                        ) ==
-                                        false) {
-                                      notifier(
-                                        context: context,
-                                        message: "invalid Email",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    if (_passwordController.text.length < 6) {
-                                      notifier(
-                                        context: context,
-                                        message: "Password Too Short",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                      return;
-                                    }
-                                    setState(() {
-                                      nothingShouldWork = true;
-                                    });
-                                    ref.invalidate(loginForSignUp);
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. RestoreAndREset :ln  1956",
-                                      );
-                                      return;
-                                    }
-                                    final List response = await ref
-                                        .read(
-                                          loginForSignUp({
-                                            "email": _emailController.text
-                                                .trim(),
-                                            "password":
-                                                _passwordController.text,
-                                            "user_type": "old",
-                                          }).future,
-                                        )
-                                        .timeout(
-                                          Duration(seconds: 6),
-                                          onTimeout: () => [
-                                            "404",
-                                            {"message": "Network Error!"},
-                                          ],
-                                        );
-                                    if (!mounted) {
-                                      print(
-                                        "i don unmount am. RestoreAndREset :ln  1981",
-                                      );
-                                      return;
-                                    }
-                                    if (response[0] != 200) {
-                                      notifier(
-                                        context: context,
-                                        message: "${response[1]["message"]}",
-                                        bg: Colors.red,
-                                        fg: Colors.white,
-                                        atTop: true,
-                                      );
-                                    } else {
-                                      //got a 200 response, it most likely to be something good
-                                      try {
-                                        final wordOfConfirmation =
-                                            response[1]["message"] == "success";
-                                        if (wordOfConfirmation) {
-                                          //add the auth_key to backend and keep the user active is is is still genuine
-                                          lookForSettingBox().put(
-                                            "auth_key",
-                                            response[1]["auth_key"],
-                                          );
-                                          //now update the backup credentials
-                                          await lookForSettingBox().put(
-                                            'backupEmail',
-                                            _emailController.text
-                                                .toUpperCase()
-                                                .trim(),
-                                          );
-                                          await lookForSettingBox().put(
-                                            'backupPassword',
-                                            _passwordController.text,
-                                          );
-
-                                          lookForSettingBox().put(
-                                            "username",
-                                            response[1]["username"],
-                                          );
-                                          ref.read(username.notifier).state =
-                                              response[1]["username"];
-                                          _emailController.text = '';
-                                          _passwordController.text = '';
-
-                                          ref.invalidate(isRestoreDataClicked);
-                                          ref
-                                                  .read(
-                                                    successProvider.notifier,
-                                                  )
-                                                  .state =
-                                              true;
-                                        }
-                                      } catch (Error) {
-                                        notifier(
-                                          atTop: true,
-                                          context: context,
-                                          message: (response[1]["message"])
-                                              .toString(),
-                                          bg: ref.read(foreGroundColor),
-                                          fg: ref.watch(backgroundColor),
-                                        );
-                                      }
-                                    }
-
-                                    setState(() {
-                                      nothingShouldWork = false;
-                                    });
-                                  },
-
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(),
-                                    backgroundColor: ref.watch(foreGroundColor),
-                                    foregroundColor: ref.watch(lightMode)
-                                        ? Colors.white
-                                        : Colors.black,
-                                  ),
-                                  child: Text(
-                                    //retreive data own
-                                    "Login",
-                                    style: TextStyle(letterSpacing: 2),
-                                  ),
-                                ).animate().slideX(
-                                  curve: Curves.decelerate,
-                                  begin: 2,
-                                  end: 0,
-                                  duration: Duration(milliseconds: 500),
-                                ),
-                          ),
-                        ],
-                      ),
-                      InkWell(
-                        onTap: () {
-                          ref.invalidate(isRestoreDataClicked);
+                          lookForSettingBox().put(
+                            "username",
+                            response[1]["username"],
+                          );
+                          ref.read(username.notifier).state =
+                              response[1]["username"];
+                          ref.invalidate(isBackupClicked);
+                          _emailController.text = '';
                           _passwordController.text = '';
-                        },
-                        child: Icon(
-                          Icons.close,
-                          color: ref.watch(foreGroundColor),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          "Note: Account creation is only for backup and RestoreAndReset purposes. It does not sync data across devices.",
-                          style: TextStyle(
-                            color: ref.watch(foreGroundColor),
-                            fontSize: 12.sp,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+
+                          ref.read(successProvider.notifier).state = true;
+                        }
+                      } catch (Error) {
+                        notifier(
+                          atTop: true,
+                          context: context,
+                          message: (response[1]["message"]).toString(),
+                          bg: ref.read(foreGroundColor),
+                          fg: ref.watch(backgroundColor),
+                        );
+                      }
+                    }
+
+                    // print(response);
+                    setState(() {
+                      nothingShouldWork = false;
+                    });
+                  },
+
+                  hidePassword: hidePassword,
                 ),
         ),
         nothingShouldWork
@@ -2210,3 +1794,229 @@ final loginForSignUp = FutureProvider.family((ref, Map dataToUse) async {
 
   return [request.statusCode, responseDecode];
 });
+
+Widget askUserToLogin({
+  required WidgetRef ref,
+  required BuildContext context,
+  required Key formKey,
+  required TextEditingController emailController,
+  required TextEditingController passwordController,
+  required void Function() visibilityFunction,
+  required void Function() createAccountOnpressed,
+  required void Function() loginOnpressed,
+  required bool hidePassword,
+}) {
+  return Form(
+    key: formKey,
+    child: SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+        children: [
+          InkWell(
+            onTap: () => print(ref.watch(deviceSizeX).r),
+            child: Text(
+              "Welcome".toUpperCase(),
+              style: TextStyle(
+                color: ref.watch(foreGroundColor),
+                fontSize: 20.sp.clamp(0, 22),
+                letterSpacing: -1,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          SizedBox(height: ref.watch(deviceSizeY).h * 0.01),
+          customTextFeild(
+            ref: ref,
+            controller: emailController,
+            isPassword: false,
+            suffix: SizedBox(),
+            hint: 'Email',
+
+            validator: (v) {
+              if (emailController.text.trim().isEmpty) {
+                notifier(
+                  atTop: true,
+                  context: context,
+                  message: 'Email cannot be null',
+                  bg: ref.watch(foreGroundColor),
+                  fg: ref.watch(backgroundColor),
+                );
+                return;
+              } else if (!emailController.text.toLowerCase().contains(
+                "@gmail.com",
+              )) {
+                notifier(
+                  atTop: true,
+                  context: context,
+                  message: 'Not a valid email',
+                  bg: ref.watch(foreGroundColor),
+                  fg: ref.watch(backgroundColor),
+                );
+                return;
+              }
+              return;
+            },
+            prefix: null,
+            onchanged: null,
+          ).animate().slideX(
+            curve: Curves.decelerate,
+            begin: -2,
+            end: 0,
+            duration: Duration(milliseconds: 500),
+          ),
+          SizedBox(height: ref.watch(deviceSizeY).h * 0.03),
+          // Password Input with Shadow
+          Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(1, 0),
+                  blurRadius: 3,
+                ),
+              ],
+            ),
+            //for the password input, i want to have a suffix icon that when clicked, it changes the state of the password from plain text to hidden and vice versa
+            child: customTextFeild(
+              prefix: Icon(Icons.lock, color: ref.watch(foreGroundColor)),
+
+              suffix: InkWell(
+                onTap: visibilityFunction,
+
+                child: Icon(
+                  hidePassword ? Icons.visibility_off : Icons.visibility,
+                  color: ref.watch(lightMode) ? Colors.blueAccent : Colors.teal,
+                ),
+              ),
+              controller: passwordController,
+              hint: "Password",
+              isPassword: hidePassword,
+              validator: (value) {
+                if (passwordController.text.trim().isEmpty) {
+                  ElegantNotification(
+                    toastDuration: Duration(seconds: 2),
+                    background: Colors.red,
+                    description: Text(
+                      style: TextStyle(color: Colors.white),
+                      'Password cannot be Empty',
+                    ),
+                  ).show(context);
+                  passwordController.text = '';
+                  return;
+                } else if (passwordController.text.trim().length < 6) {
+                  notifier(
+                    context: context,
+                    message: 'Password too short',
+                    bg: Colors.red,
+                    atTop: true,
+                  );
+                  return;
+                }
+                return;
+              },
+              ref: ref,
+              onchanged: null,
+            ),
+            // .animate().slideX(
+            //   curve: Curves.decelerate,
+            //   begin: 2,
+            //   end: 0,
+            //   duration: Duration(milliseconds: 500),
+            //   delay: Duration(milliseconds: 200),
+            // ),
+          ),
+          SizedBox(height: ref.watch(deviceSizeY).h * 0.03),
+
+          Column(
+            children: [
+              Container(
+                width: ref.watch(deviceSizeX).r < 200
+                    ? ref.watch(deviceSizeX).r
+                    : ref.watch(deviceSizeX).r * 0.5,
+                child:
+                    ElevatedButton(
+                      //create account onpressed
+                      onPressed: createAccountOnpressed,
+
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(),
+                        backgroundColor: ref.watch(foreGroundColor),
+                        foregroundColor: ref.watch(lightMode)
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                      child: Text("Create Account"),
+                    ).animate().slideX(
+                      curve: Curves.decelerate,
+                      begin: -2,
+                      end: 0,
+                      duration: Duration(milliseconds: 500),
+                    ),
+              ),
+              SizedBox(height: 5),
+              //for logging in
+              Container(
+                width: ref.watch(deviceSizeX).r < 200
+                    ? ref.watch(deviceSizeX).r
+                    : ref.watch(deviceSizeX).r * 0.5,
+                child:
+                    ElevatedButton(
+                      //loginOnpressed function
+                      onPressed: loginOnpressed,
+
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(),
+                        backgroundColor: ref.watch(foreGroundColor),
+                        foregroundColor: ref.watch(lightMode)
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                      child: Text(
+                        //backup data own
+                        "Login",
+                        style: TextStyle(letterSpacing: 2),
+                      ),
+                    ).animate().slideX(
+                      curve: Curves.decelerate,
+                      begin: 2,
+                      end: 0,
+                      duration: Duration(milliseconds: 500),
+                    ),
+              ),
+            ],
+          ),
+          SizedBox(height: ref.watch(deviceSizeY).h * 0.04),
+
+          InkWell(
+            onTap: () {
+              if (ref.read(isBackupClicked)) {
+                ref.invalidate(isBackupClicked);
+              } else {
+                ref.invalidate(isRestoreDataClicked);
+              }
+              passwordController.text = '';
+            },
+            child: Icon(Icons.close, color: ref.watch(foreGroundColor)),
+          ),
+          // Spacer(flex: 1),
+          SizedBox(height: ref.watch(deviceSizeY).h * 0.04),
+
+          Center(
+            child: Text(
+              "Note: Account creation is only for backup and RestoreAndReset purposes. It does not sync data across devices.",
+              style: TextStyle(
+                color: ref.watch(foreGroundColor),
+                fontSize: 12.sp.clamp(0, 14),
+                letterSpacing: -1,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
